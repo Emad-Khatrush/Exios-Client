@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "exios-client",
+    "exios-client-prod": "exios-client",
+    "c": "exios-client",
+    "ex": "exios-client",
+    "client": "exios-client",
+    "cl": "exios-client"
+  },
+  "targets": {},
+  "etags": {}
+}

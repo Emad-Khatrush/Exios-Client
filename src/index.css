@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  [type='text'],
+  [type='email'],
+  [type='url'],
+  [type='password'],
+  [type='number'],
+  [type='date'],
+  [type='datetime-local'],
+  [type='month'],
+  [type='search'],
+  [type='tel'],
+  [type='time'],
+  [type='week'],
+  [multiple],
+  textarea,
+  select {
+    @apply rounded-lg shadow-sm relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-black rounded-t-md focus:outline-none focus:ring-green-300 focus:border-green-300 focus:z-10 sm:text-sm;
+    direction: RTL;
+  }
+  select {
+    @apply px-8 py-3;
+  }
+
+  button {
+    @apply disabled:bg-slate-400 disabled:hover:bg-slate-400;
+  }
+}
+
+html, body, #root {
+  @apply text-left;
+  height: 100%;
+  width: 100%;
+  font-family: 'Cairo';
+}
