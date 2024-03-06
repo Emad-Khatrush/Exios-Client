@@ -17,10 +17,12 @@ type Props = {
   isLoading?: boolean
   textDirection?: 'rtl' | 'ltr'
   copyTextButton?: boolean
+  showShipmentMethod?: boolean
 }
 
 const InfoCard = (props: Props) => {
   const [hasCopiedText, setHasCopiedText] = useState(false);
+  const [method, setMethod] = useState('');
 
   const account = useSelector((state: any) => state.session.account);
 
@@ -41,24 +43,40 @@ const InfoCard = (props: Props) => {
         <img className="object-cover object-center w-full h-56" src={props.imgSrc} alt="avatar" />
 
         <div className="flex items-center justify-center px-6 py-3 bg-gray-900">
-            <h1 className="mx-3 text-lg font-semibold text-white">{props.header}</h1>
+          <h1 className="mx-3 text-lg font-semibold text-white">{props.header}</h1>
         </div>
 
         <div className="px-6 py-4">
           <h1 className="text-xl font-semibold text-gray-800 dark:text-white">{props.title}</h1>
 
-          {!!props.copyTextButton &&
-            <button
-              className="mt-6 group relative flex justify-center py-1 px-3 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              onClick={() => {
-                navigator.clipboard.writeText(props.description || '');
-                setHasCopiedText(true);
-              }}
-            >
-              انسخ العنوان
-            </button>
-          }
-          <p className={`py-2 text-gray-500 dark:text-gray-400 ${props.textDirection === 'ltr' ? 'text-start' : ''}`} dangerouslySetInnerHTML={{ __html: props.description || '' }} />
+          <div className="flex gap-2 items-center">
+            {!!props.copyTextButton &&
+              <button
+                className="group relative flex justify-center py-1 px-3 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                onClick={() => {
+                  navigator.clipboard.writeText(`${props.description} ${method}` || '');
+                  setHasCopiedText(true);
+                }}
+              >
+                انسخ العنوان
+              </button>
+            }
+
+            {props.showShipmentMethod &&
+              <select
+                required
+                name="city" 
+                id="city"
+                value={method}
+                onChange={(e: any) => setMethod(e.target.value)}
+              >
+                <option value="" disabled className='mr-96'>اختر طريقة الشحن</option>
+                <option key={'air'} value={'air'} className='mr-96'>شحن جوي</option>
+                <option key={'sea'} value={'sea'} className='mr-96'>شحن بحري</option>
+              </select>
+            }
+          </div>
+          {props.description && <p className={`py-2 text-gray-500 dark:text-gray-400 ${props.textDirection === 'ltr' ? 'text-start' : ''}`} dangerouslySetInnerHTML={{ __html: `${props.description} ${method}` || '' }} />}
 
           {props?.infoList && props.infoList.map((info: string, i: number) => (
             <div key={i} className="flex items-center mt-4 text-gray-700 dark:text-gray-200">

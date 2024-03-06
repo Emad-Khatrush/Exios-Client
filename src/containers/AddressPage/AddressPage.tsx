@@ -14,15 +14,16 @@ const AddressPage = () => {
           imgSrc={'https://storage.googleapis.com/alghad-media/2022/01/ce11f74d-%D8%B5%D9%88%D8%B1-%D8%B9%D9%84%D9%85-%D8%A7%D9%84%D8%B5%D9%8A%D9%86-%D8%B1%D9%85%D8%B2%D9%8A%D8%A7%D8%AA-%D9%88%D8%AE%D9%84%D9%81%D9%8A%D8%A7%D8%AA-%D8%A7%D9%84%D8%B9%D9%84%D9%85-%D8%A7%D9%84%D8%B5%D9%8A%D9%86%D9%8A-1.jpg'}
           description={
             `
-            Shipment to China </br>
-            空运和海运仓库地址：广东省佛山市南海区里水镇旗峰大道2号全顺祥物流基地17仓—2 联系仓库：19128651680 陈小林 19128650950 马强 Exios39 - ${account?.customerId}
-            `
+Exios Foshan Warehouse </br>
+广东省佛山市南海区里水镇科顺路6号 威微物流（Exios仓）(${account?.customerId})  周映 18711284724
+`
           }
           buttonLabel={'ابدا الشحن'}
           disableHoverEffect={true}
           buttonPath={'/start-shipment?shipmentFromWhere=china'}
           textDirection={'ltr'}
           copyTextButton={true}
+          showShipmentMethod={true}
         />
 
         <InfoCard 

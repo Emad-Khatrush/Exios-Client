@@ -68,8 +68,8 @@ const fromChina = (data: any, account: User, state: any) => {
             className="disabled:bg-slate-400 disabled:text-white-500 group my-1 relative py-2 px-4 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             onClick={() => {
               navigator.clipboard.writeText(`
-                Shipment to China
-                空运和海运仓库地址：广东省佛山市南海区里水镇旗峰大道2号全顺祥物流基地17仓—2 联系仓库：19128651680 陈小林 19128650950 马强 Exios39 - by ${data.shipmentMethod}(${account?.customerId}-${libyanCities.find(city => city.value === data.shipmentTo)?.code})
+Exios Foshan Warehouse
+广东省佛山市南海区里水镇科顺路6号 威微物流（Exios仓）${data.shipmentMethod}(${account?.customerId}-${libyanCities.find(city => city.value === data.shipmentTo)?.code})  周映 18711284724
               `);
               state.setHasCopiedText(true);
             }}
@@ -78,9 +78,9 @@ const fromChina = (data: any, account: User, state: any) => {
           </button>
 
           <p className="my-3 flex text-end">
-            Shipment to China
+            Exios Foshan Warehouse
             <br />
-            空运和海运仓库地址：广东省佛山市南海区里水镇旗峰大道2号全顺祥物流基地17仓—2 联系仓库：19128651680 陈小林 19128650950 马强 Exios39 - by {data.shipmentMethod}({account?.customerId}-{libyanCities.find(city => city.value === data.shipmentTo)?.code})
+            广东省佛山市南海区里水镇科顺路6号 威微物流（Exios仓）{data.shipmentMethod}({account?.customerId}-{libyanCities.find(city => city.value === data.shipmentTo)?.code})  周映 18711284724
           </p>
         </li>
 
@@ -131,7 +131,7 @@ const fromChina = (data: any, account: User, state: any) => {
 
           *في حالة عدم استطاعتك من تحميل العلامة ووضعها في صندوق، طلب منها كتابة هذه العبارة على الصندوق
           <br />
-          Exios39 - by {data.shipmentMethod}({account?.customerId}-{libyanCities.find(city => city.value === data.shipmentTo)?.code})
+          Exios - by {data.shipmentMethod}({account?.customerId}-{libyanCities.find(city => city.value === data.shipmentTo)?.code})
           
           <div className="flex w-fit cursor-pointer text-blue-500 gap-2 items-center my-2">
             <AiOutlineEye />
