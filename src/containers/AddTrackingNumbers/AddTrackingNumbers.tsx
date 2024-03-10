@@ -89,7 +89,7 @@ const AddTrackingNumbers = () => {
   }  
 
   return (
-    <div className="container mx-auto py-10 h-64 w-11/1 2 px-6">
+    <div className="container mx-auto py-10 h-64 xl:w-11/12 px-3">
       <Card>
         <form className="text-end" onSubmit={onSubmit}>
           <div className="mb-8 mt-4">

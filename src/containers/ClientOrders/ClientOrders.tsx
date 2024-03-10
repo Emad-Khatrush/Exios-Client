@@ -8,10 +8,12 @@ import OrderDetails from '../../components/OrderDetails/OrderDetails';
 import Tabs from '../../components/Tabs/Tabs';
 import TextInput from '../../components/TextInput/TextInput';
 import { OrderStatusType, Package } from '../../models';
+import AlertInfo from '../../components/AlertInfo/AlertInfo';
 
 const ClientOrders = () => {
   const [activeTab, setActiveTab] = useState<OrderStatusType>('active');
   const [quickSearchDelayTimer, setQuickSearchDelayTimer] = useState();
+  const [announcements, setAnnouncements] = useState([]);
   const [orders, setOrders] = useState<Package[]>([]);
   const [countList, setCountList] = useState({
     finishedOrders: 0,
@@ -69,6 +71,18 @@ const ClientOrders = () => {
     setIsLoading(false);
   }
 
+  const fetchAnnouncements = async () => {
+    try {
+      setIsLoading(true);
+      const announcements = (await api.getAnnouncements())?.data; 
+      setAnnouncements(announcements);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   const searchInputChange = (event: any) => {
     const value = event.target.value;
     try {
@@ -116,6 +130,7 @@ const ClientOrders = () => {
 
   useEffect(() => {
     getOrders();
+    fetchAnnouncements();
   }, [])
 
   const hasOrders = orders.length > 0;
@@ -150,6 +165,15 @@ const ClientOrders = () => {
 
   return (
     <div className="container mx-auto py-10 h-64 px-3">
+      {announcements && announcements.length > 0 && announcements.map((announcement: Announcement) => (
+        <div className="mb-5">
+          <AlertInfo 
+            tint="info"
+            description={announcement.description}
+          />
+        </div>
+      ))}
+      
       <div className='text-end'>
         <Link to="/add-tracking-numbers">
           <button

@@ -48,7 +48,7 @@ const PricesPage = () => {
   const invoiceCommission = Math.ceil(calculateCommission(totalInvoice)); 
   
   return (
-    <div className="container mx-auto py-10 h-64 w-11/12 px-6">
+    <div className="container mx-auto py-10 h-64 xl:w-11/12 px-3">
       <div className="lg:flex justify-end">
         <Card className="mb-10 lg:w-5/12">
           {isLoading ?
@@ -103,7 +103,7 @@ const PricesPage = () => {
             <BsArrowLeft className="ml-3 text-md lg:text-4xl" />
             <Badge 
               class="text-sm ml-5 lg:text-2xl"
-              text={'500 $'}
+              text={'1000 $'}
               color='primary' 
             />
             <p className="text-sm ml-3 lg:text-lg">الى</p>
@@ -127,7 +127,7 @@ const PricesPage = () => {
             <p className="text-sm ml-3 lg:text-lg">الى</p>
             <Badge 
               class="text-sm ml-3 lg:text-2xl"
-              text={'501 $'}
+              text={'1001 $'}
               color='primary' 
             />
             <p className="text-sm ml-3 lg:text-lg">من</p>
@@ -219,9 +219,9 @@ const calculatePercentage = (number: any, percentage: number) => {
 const calculateCommission = (totalInvoice: any) => {
   if (totalInvoice > 3000) {
     return calculatePercentage(totalInvoice, 3); // 3% commission 
-  } else if (totalInvoice >= 501 && totalInvoice <= 3000) {
+  } else if (totalInvoice >= 1001 && totalInvoice <= 3000) {
     return calculatePercentage(totalInvoice, 4); // 4% commission 
-  } else if (totalInvoice >= 201 && totalInvoice <= 500) {
+  } else if (totalInvoice >= 201 && totalInvoice <= 1000) {
     return calculatePercentage(totalInvoice, 5); // 5% commission 
   } else {
     return 10; // min commission 10$

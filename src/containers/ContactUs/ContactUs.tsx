@@ -6,7 +6,7 @@ type Props = {}
 const ContactUs = (props: Props) => {
 
   return (
-    <div className="container mx-auto py-10 h-64 w-11/12 px-6">
+    <div className="container mx-auto py-10 h-64 xl:w-11/12 px-3">
       <Card className="mb-10">
         <h1 className=" text-3xl text-end my-10 mt-5">تواصل معنا</h1>
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 place-items-center mb-8">

@@ -12,7 +12,7 @@ import { Accordion, AccordionDetails, AccordionSummary, Alert, AlertColor, Avata
 import Badge from "../../components/Badge/Badge";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../../api";
-import { Package, PackageDetails } from "../../models";
+import { Announcement, Package, PackageDetails } from "../../models";
 import moment from "moment-timezone";
 import { getStatusOfPackage } from "../../utils/methods";
 import AlertInfo from "../../components/AlertInfo/AlertInfo";
@@ -35,6 +35,7 @@ const OrderInfoPage = () => {
   const [orderRating, setOrderRating] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [showImages, setShowImages] = useState<any>(undefined);
+  const [announcements, setAnnouncements] = useState([]);
   const [alert, setAlert] = useState({
     tint: 'success',
     message: ''
@@ -97,7 +98,20 @@ const OrderInfoPage = () => {
 
   useEffect(() => {
     fetchOrder();
+    fetchAnnouncements();
   }, [])
+
+  const fetchAnnouncements = async () => {
+    try {
+      setIsLoading(true);
+      const announcements = (await api.getAnnouncements())?.data; 
+      setAnnouncements(announcements);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   const deleteUnsureOrder = async () => {
     try {
@@ -199,7 +213,16 @@ const OrderInfoPage = () => {
   const showRatingWidget = ((order.orderStatus === 4 || order.orderStatus === 5) || !!(packages.find((packageDetail: PackageDetails) => packageDetail.status.received))) && !orderRating;
 
   return (
-    <div className="container mx-auto py-10 h-64 w-11/12 px-6">
+    <div className="container mx-auto py-10 h-64 xl:w-11/12 px-3">
+      {announcements && announcements.length > 0 && announcements.map((announcement: Announcement) => (
+        <div className="mb-5">
+          <AlertInfo 
+            tint="info"
+            description={announcement.description}
+          />
+        </div>
+      ))}
+      
       {order.isCanceled &&
         <div className="mb-4">
           <AlertInfo

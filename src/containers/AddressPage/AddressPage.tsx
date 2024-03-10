@@ -5,7 +5,7 @@ const AddressPage = () => {
   const account = useSelector((state: any) => state.session.account);
 
   return (
-    <div className="container mx-auto py-10 h-64 w-11/12 px-6">
+    <div className="container mx-auto py-10 h-64 xl:w-11/12 px-3">
       <h2 className=" text-3xl text-center font-bold mb-16">عناوين الشحن</h2>
 
       <div className="grid gap-4 xl:grid-cols-3 lg:grid-cols-2 mb-5">

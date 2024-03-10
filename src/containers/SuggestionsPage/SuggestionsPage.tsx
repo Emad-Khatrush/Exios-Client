@@ -3,7 +3,7 @@ import Card from "../../components/Card/Card";
 const SuggestionsPage = () => {
   
   return (
-    <div className="container mx-auto py-10 h-100 px-6">
+    <div className="container mx-auto py-10 h-100 xl:w-11/12 px-3">
       <Card className='h-100 text-right'>
         <h1 className=" text-3xl mb-3">تقديم اقتراح</h1>
         <p className="mb-3">يمكنكم الدخول على رابط ادناه وتقديم اقتراحاتكم للتطوير من خدمات الشركة لكم</p>

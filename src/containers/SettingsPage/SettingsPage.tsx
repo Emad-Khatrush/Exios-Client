@@ -46,7 +46,7 @@ const SettingsPage = () => {
   }
   
   return (
-    <div className="container mx-auto py-10 h-64 w-11/12 px-6">
+    <div className="container mx-auto py-10 h-64 xl:w-11/12 px-3">
       <Card>
         <div className="mt-10 sm:mt-0 text-start" style={{ direction: 'rtl' }}>
           <div className="md:grid md:grid-cols-3 md:gap-6">

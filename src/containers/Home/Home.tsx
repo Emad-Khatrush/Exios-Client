@@ -49,7 +49,7 @@ const Home = () => {
   }
 
   return (
-    <div className="container mx-auto py-10 h-64 w-11/12 px-6">
+    <div className="container mx-auto py-10 h-64 xl:w-11/12 px-3">
       {announcements && announcements.length > 0 && announcements.map((announcement: Announcement) => (
         <div className="mb-5">
           <AlertInfo 

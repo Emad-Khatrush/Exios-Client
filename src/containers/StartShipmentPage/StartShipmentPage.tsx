@@ -60,7 +60,7 @@ const StartShipmentPage = () => {
   const steps = generateSteps();
 
   return (
-    <div className="container mx-auto py-10 h-64 w-11/12 px-6">
+    <div className="container mx-auto py-10 h-64 xl:w-11/12 px-3">
       <Card>
         <CustomStepper 
           acriveStep={activeStep}
