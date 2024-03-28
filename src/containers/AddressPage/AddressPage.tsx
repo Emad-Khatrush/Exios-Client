@@ -15,7 +15,7 @@ const AddressPage = () => {
           description={
             `
 Exios Foshan Warehouse </br>
-广东省佛山市南海区里水镇科顺路6号 威微物流（Exios仓）(${account?.customerId})  周映 18711284724
+广东省佛山市南海区里水镇科顺路6号 威微物流（Exios仓）(${account?.customerId})  周映 13873096321
 `
           }
           buttonLabel={'ابدا الشحن'}

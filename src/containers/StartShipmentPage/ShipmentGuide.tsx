@@ -69,7 +69,7 @@ const fromChina = (data: any, account: User, state: any) => {
             onClick={() => {
               navigator.clipboard.writeText(`
 Exios Foshan Warehouse
-广东省佛山市南海区里水镇科顺路6号 威微物流（Exios仓）${data.shipmentMethod}(${account?.customerId}-${libyanCities.find(city => city.value === data.shipmentTo)?.code})  周映 18711284724
+广东省佛山市南海区里水镇科顺路6号 威微物流（Exios仓）${data.shipmentMethod}(${account?.customerId}-${libyanCities.find(city => city.value === data.shipmentTo)?.code})  周映 13873096321
               `);
               state.setHasCopiedText(true);
             }}
@@ -80,7 +80,7 @@ Exios Foshan Warehouse
           <p className="my-3 flex text-end">
             Exios Foshan Warehouse
             <br />
-            广东省佛山市南海区里水镇科顺路6号 威微物流（Exios仓）{data.shipmentMethod}({account?.customerId}-{libyanCities.find(city => city.value === data.shipmentTo)?.code})  周映 18711284724
+            广东省佛山市南海区里水镇科顺路6号 威微物流（Exios仓）{data.shipmentMethod}({account?.customerId}-{libyanCities.find(city => city.value === data.shipmentTo)?.code})  周映 13873096321
           </p>
         </li>
 
