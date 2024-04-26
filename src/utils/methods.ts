@@ -64,7 +64,8 @@ export const getStatusOfPackage = (packageDetails: PackageDetails) => {
   if (status.arrived) {
     return {
       statusIndex: 1,
-      lastActivity: generateMessageOfDeliveredPackage(packageDetails)
+      // lastActivity: generateMessageOfDeliveredPackage(packageDetails)
+      lastActivity: 'وصلت البضائع الى مخزننا الخارجية، والان في طريقها الى ليبيا'
     }
   }
   return {
