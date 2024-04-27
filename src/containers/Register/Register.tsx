@@ -130,15 +130,27 @@ const Register = () => {
                   onChange={(e) => updateFormState(e.target.name, e.target.value)}
                   disabled={isLoading}
                 />
-                <input
-                  name="phone"
-                  type="number"
-                  required
-                  className="mb-3"
-                  placeholder="رقم الهاتف"
-                  onChange={(e) => updateFormState(e.target.name, e.target.value)}
-                  disabled={isLoading}
-                />
+
+                <div className="flex items-center mb-3">
+                  <button type='button' className="rounded-l-md flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600">
+                    <img src="https://static.xx.fbcdn.net/images/emoji.php/v9/t10/1/16/1f1f1_1f1fe.png" alt="" />
+                    <span className='ml-2'>+218</span>
+                  </button>
+                  <label htmlFor="phone-input" className="mb-2 text-sm font-medium sr-only dark:text-white">Phone number:</label>
+                  <div className="relative w-full">
+                    <input
+                      id="phone-input" 
+                      name='phone'
+                      placeholder="رقم الهاتف"
+                      type="number" 
+                      onWheel={(event: any) => event.target.blur()}
+                      className="text-left placeholder:text-right rounded-r-md rounded-l-none block p-2.5 w-full z-20 text-sm bg-gray-50 rounded-e-lg border-s-0 border border-gray-300  dark:bg-gray-700 dark:border-s-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" 
+                      required 
+                      onChange={(e) => updateFormState(e.target.name, e.target.value)}
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
                 <select
                   required
                   name="city" 

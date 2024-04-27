@@ -1,6 +1,6 @@
 import Card from '../../components/Card/Card'
 import image from '../../../public/images/exios-logo.png';
-import { FaLock } from 'react-icons/fa';
+import { FaExchangeAlt, FaLock } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -20,6 +20,7 @@ const Login = () => {
   
   const [errorMessage, setErrorMessage] = useState<{ type: 'info' | 'danger' | 'success' | 'warning', message: string } | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [loginType, setLoginType] = useState<{ type: string, label: string }>({ type: 'email', label: 'الدخول بواسطة رقم الهاتف ' });
   
   const history = useNavigate();
   const dispatch = useDispatch()
@@ -30,7 +31,7 @@ const Login = () => {
     setErrorMessage(null);
     setIsLoading(true);
     try {
-      const res = await api.login({ ...formData, username: username.toLocaleLowerCase().trim() }, 'client');
+      const res = await api.login({ ...formData, username: username.toLocaleLowerCase().trim(), loginMethod: loginType.type }, 'client');
       const data = res.data;      
       addAuthInterceptor(data.token);
       localStorage.setItem('authToken', data.token);
@@ -49,6 +50,59 @@ const Login = () => {
       })
     }
     setIsLoading(false);
+  }
+
+  const LoginInput = (loginType: any) => {
+    if (loginType.type === 'phone') {
+      return (
+        <div className="flex items-center">
+          <button type='button' className="rounded-l-md flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600">
+            <img src="https://static.xx.fbcdn.net/images/emoji.php/v9/t10/1/16/1f1f1_1f1fe.png" alt="" />
+            <span className='ml-2'>+218</span>
+          </button>
+          <label htmlFor="phone-input" className="mb-2 text-sm font-medium sr-only dark:text-white">Phone number:</label>
+          <div className="relative w-full">
+            <input
+              id="phone-input" 
+              name='username'
+              placeholder="رقم الهاتف المسجل" 
+              type="number" 
+              onWheel={(event: any) => event.target.blur()}
+              className=" text-left placeholder:text-right rounded-r-md rounded-l-none block p-2.5 w-full z-20 text-sm bg-gray-50 rounded-e-lg border-s-0 border border-gray-300  dark:bg-gray-700 dark:border-s-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500" 
+              required 
+              onChange={(e) => setFormData((prevState) => ({
+                ...prevState,
+                [e.target.name]: e.target.value
+              }))}
+            />
+          </div>
+        </div>
+      )
+    }
+  
+    return (
+      <div>
+        <label htmlFor="email-address" className="sr-only">
+          البريد الاكتروني"
+        </label>
+        <input
+          id="email-address"
+          name="username"
+          type="email"
+          required
+          className="mt-2"
+          placeholder="البريد الاكتروني"
+          onChange={(e) => {
+            setFormData((prevState) => ({
+              ...prevState,
+              [e.target.name]: e.target.value
+            }))
+          }}
+          disabled={isLoading}
+          defaultValue={formData.username}
+        />
+      </div>
+    )
   }
 
   return (
@@ -87,23 +141,13 @@ const Login = () => {
                     description={errorMessage.message}
                   />
                 }
-                <label htmlFor="email-address" className="sr-only">
-                  البريد الاكتروني"
-                </label>
-                <input
-                  id="email-address"
-                  name="username"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  className="mb-3 mt-2"
-                  placeholder="البريد الاكتروني"
-                  onChange={(e) => setFormData((prevState) => ({
-                    ...prevState,
-                    [e.target.name]: e.target.value
-                  }))}
-                  disabled={isLoading}
-                />
+
+                {LoginInput(loginType)}
+
+                <div className='flex items-center justify-end m-0 mb-3 mt-1 cursor-pointer' onClick={() => setLoginType({ type: loginType.type === 'email' ? 'phone' : 'email', label: loginType.type === 'phone' ? 'الدخول بواسطة رقم الهاتف' : 'الدخول بواسطة البريد الاكتروني'  })}>
+                  <FaExchangeAlt className='text-green-700 mr-2 ' />
+                  <p className='text-right text-sm text-green-700 font-bold'>{loginType.label}</p>
+                </div>
               </div>
               <div>
                 <label htmlFor="password" className="sr-only">

@@ -134,7 +134,7 @@ export default {
   updateAccount: (formData: User) => base.put(`account/update`, formData),
 
   // Auth Endpoints
-  login: (body: { username: string, password: string }, loginType: 'admin' | 'client') => base.post(`/login`, { ...body, loginType }),
+  login: (body: { username: string, password: string, loginMethod: string }, loginType: 'admin' | 'client') => base.post(`/login`, { ...body, loginType }),
 
   getPasswordToken: (body: { email: string }) => base.post(`get-token-password`, { ...body }),
 
