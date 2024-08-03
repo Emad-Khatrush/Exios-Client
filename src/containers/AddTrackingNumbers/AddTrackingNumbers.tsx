@@ -6,7 +6,8 @@ import Card from "../../components/Card/Card";
 const defualtValue = [
   {
     index: Math.round(Math.random() * 5000),
-    trackingNumber: ''
+    trackingNumber: '',
+    method: ''
   }
 ];
 
@@ -27,13 +28,22 @@ const AddTrackingNumbers = () => {
     setTrackingNumbers(newNumbers);
   }
 
+  const updateMethodFormState = (value: any, i: number) => {
+    const newNumbers = [
+      ...trackingNumbers
+    ]
+    newNumbers[i].method = value;
+    setTrackingNumbers(newNumbers);
+  }
+
   const addNewInput = () => {
     const newNumbers = [
       ...trackingNumbers
     ]
     newNumbers.push({
       index: Math.round(Math.random() * 5000),
-      trackingNumber: ''
+      trackingNumber: '',
+      method: ''
     });
     setTrackingNumbers(newNumbers);
   }
@@ -75,7 +85,8 @@ const AddTrackingNumbers = () => {
       setTrackingNumbers([
         {
           index: Math.round(Math.random() * 5000),
-          trackingNumber: ''
+          trackingNumber: '',
+          method: ''
         }
       ]);
     } catch (error) {
@@ -111,6 +122,21 @@ const AddTrackingNumbers = () => {
                       {trackingNumbers.length !== 1 &&
                         <button onClick={() => deleteInput(data.index)} className="inline-flex w-28 justify-center rounded-md border border-transparent bg-red-500 items-center text-sm font-bold text-white shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2">حذف الخانة</button>
                       }
+
+                      <select
+                        required
+                        name="method" 
+                        id="method"
+                        value={data.method}
+                        onChange={(e: any) => {
+                          updateMethodFormState(e.target.value, i);
+                        }}
+                      >
+                        <option value="" disabled className='mr-96'>اختر طريقة شحن هذه البضاعة</option>
+                        <option key={'air'} value={'air'} className='mr-96'>شحن جوي</option>
+                        <option key={'sea'} value={'sea'} className='mr-96'>شحن بحري</option>
+                      </select>
+
                       <input 
                         required
                         onChange={({ target }) => updateFormState(target.value, i)} 

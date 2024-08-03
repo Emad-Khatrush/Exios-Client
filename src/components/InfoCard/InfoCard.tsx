@@ -1,6 +1,5 @@
 import { Alert, Box, CircularProgress, Snackbar } from "@mui/material"
 import { useState } from "react"
-import { useSelector } from "react-redux"
 import { Link } from "react-router-dom"
 
 type Props = {
@@ -22,9 +21,8 @@ type Props = {
 
 const InfoCard = (props: Props) => {
   const [hasCopiedText, setHasCopiedText] = useState(false);
+  const [error, setError] = useState('');
   const [method, setMethod] = useState('');
-
-  const account = useSelector((state: any) => state.session.account);
 
   if (props.isLoading) {
     return (
@@ -48,12 +46,19 @@ const InfoCard = (props: Props) => {
 
         <div className="px-6 py-4">
           <h1 className="text-xl font-semibold text-gray-800 dark:text-white">{props.title}</h1>
-
+          {error &&
+            <p className="text-red-600 mb-5">{error}</p>
+          }
           <div className="flex gap-2 items-center">
             {!!props.copyTextButton &&
               <button
                 className="group relative flex justify-center py-1 px-3 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 onClick={() => {
+                  setError('');
+                  if (props.header === 'عنوان الصين' && !method) {
+                    setError("يرجى اختيار طريقة الشحن بحري او جوي لنسخ العنوان");
+                    return;
+                  }
                   navigator.clipboard.writeText(`${props.description} ${method}` || '');
                   setHasCopiedText(true);
                 }}
