@@ -251,7 +251,7 @@ const fromUAE = (data: any, account: User, state: any) => {
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description" className='text-end'>
-            <img src="https://storage.googleapis.com/exios-bucket/uae-address.png" alt="" />
+            <img src="https://storage.googleapis.com/exios-bucket/lTWvolTk9vnew-uae-address-02.png" alt="" />
           </DialogContentText>
         </DialogContent>
         <DialogActions>
