@@ -69,7 +69,7 @@ const fromChina = (data: any, account: User, state: any) => {
             onClick={() => {
               navigator.clipboard.writeText(`
 Exios Foshan Warehouse
-广东省佛山市南海区里水镇科顺路6号 威微物流（Exios仓）${data.shipmentMethod}(${account?.customerId}-${libyanCities.find(city => city.value === data.shipmentTo)?.code})  周映 13873096321
+广东省佛山市南海区里水镇科顺路6号 威微物流（Exios仓）${data.shipmentMethod}(${account?.customerId}-${libyanCities.find(city => city.value === data.shipmentTo)?.code})  邓为军 13873096321
               `);
               state.setHasCopiedText(true);
             }}
@@ -80,7 +80,7 @@ Exios Foshan Warehouse
           <p className="my-3 flex text-end">
             Exios Foshan Warehouse
             <br />
-            广东省佛山市南海区里水镇科顺路6号 威微物流（Exios仓）{data.shipmentMethod}({account?.customerId}-{libyanCities.find(city => city.value === data.shipmentTo)?.code})  周映 13873096321
+            广东省佛山市南海区里水镇科顺路6号 威微物流（Exios仓）{data.shipmentMethod}({account?.customerId}-{libyanCities.find(city => city.value === data.shipmentTo)?.code})  邓为军 13873096321
           </p>
         </li>
 
@@ -192,11 +192,11 @@ const fromUAE = (data: any, account: User, state: any) => {
           className="disabled:bg-slate-400 disabled:text-white-500 group my-1 relative py-2 px-4 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
           onClick={() => {
             navigator.clipboard.writeText(`
-            Name: Exios
-            Last Name: Company
-            phone: +971505967929
-            Address: Al ghazal building Office room no : 301 (3rd floor) 
-            Opposite Arabic chair Al buteen Deira,Dubai Sq336
+            Name: Exios </br>
+            Last Name: Company </br>
+            phone: +971505967929 </br>
+            Address: SHED NO.2 RAS AL KHOR
+            INDUSTRIAL AREA 2 DUBAI Sq336
             ${data.shipmentMethod}(${account?.customerId})-${libyanCities.find(city => city.value === data.shipmentTo)?.code}
             `);
             state.setHasCopiedText(true);
@@ -224,9 +224,8 @@ const fromUAE = (data: any, account: User, state: any) => {
           <br />
           phone: +971505967929
           <br />
-          Address: Al ghazal building Office room no : 301 (3rd floor) 
-          <br />
-          Opposite Arabic chair Al buteen Deira,Dubai Sq336
+          Address: SHED NO.2 RAS AL KHOR
+          INDUSTRIAL AREA 2 DUBAI Sq336 Exios39
           <br />
           {data.shipmentMethod}({account?.customerId})-{libyanCities.find(city => city.value === data.shipmentTo)?.code}
         </p>

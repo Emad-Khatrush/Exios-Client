@@ -15,7 +15,7 @@ const AddressPage = () => {
           description={
             `
 Exios Foshan Warehouse </br>
-广东省佛山市南海区里水镇科顺路6号 威微物流（Exios仓）(${account?.customerId})  周映 13873096321
+广东省佛山市南海区里水镇科顺路6号 威微物流（Exios仓）(${account?.customerId})  邓为军 13873096321
 `
           }
           buttonLabel={'ابدا الشحن'}
@@ -34,10 +34,8 @@ Exios Foshan Warehouse </br>
             Name: Exios </br>
             Last Name: Company </br>
             phone: +971505967929 </br>
-            Address: Al ghazal building 
-            Office room no : 301 (3rd floor)
-            Opposite Arabic chair
-            Al buteen Deira,Dubai Sq336 Exios39 - ${account?.customerId}
+            Address: SHED NO.2 RAS AL KHOR
+            INDUSTRIAL AREA 2 DUBAI Sq336 Exios39 - ${account?.customerId}
             `
           }
           buttonLabel={'ابدا الشحن'}

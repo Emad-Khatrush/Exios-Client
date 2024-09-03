@@ -83,7 +83,7 @@ export const exiosWorkingCountries = [
     code: 'CN'
   },
   {
-    label: 'الاماارات',
+    label: 'الامارات',
     value: 'uae',
     code: 'UAE'
   },
