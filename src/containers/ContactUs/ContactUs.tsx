@@ -1,9 +1,7 @@
 import Card from "../../components/Card/Card";
 import { HiOfficeBuilding } from 'react-icons/hi';
 
-type Props = {}
-
-const ContactUs = (props: Props) => {
+const ContactUs = () => {
 
   return (
     <div className="container mx-auto py-10 h-64 xl:w-11/12 px-3">

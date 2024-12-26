@@ -133,14 +133,32 @@ const PricesPage = () => {
             <p className="text-sm ml-3 lg:text-lg">من</p>
           </div>
 
-          <div className="flex justify-end items-center">
+          <div className="flex justify-end items-center mb-4">
             <p className="text-sm lg:text-lg">من قيمة الفاتورة</p>
             <p className="text-sm lg:text-lg ml-1">3%</p>
             <BsArrowLeft className="ml-3 text-md lg:text-4xl" />
-            <p className="text-sm lg:text-lg ml-8">فما فوق</p>
+            <Badge
+              class="text-sm lg:text-2xl ml-3"
+              text={'7000 $'}
+              color='primary' 
+            />
+            <p className="text-sm lg:text-lg ml-3">الى</p>
             <Badge
               class="text-sm lg:text-2xl ml-3"
               text={'3001 $'}
+              color='primary' 
+            />
+            <p className="text-sm lg:text-lg ml-3">من</p>
+          </div>
+
+          <div className="flex justify-end items-center">
+            <p className="text-sm lg:text-lg">من قيمة الفاتورة</p>
+            <p className="text-sm lg:text-lg ml-1">1.5%</p>
+            <BsArrowLeft className="ml-3 text-md lg:text-4xl" />
+            <p className="text-sm lg:text-lg ml-3">فما فوق</p>
+            <Badge
+              class="text-sm lg:text-2xl ml-3"
+              text={'7001 $'}
               color='primary' 
             />
             <p className="text-sm lg:text-lg ml-3">من</p>
@@ -217,7 +235,9 @@ const calculatePercentage = (number: any, percentage: number) => {
 }
 
 const calculateCommission = (totalInvoice: any) => {
-  if (totalInvoice > 3000) {
+  if (totalInvoice > 7000) {
+    return calculatePercentage(totalInvoice, 1.5); // 1.5% commission 
+  } else if (totalInvoice >= 3001 && totalInvoice <= 7000) {
     return calculatePercentage(totalInvoice, 3); // 3% commission 
   } else if (totalInvoice >= 1001 && totalInvoice <= 3000) {
     return calculatePercentage(totalInvoice, 4); // 4% commission 

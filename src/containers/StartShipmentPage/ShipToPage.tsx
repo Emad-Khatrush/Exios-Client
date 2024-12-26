@@ -13,7 +13,7 @@ const ShipToPage = (props: Props) => {
           imgSrc={'https://storage.googleapis.com/exios-bucket/air-shipping.jpg'}
           header={'شحن الجوي'}
           description={'شحن جوي هو الشحن الاسرع لكي توصلك بضائعك بسرعة'}
-          infoList={['مدة الوصول 15 الى 20 يوم', 'سرعة في انجاز', 'مناسب للبضائع الخفيفة']}
+          infoList={['مدة الوصول 7 الى 10 يوم', 'سرعة في انجاز', 'مناسب للبضائع الخفيفة']}
           onCardClick={props.onCardClick}
           value={'air'}
         />

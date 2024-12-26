@@ -67,7 +67,7 @@ const ResetPasswordPage = () => {
       await api.getPasswordToken({ email });
       setAlertMessage({
         type: 'success',
-        message: 'تم ارسال رابط تغيير كلمة المرور على بريدك الاكتروني'
+        message: 'تم ارسال رابط تغيير كلمة المرور على بريدك الاكتروني، ملاحظة في حالة اذا لم تصلك الرسالة يرجى التحقق من رسالة في قسم Spam او Junk في بريدك الاكتروني'
       });
     } catch (error: any) {
       return setAlertMessage({

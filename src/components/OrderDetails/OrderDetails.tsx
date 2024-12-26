@@ -20,7 +20,7 @@ type Props = {
 }
 
 const airShipmentImage = 'https://st2.depositphotos.com/1154952/9707/i/600/depositphotos_97075074-stock-photo-ship-loading-container-in-import.jpg';
-const seaShipmentImage = 'https://globitexworld.com/wp-content/uploads/2020/08/ocean_freight_feat.jpg';
+const seaShipmentImage = 'https://storage.googleapis.com/exios-bucket/sea-shipping.jpg';
 
 
 const OrderDetails = (props: Props) => {
