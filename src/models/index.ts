@@ -42,7 +42,7 @@ export type Package = {
   shipment: {
     fromWhere: string,
     toWhere: string,
-    method: 'air' | 'sea',
+    method: 'air' | 'sea' | 'unknown',
     estimatedDelivery: Date,
     exiosShipmentPrice: number,
     originShipmentPrice: number,
@@ -98,7 +98,7 @@ export type PackageDetails = {
       total: number, 
       measureUnit: string
     }
-    shipmentMethod: 'air' | 'sea'
+    shipmentMethod: 'air' | 'sea' | 'unknown'
   }
   link: string
   note: string

@@ -7,10 +7,12 @@ import { OrderStatusType, Package, PackageDetails } from "../../models";
 import moment from "moment-timezone";
 import Badge from "../Badge/Badge";
 import { getOrderStatusLabels } from "../../utils/methods";
+import AlertInfo from "../AlertInfo/AlertInfo";
 
 const shipmentMethodsLabels = {
   air: 'جوي',
-  sea: 'بحري'
+  sea: 'بحري',
+  unknown: 'غير معروف'
 }
 
 type Props = {
@@ -21,19 +23,32 @@ type Props = {
 
 const airShipmentImage = 'https://st2.depositphotos.com/1154952/9707/i/600/depositphotos_97075074-stock-photo-ship-loading-container-in-import.jpg';
 const seaShipmentImage = 'https://storage.googleapis.com/exios-bucket/sea-shipping.jpg';
-
+const unkwownShipmentImage = 'https://storage.googleapis.com/exios-bucket/OdBHRDGTyA5978100.png';
 
 const OrderDetails = (props: Props) => {
   const { order, index } = props;
 
   const statusLabel = getOrderStatusLabels(order);
+  let shippingMethodImage = unkwownShipmentImage;
+  if (order.shipment.method === 'air') {
+    shippingMethodImage = airShipmentImage;
+  } else if (order.shipment.method === 'sea') {
+    shippingMethodImage = seaShipmentImage;
+  }
 
   return (
     <div className="mt-8">
       <Card leaned className="shadow-xl rounded-2xl p-0">
+        {order.shipment.method === 'unknown' &&
+          <AlertInfo 
+            tint="warning"
+            description={`طريقة الشحن غير معروفة، يرجى التواصل مع خدمة العملاء واعلامهم بطريقة الشحن جوي ام بحري.`}
+          />
+        }
+
         <div className="flex p-4">
           <div className="w-20 h-20">
-            <img className=" w-20 h-20 rounded-xl" src={order.shipment.method === 'air' ? airShipmentImage : seaShipmentImage} alt="" />
+            <img className=" w-20 h-20 rounded-xl" src={shippingMethodImage} alt="" />
             <p className="text-center text-gray-500 mt-1">#{index + 1}</p>
           </div>
           <div className="w-full ml-3 text-sm md:text-base">

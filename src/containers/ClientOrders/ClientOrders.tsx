@@ -7,7 +7,7 @@ import Card from '../../components/Card/Card';
 import OrderDetails from '../../components/OrderDetails/OrderDetails';
 import Tabs from '../../components/Tabs/Tabs';
 import TextInput from '../../components/TextInput/TextInput';
-import { OrderStatusType, Package } from '../../models';
+import { Announcement, OrderStatusType, Package } from '../../models';
 import AlertInfo from '../../components/AlertInfo/AlertInfo';
 
 const ClientOrders = () => {

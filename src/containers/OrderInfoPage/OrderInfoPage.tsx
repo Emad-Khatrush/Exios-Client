@@ -26,7 +26,8 @@ const currencyLabels: any = {
 
 const shipmentMethodsLabels = {
   air: 'جوي',
-  sea: 'بحري'
+  sea: 'بحري',
+  unknown: 'غير معروف'
 }
 
 const OrderInfoPage = () => {
@@ -232,6 +233,15 @@ const OrderInfoPage = () => {
         </div>
       }
 
+      {order.shipment.method === 'unknown' &&
+        <div className="mb-4">
+          <AlertInfo
+            tint="warning"
+            description={`طريقة الشحن غير معروفة، يرجى التواصل مع خدمة العملاء واعلامهم بطريقة الشحن جوي ام بحري.`}
+          />
+        </div>
+      }
+
       {order.unsureOrder &&
         <Card
           className="rounded-2xl mb-5 text-end"
@@ -323,6 +333,14 @@ const OrderInfoPage = () => {
                   leaned
                   className="mb-5"
                 >
+                  {packageDetails.deliveredPackages.shipmentMethod === 'unknown' &&
+                    <div className="mb-4">
+                      <AlertInfo
+                        tint="warning"
+                        description={`طريقة الشحن غير معروفة، يرجى التواصل مع خدمة العملاء واعلامهم بطريقة الشحن جوي ام بحري.`}
+                      />
+                    </div>
+                  }
                   <Accordion defaultExpanded={statusIndex !== 3}>
                     <AccordionSummary
                       expandIcon={<MdExpandMore />}
