@@ -1,4 +1,3 @@
-import Logo from '../Logo/Logo'
 import image from '../../../public/images/exios-logo.png';
 import { routes } from '../PrivateRoute/routes';
 import { Link } from 'react-router-dom';
@@ -20,7 +19,7 @@ const Sidebar = (props: Props) => {
         <h5 className="font-bold text-white w-fit text-3xl rounded-lg p-1 bg-slate-400">{account.customerId}</h5>
       </div>
       <ul aria-orientation="vertical" className="py-1">
-        {routes.map(route => (
+        {routes.map((route: any) => (
           <li key={route.value} className="mr-4 pl-6 cursor-pointer text-gray-600 text-sm leading-3 tracking-normal mt-4 mb-4 py-2 hover:text-green-700 focus:green-indigo-700 focus:outline-none">
             <div className="flex items-center text-xl justify-end">
               <Link to={route.path} className="ml-2 mr-3">{route.label}</Link>

@@ -32,11 +32,11 @@ const ShipmentPricesText = () => {
 
   shippingPrices?.forEach(price => {
     if (price.country === 'china' && price.shippingType === 'air') {
-      chinaAirPrice = price.sellingPrice;
+      chinaAirPrice = price.priceDescription;
     } else if (price.country === 'china' && price.shippingType === 'sea') {
-      chinaseaPrice = price.sellingPrice;
+      chinaseaPrice = price.priceDescription;
     } else if (price.country === 'uae') {
-      uaeAirPrice = price.sellingPrice;
+      uaeAirPrice = price.priceDescription;
     } else if (price.country === 'usa') {
       usaAirPrice = price.sellingPrice;
     } else if (price.country === 'uk') {
@@ -49,9 +49,19 @@ const ShipmentPricesText = () => {
   return (
     <div className="grid gap-4 xl:grid-cols-2 lg:grid-cols-2 mb-5 place-items-center">
       <InfoCard 
-        header="اسعار الشحن من الصين"
+        header="اسعار الشحن الجوي من الصين"
         imgSrc={'https://storage.googleapis.com/alghad-media/2022/01/ce11f74d-%D8%B5%D9%88%D8%B1-%D8%B9%D9%84%D9%85-%D8%A7%D9%84%D8%B5%D9%8A%D9%86-%D8%B1%D9%85%D8%B2%D9%8A%D8%A7%D8%AA-%D9%88%D8%AE%D9%84%D9%81%D9%8A%D8%A7%D8%AA-%D8%A7%D9%84%D8%B9%D9%84%D9%85-%D8%A7%D9%84%D8%B5%D9%8A%D9%86%D9%8A-1.jpg'}
-        infoList={[`شحن الجوي ${chinaAirPrice} دولار للكيلو الواحد`, 'المده من 7-10 ايام من تاريخ وصوله الى مخزن الصين الى ليبيا', `الشحن البحري ${chinaseaPrice}$ للمتر المكعب (CBM)`, 'المده من 50-65 يوم من تاريخ وصوله الى مخزن الصين الى ليبيا']}
+        description={chinaAirPrice}
+        buttonLabel={'ابدا الشحن'}
+        disableHoverEffect={true}
+        buttonPath={'/start-shipment?shipmentFromWhere=china'}
+        isLoading={isLoading}
+      />
+
+      <InfoCard 
+        header="اسعار الشحن البحري من الصين"
+        imgSrc={'https://storage.googleapis.com/alghad-media/2022/01/ce11f74d-%D8%B5%D9%88%D8%B1-%D8%B9%D9%84%D9%85-%D8%A7%D9%84%D8%B5%D9%8A%D9%86-%D8%B1%D9%85%D8%B2%D9%8A%D8%A7%D8%AA-%D9%88%D8%AE%D9%84%D9%81%D9%8A%D8%A7%D8%AA-%D8%A7%D9%84%D8%B9%D9%84%D9%85-%D8%A7%D9%84%D8%B5%D9%8A%D9%86%D9%8A-1.jpg'}
+        description={chinaseaPrice}
         buttonLabel={'ابدا الشحن'}
         disableHoverEffect={true}
         buttonPath={'/start-shipment?shipmentFromWhere=china'}
@@ -61,8 +71,9 @@ const ShipmentPricesText = () => {
       <InfoCard 
         header="اسعار الشحن من الامارات"
         imgSrc={'https://miro.medium.com/v2/resize:fit:920/1*y14JDmQG9_uLp6gabN8s5Q.jpeg'}
-        infoList={[`شحن الجوي ${uaeAirPrice} دولار للكيلو الواحد`, 'المده من 7-5 يوم من تاريخ وصوله الى مخزن الامارات الى ليبيا', 'ملاحظة: البضائع التي ترسل خارج الامارات مثل موقع علي اكسبرس او المواقع الخليجية يكون عليها ضريبة جمركية عند دخولها الى دولة الامارات لهذا العميل مسؤول على هذه المصاريف ويتم دفعها للشركة عند وصول البضائع الي ليبيا.']}
+        // infoList={[`شحن الجوي ${uaeAirPrice} دولار للكيلو الواحد`, 'المده من 7-5 يوم من تاريخ وصوله الى مخزن الامارات الى ليبيا', 'ملاحظة: البضائع التي ترسل خارج الامارات مثل موقع علي اكسبرس او المواقع الخليجية يكون عليها ضريبة جمركية عند دخولها الى دولة الامارات لهذا العميل مسؤول على هذه المصاريف ويتم دفعها للشركة عند وصول البضائع الي ليبيا.']}
         buttonLabel={'ابدا الشحن'}
+        description={uaeAirPrice}
         disableHoverEffect={true}
         buttonPath={'/start-shipment?shipmentFromWhere=uae'}
         isLoading={isLoading}

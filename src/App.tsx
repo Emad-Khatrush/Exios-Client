@@ -19,6 +19,7 @@ import SuggestionsPage from './containers/SuggestionsPage/SuggestionsPage';
 
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import Announcements from './containers/Announcements/Announcements';
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_ANALYTICS_KEY,
@@ -54,6 +55,7 @@ const App = () => {
             <Route path='/add-tracking-numbers' element={<AddTrackingNumbers />} />
             <Route path='/address' element={<AddressPage />} />
             <Route path='/prices' element={<PricesPage />} />
+            <Route path='/announcements' element={<Announcements />} />
             <Route path='/settings' element={<SettingsPage />} />
             <Route path='/contact-us' element={<ContactUs />} />
             <Route path='/terms-privacy' element={<TermsAndPrivacy />} />

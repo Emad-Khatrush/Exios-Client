@@ -20,7 +20,8 @@ const ClientOrders = () => {
     readyForReceivement: 0,
     warehouseArrived: 0,
     activeOrders: 0,
-    unsureOrders: 0
+    unsureOrders: 0,
+    invoiceOrders: 0
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -35,9 +36,11 @@ const ClientOrders = () => {
         isPayment: 1,
         isShipment: 1,
         productName: 1,
+        totalInvoice: 1,
         'shipment.method': 1,
         'shipment.fromWhere': 1,
-        'shipment.toWhere': 1
+        'shipment.toWhere': 1,
+        'paymentList.deliveredPackages.trackingNumber': 1
       });
       const orders = response.data.results.orders;
       setOrders(orders);
@@ -57,9 +60,11 @@ const ClientOrders = () => {
         isPayment: 1,
         isShipment: 1,
         productName: 1,
+        totalInvoice: 1,
         'shipment.method': 1,
         'shipment.fromWhere': 1,
-        'shipment.toWhere': 1
+        'shipment.toWhere': 1,
+        'paymentList.deliveredPackages.trackingNumber': 1
       });
       const orders = response.data.results.orders;
       const list = response.data.results.countList;
@@ -95,9 +100,11 @@ const ClientOrders = () => {
           isPayment: 1,
           isShipment: 1,
           productName: 1,
+          totalInvoice: 1,
           'shipment.method': 1,
           'shipment.fromWhere': 1,
-          'shipment.toWhere': 1
+          'shipment.toWhere': 1,
+          'paymentList.deliveredPackages.trackingNumber': 1
         });
       } else {
         promise = api.getOrdersBySearch(value, {
@@ -107,9 +114,11 @@ const ClientOrders = () => {
           isPayment: 1,
           isShipment: 1,
           productName: 1,
+          totalInvoice: 1,
           'shipment.method': 1,
           'shipment.fromWhere': 1,
-          'shipment.toWhere': 1
+          'shipment.toWhere': 1,
+          'paymentList.deliveredPackages.trackingNumber': 1
         });
       }
       clearTimeout(quickSearchDelayTimer);
@@ -155,6 +164,11 @@ const ClientOrders = () => {
       label: 'تم التسليم',
       value: 'finished',
       count: countList.finishedOrders
+    },
+    {
+      label: 'فواتير الشراء',
+      value: 'invoiceOrders',
+      count: countList.invoiceOrders || 0
     },
     {
       label: 'ارقام التتبع',

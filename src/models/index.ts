@@ -124,6 +124,7 @@ export type ShippingPrice = {
   sellingPrice: number
   country: 'china' | 'uae' | 'turkey' | 'usa' | 'uk'
   currency: 'USD'
+  priceDescription: string
   createdAt: string
   updatedAt: string
   _id: string

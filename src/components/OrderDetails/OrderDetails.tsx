@@ -3,7 +3,7 @@ import { ImLocation2 } from 'react-icons/im';
 import { FaFlag } from "react-icons/fa";
 import { AiFillEye } from "react-icons/ai";
 import { Link } from "react-router-dom";
-import { OrderStatusType, Package, PackageDetails } from "../../models";
+import { OrderStatusType, Package } from "../../models";
 import moment from "moment-timezone";
 import Badge from "../Badge/Badge";
 import { getOrderStatusLabels } from "../../utils/methods";
@@ -24,17 +24,23 @@ type Props = {
 const airShipmentImage = 'https://st2.depositphotos.com/1154952/9707/i/600/depositphotos_97075074-stock-photo-ship-loading-container-in-import.jpg';
 const seaShipmentImage = 'https://storage.googleapis.com/exios-bucket/sea-shipping.jpg';
 const unkwownShipmentImage = 'https://storage.googleapis.com/exios-bucket/OdBHRDGTyA5978100.png';
+const invoiceImage = 'https://storage.googleapis.com/exios-bucket/JtZ36d8gdpimages.png';
 
 const OrderDetails = (props: Props) => {
   const { order, index } = props;
 
   const statusLabel = getOrderStatusLabels(order);
+  const invoiceOrder = order.isPayment && !order.isShipment;
+
   let shippingMethodImage = unkwownShipmentImage;
-  if (order.shipment.method === 'air') {
+  if (invoiceOrder) {
+    shippingMethodImage = invoiceImage;
+  } else if (order.shipment.method === 'air') {
     shippingMethodImage = airShipmentImage;
   } else if (order.shipment.method === 'sea') {
     shippingMethodImage = seaShipmentImage;
   }
+  const hasTrackingNumber = order.paymentList.find((pkg) => !!pkg.deliveredPackages.trackingNumber)
 
   return (
     <div className="mt-8">
@@ -56,14 +62,23 @@ const OrderDetails = (props: Props) => {
               <p className=" text-gray-400">{order.orderId}</p>
               <h5 className=" font-bold text-zinc-800">:رقم الطلبية</h5>
             </div>
-            <div className="flex justify-between mb-2">
-              <p className=" text-gray-400">{order.productName}</p>
-              <h5 className=" font-bold text-zinc-800">:نوع البضائع</h5>
-            </div>
-            <div className="flex justify-between mb-2">
-              <p className=" text-gray-400">{shipmentMethodsLabels[order.shipment.method]}</p>
-              <h5 className=" font-bold text-zinc-800">:طريقة الشحن</h5>
-            </div>
+            {invoiceOrder ? 
+                <div className="flex justify-between mb-2">
+                  <p className=" text-gray-400">{order.totalInvoice} $</p>
+                  <h5 className=" font-bold text-zinc-800">:اجمالي الفاتورة</h5>
+                </div>
+              :
+                <>
+                  <div className="flex justify-between mb-2">
+                    <p className=" text-gray-400">{order.productName}</p>
+                    <h5 className=" font-bold text-zinc-800">:نوع البضائع</h5>
+                  </div>
+                  <div className="flex justify-between mb-2">
+                    <p className=" text-gray-400">{shipmentMethodsLabels[order.shipment.method]}</p>
+                    <h5 className=" font-bold text-zinc-800">:طريقة الشحن</h5>
+                  </div>
+                </>
+            }
             <div className="flex justify-between mb-2">
               <p className=" text-gray-400">{moment(new Date(order.createdAt)).format('DD/MM/YYYY')}</p>
               <h5 className=" font-bold text-zinc-800">:تاريخ الانشاء</h5>
@@ -72,16 +87,17 @@ const OrderDetails = (props: Props) => {
               <p className=" text-gray-400"> <Badge color="success" text={statusLabel} /> </p>
               <h5 className=" font-bold text-zinc-800">:الحالة</h5>
             </div>
-            {props.activeTab === 'unsure' &&
-              <div className="flex justify-between mb-2">
-                <div>
-                  {order.paymentList?.length > 0 && order.paymentList.map((packageDetails: PackageDetails) => (
-                    <>
-                      {packageDetails.deliveredPackages.trackingNumber && <p className=" text-gray-400 my-2"> <Badge color="warning" text={packageDetails.deliveredPackages.trackingNumber} /> </p>}
-                    </>
+
+            {hasTrackingNumber &&
+              <div className="mb-2">
+                <h5 className="font-bold text-zinc-800 mb-2 text-end">:ارقام التتبعات</h5>
+                <div className="flex flex-wrap gap-2">
+                  {order.paymentList.map((pkg, index) => (
+                    <p key={index} className="text-gray-400">
+                      <Badge color="warning" text={pkg.deliveredPackages.trackingNumber} />
+                    </p>
                   ))}
                 </div>
-                <h5 className=" font-bold text-zinc-800">:ارقام التتبع</h5>
               </div>
             }
           </div>

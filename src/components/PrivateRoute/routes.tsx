@@ -1,6 +1,6 @@
 import { RiDashboardLine } from 'react-icons/ri';
 import { BsBox } from 'react-icons/bs';
-import { MdAttachMoney, MdContactSupport, MdLocalShipping } from 'react-icons/md';
+import { MdAttachMoney, MdContactSupport, MdLocalShipping, MdOutlineAnnouncement } from 'react-icons/md';
 import { ImLocation2 } from 'react-icons/im';
 import { TbDeviceMobileMessage } from 'react-icons/tb';
 
@@ -34,6 +34,12 @@ export const routes = [
     value: 'prices',
     icon: <MdAttachMoney />,
     path: '/prices'
+  },
+  {
+    label: 'الإعلانات',
+    value: 'announcements',
+    icon: <MdOutlineAnnouncement />,
+    path: '/announcements'
   },
   ,
   {

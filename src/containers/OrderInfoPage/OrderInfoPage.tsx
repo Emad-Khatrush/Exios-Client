@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { DataGrid } from "@mui/x-data-grid";
 import { FaShippingFast, FaWarehouse } from "react-icons/fa";
 import { GrStakeholder } from "react-icons/gr";
 import { MdExpandMore } from "react-icons/md";
@@ -7,7 +6,6 @@ import Card from "../../components/Card/Card";
 import CustomStepper from "../../components/CustomStepper/CustomStepper";
 import ImageViewer from "../../components/ImageViewer/ImageViewer";
 import InfoDetailsCard from "../../components/InfoDetailsCard/InfoDetailsCard";
-import { defaultColumns, generateDataToListType } from "./generateData";
 import { Accordion, AccordionDetails, AccordionSummary, Alert, AlertColor, Avatar, AvatarGroup, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Snackbar, Typography } from "@mui/material";
 import Badge from "../../components/Badge/Badge";
 import { useNavigate, useParams } from "react-router-dom";
@@ -18,11 +16,12 @@ import { getStatusOfPackage } from "../../utils/methods";
 import AlertInfo from "../../components/AlertInfo/AlertInfo";
 import SwipeableTextMobileStepper from "../../components/SwipeableTextMobileStepper/SwipeableTextMobileStepper";
 import OrderRatingWidget from "../../components/OrderRatingWidget/OrderRatingWidget";
+import InvoiceTrackingWidget from "./InvoiceTrackingWidget";
 
-const currencyLabels: any = {
-  USD: '$',
-  LYD: 'دينار'
-}
+// const currencyLabels: any = {
+//   USD: '$',
+//   LYD: 'دينار'
+// }
 
 const shipmentMethodsLabels = {
   air: 'جوي',
@@ -73,6 +72,8 @@ const OrderInfoPage = () => {
       'paymentList.deliveredPackages.arrivedAt': 1,
       'paymentList.deliveredPackages.trackingNumber': 1,
       'paymentList.deliveredPackages.shipmentMethod': 1,
+      'paymentList.deliveredPackages.weight': 1,
+      'paymentList.deliveredPackages.exiosPrice': 1,
     });
     setOrder(order.data);
 
@@ -143,8 +144,8 @@ const OrderInfoPage = () => {
   }
   
   const steps = generateSteps(order);
-  const columns = [...defaultColumns()];
-  const list = generateDataToListType(order.activity).reverse();
+  // const columns = [...defaultColumns()];
+  // const list = generateDataToListType(order.activity).reverse();
 
   const customerInfo = [
     {
@@ -197,11 +198,11 @@ const OrderInfoPage = () => {
       label: 'قيمة الفاتورة',
       value: `${order?.totalInvoice} $`
     },
-    {
-      label: 'الدين المتبقي',
-      value: order?.debt?.total > 0 ? `${order?.debt?.total} ${currencyLabels[order?.debt?.currency]}` : 'لا يوجد',
-      tint: 'danger'
-    }
+    // {
+    //   label: 'الدين المتبقي',
+    //   value: order?.debt?.total > 0 ? `${order?.debt?.total} ${currencyLabels[order?.debt?.currency]}` : 'لا يوجد',
+    //   tint: 'danger'
+    // }
   ]
 
   const relatedImages: any = []; 
@@ -210,8 +211,61 @@ const OrderInfoPage = () => {
   })
 
   const packages = order.paymentList;
-  
   const showRatingWidget = ((order.orderStatus === 4 || order.orderStatus === 5) || !!(packages.find((packageDetail: PackageDetails) => packageDetail.status.received))) && !orderRating;
+  
+  // Invoice
+  if (order.isPayment && !order.isShipment) {
+    return (
+      <div className="container mx-auto py-10 h-64 xl:w-11/12 px-3">
+        {announcements && announcements.length > 0 && announcements.map((announcement: Announcement) => (
+          <div className="mb-5">
+            <AlertInfo 
+              tint="info"
+              description={announcement.description}
+            />
+          </div>
+        ))}
+
+        {order.isCanceled &&
+          <div className="mb-4">
+            <AlertInfo
+              tint="danger"
+              description={'هذه طلبية قد تم الغاءها من قبل ادارة الشركة، اذا تظن ان حدث خطا يرجى تواصل مع اقرب مندوب للشركة'}
+            />
+          </div>
+        }
+
+        {order.unsureOrder &&
+          <Card
+            className="rounded-2xl mb-5 text-end"
+          >
+            <p>
+              بعد ادخالك ارقام التتبع تقوم الشركة بالتتبع هذه ارقام وعندى وصوله الى مخزننا سيتم تحديث الطلبية الى الحالة النشطه
+            </p>
+            <p>
+              اذا لم ترسل بضائع الى مخزننا، او انشأت طلب تتبع الطلبية بالخطأ، يمكنك حذف الطلب عبر زر الحذف ادناه 
+            </p>
+            <button
+              className="disabled:bg-slate-400 disabled:text-white-500 group my-1 relative py-2 px-4 mt-2 border border-transparent w-52 md:w-fit text-xs md:text-sm font-bold rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              onClick={deleteUnsureOrder}
+              disabled={isLoading}
+            >
+              حذف هذه الطلبية
+            </button>
+          </Card>
+        }
+
+        {showRatingWidget &&
+          <OrderRatingWidget />
+        }
+
+        <InvoiceTrackingWidget 
+          announcements={announcements}
+          order={order}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto py-10 h-64 xl:w-11/12 px-3">
@@ -303,7 +357,36 @@ const OrderInfoPage = () => {
         </div>
 
         <div className="col-span-1 xl:col-span-2 md:col-span-2">
-          <Card
+          {/* Activity Timeline */}
+          {order?.activity?.length > 0 && (
+            <Card className="rounded-2xl shadow-md bg-white p-6 text-right">
+              <h2 className="text-xl font-bold mb-6 border-b pb-2">سجل النشاطات</h2>
+
+              <div className="relative border-r-2 border-gray-200 pr-6 space-y-6">
+                {order.activity
+                  .slice() // copy array
+                  .reverse() // show latest first
+                  .map((item, index) => (
+                  <div key={index} className="relative flex items-start">
+                    {/* Circle marker */}
+                    <div className="absolute -right-3 top-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs shadow">
+                      {index + 1}
+                    </div>
+
+                    <div className="flex-1 pr-4">
+                      <p className="text-sm text-gray-600">
+                        <span className="font-semibold">{item.country}</span> - {item.description}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        {moment(item.createdAt).format('DD/MM/YYYY HH:mm')}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+          {/* <Card
             className="rounded-2xl mb-5"
           >
             <h2 className='text-right text-2xl font-medium mb-7 mt-2'>الانشطة العامة</h2>
@@ -317,7 +400,7 @@ const OrderInfoPage = () => {
                 disableSelectionOnClick
               />
             </div>
-          </Card>
+          </Card> */}
         </div>
 
         {packages.length > 0 &&
@@ -328,6 +411,7 @@ const OrderInfoPage = () => {
               const { statusIndex, lastActivity } = getStatusOfPackage(packageDetails);
               const step = linkSteps[statusIndex];
               const trackingNumber = packageDetails.deliveredPackages.trackingNumber;
+
               return (
                 <Card
                   leaned
@@ -374,6 +458,23 @@ const OrderInfoPage = () => {
                         <div className="flex items-center justify-end mb-8">
                           <p>{shipmentMethodsLabels[packageDetails.deliveredPackages.shipmentMethod]}</p>
                           <h3 className=" font-bold ml-5">:طريقة الشحن</h3>
+                        </div>
+                      }
+
+                      {packageDetails.deliveredPackages?.weight?.total > 0 &&
+                       packageDetails.deliveredPackages?.weight?.measureUnit && (
+                        <div className="flex items-center justify-end mb-8">
+                          <p>
+                            {`${packageDetails.deliveredPackages.weight.total} ${packageDetails.deliveredPackages.weight.measureUnit}`}
+                          </p>
+                          <h3 className="font-bold ml-5">:الوزن/الحجم</h3>
+                        </div>
+                      )}
+
+                      {packageDetails.deliveredPackages?.exiosPrice &&
+                        <div className="flex items-center justify-end mb-8">
+                          <p>{`${packageDetails.deliveredPackages.exiosPrice} $`}</p>
+                          <h3 className=" font-bold ml-5">:KG/CBM سعر</h3>
                         </div>
                       }
 
