@@ -1,7 +1,7 @@
 import { Package, PackageDetails } from "../models";
 
-export function convertGoogleStorageUrl(url: string) {
-  const oldBase = "https://storage.cloud.google.com";
+export function convertGoogleStorageUrl(url: any) {
+  const oldBase = "https://storage.googleapis.com";
   const newBase = "https://storage.cloud.google.com";
 
   if (url.startsWith(oldBase)) {
