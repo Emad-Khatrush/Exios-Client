@@ -5,6 +5,7 @@ import MobileStepper from '@mui/material/MobileStepper';
 import Paper from '@mui/material/Paper';
 import Button from '@mui/material/Button';
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from 'react-icons/ai';
+import { convertGoogleStorageUrl } from '../../utils/methods';
 
 export const SwipeableTextMobileStepper = (props: any) => {
   const theme = useTheme();
@@ -38,7 +39,7 @@ export const SwipeableTextMobileStepper = (props: any) => {
       >
       </Paper>
       <Box sx={{ height: '100%', maxWidth: '100%', width: '100%', p: 2 }}>
-       <img src={props.data[activeStep].path} width={'100%'} height={'100%'} alt="" />
+       <img src={convertGoogleStorageUrl(props.data[activeStep].path)} width={'100%'} height={'100%'} alt="" />
       </Box>
       
       <MobileStepper

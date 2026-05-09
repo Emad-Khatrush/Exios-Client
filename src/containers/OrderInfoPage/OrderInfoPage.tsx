@@ -12,7 +12,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import api from "../../api";
 import { Announcement, Package, PackageDetails } from "../../models";
 import moment from "moment-timezone";
-import { getStatusOfPackage } from "../../utils/methods";
+import { convertGoogleStorageUrl, getStatusOfPackage } from "../../utils/methods";
 import AlertInfo from "../../components/AlertInfo/AlertInfo";
 import SwipeableTextMobileStepper from "../../components/SwipeableTextMobileStepper/SwipeableTextMobileStepper";
 import OrderRatingWidget from "../../components/OrderRatingWidget/OrderRatingWidget";
@@ -207,7 +207,7 @@ const OrderInfoPage = () => {
 
   const relatedImages: any = []; 
   order.images.forEach(img => {
-    relatedImages.push(img.path);
+    relatedImages.push(convertGoogleStorageUrl(img.path));
   })
 
   const packages = order.paymentList;
@@ -482,7 +482,7 @@ const OrderInfoPage = () => {
                         <div className="flex items-center justify-end mb-8">
                           <AvatarGroup sx={{ cursor: 'pointer' }} onClick={() => setShowImages(packageDetails.images)} max={4}>
                             {(packageDetails.images || []).map(image => (
-                              <Avatar alt={image.filename} src={image.path} />
+                              <Avatar alt={image.filename} src={convertGoogleStorageUrl(image.path)} />
                             ))}
                           </AvatarGroup>
                           <h3 className=" font-bold ml-5">:صور البضائع</h3>

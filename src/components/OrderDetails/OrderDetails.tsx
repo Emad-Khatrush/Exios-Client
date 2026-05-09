@@ -22,9 +22,9 @@ type Props = {
 }
 
 const airShipmentImage = 'https://st2.depositphotos.com/1154952/9707/i/600/depositphotos_97075074-stock-photo-ship-loading-container-in-import.jpg';
-const seaShipmentImage = 'https://storage.googleapis.com/exios-bucket/sea-shipping.jpg';
-const unkwownShipmentImage = 'https://storage.googleapis.com/exios-bucket/OdBHRDGTyA5978100.png';
-const invoiceImage = 'https://storage.googleapis.com/exios-bucket/JtZ36d8gdpimages.png';
+const seaShipmentImage = 'https://storage.cloud.google.com/exios-bucket/sea-shipping.jpg';
+const unkwownShipmentImage = 'https://storage.cloud.google.com/exios-bucket/OdBHRDGTyA5978100.png';
+const invoiceImage = 'https://storage.cloud.google.com/exios-bucket/JtZ36d8gdpimages.png';
 
 const OrderDetails = (props: Props) => {
   const { order, index } = props;

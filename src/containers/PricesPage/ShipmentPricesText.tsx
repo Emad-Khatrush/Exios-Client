@@ -50,7 +50,7 @@ const ShipmentPricesText = () => {
     <div className="grid gap-4 xl:grid-cols-2 lg:grid-cols-2 mb-5 place-items-center">
       <InfoCard 
         header="اسعار الشحن الجوي من الصين"
-        imgSrc={'https://storage.googleapis.com/alghad-media/2022/01/ce11f74d-%D8%B5%D9%88%D8%B1-%D8%B9%D9%84%D9%85-%D8%A7%D9%84%D8%B5%D9%8A%D9%86-%D8%B1%D9%85%D8%B2%D9%8A%D8%A7%D8%AA-%D9%88%D8%AE%D9%84%D9%81%D9%8A%D8%A7%D8%AA-%D8%A7%D9%84%D8%B9%D9%84%D9%85-%D8%A7%D9%84%D8%B5%D9%8A%D9%86%D9%8A-1.jpg'}
+        imgSrc={'https://storage.cloud.google.com/alghad-media/2022/01/ce11f74d-%D8%B5%D9%88%D8%B1-%D8%B9%D9%84%D9%85-%D8%A7%D9%84%D8%B5%D9%8A%D9%86-%D8%B1%D9%85%D8%B2%D9%8A%D8%A7%D8%AA-%D9%88%D8%AE%D9%84%D9%81%D9%8A%D8%A7%D8%AA-%D8%A7%D9%84%D8%B9%D9%84%D9%85-%D8%A7%D9%84%D8%B5%D9%8A%D9%86%D9%8A-1.jpg'}
         description={chinaAirPrice}
         buttonLabel={'ابدا الشحن'}
         disableHoverEffect={true}
@@ -60,7 +60,7 @@ const ShipmentPricesText = () => {
 
       <InfoCard 
         header="اسعار الشحن البحري من الصين"
-        imgSrc={'https://storage.googleapis.com/alghad-media/2022/01/ce11f74d-%D8%B5%D9%88%D8%B1-%D8%B9%D9%84%D9%85-%D8%A7%D9%84%D8%B5%D9%8A%D9%86-%D8%B1%D9%85%D8%B2%D9%8A%D8%A7%D8%AA-%D9%88%D8%AE%D9%84%D9%81%D9%8A%D8%A7%D8%AA-%D8%A7%D9%84%D8%B9%D9%84%D9%85-%D8%A7%D9%84%D8%B5%D9%8A%D9%86%D9%8A-1.jpg'}
+        imgSrc={'https://storage.cloud.google.com/alghad-media/2022/01/ce11f74d-%D8%B5%D9%88%D8%B1-%D8%B9%D9%84%D9%85-%D8%A7%D9%84%D8%B5%D9%8A%D9%86-%D8%B1%D9%85%D8%B2%D9%8A%D8%A7%D8%AA-%D9%88%D8%AE%D9%84%D9%81%D9%8A%D8%A7%D8%AA-%D8%A7%D9%84%D8%B9%D9%84%D9%85-%D8%A7%D9%84%D8%B5%D9%8A%D9%86%D9%8A-1.jpg'}
         description={chinaseaPrice}
         buttonLabel={'ابدا الشحن'}
         disableHoverEffect={true}
@@ -91,7 +91,7 @@ const ShipmentPricesText = () => {
 
       <InfoCard 
         header="اسعار الشحن من بريطانيا"
-        imgSrc={'https://storage.googleapis.com/alghad-media/2021/05/image-3.jpg'}
+        imgSrc={'https://storage.cloud.google.com/alghad-media/2021/05/image-3.jpg'}
         infoList={[`شحن الجوي ${ukAirPrice} دولار للكيلو الواحد`, 'المده من 18-32 يوم من تاريخ وصوله الى مخزن بريطانيا الى ليبيا']}
         buttonLabel={'ابدا الشحن'}
         disableHoverEffect={true}

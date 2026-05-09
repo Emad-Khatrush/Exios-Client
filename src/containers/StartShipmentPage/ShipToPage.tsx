@@ -10,7 +10,7 @@ const ShipToPage = (props: Props) => {
       <h2 className=" text-center text-3xl mb-10 font-semibold">اختار طريقة الشحن</h2>
       <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 mb-10 place-items-center">
         <InfoCard 
-          imgSrc={'https://storage.googleapis.com/exios-bucket/air-shipping.jpg'}
+          imgSrc={'https://storage.cloud.google.com/exios-bucket/air-shipping.jpg'}
           header={'شحن الجوي'}
           description={'شحن جوي هو الشحن الاسرع لكي توصلك بضائعك بسرعة'}
           infoList={['مدة الوصول 7 الى 10 يوم', 'سرعة في انجاز', 'مناسب للبضائع الخفيفة']}
@@ -19,7 +19,7 @@ const ShipToPage = (props: Props) => {
         />
 
         <InfoCard 
-          imgSrc={'https://storage.googleapis.com/exios-bucket/sea-shipping.jpg'}
+          imgSrc={'https://storage.cloud.google.com/exios-bucket/sea-shipping.jpg'}
           header={'شحن بحري'}
           description={'شحن بحري هو الشحن الافضل اذا بضائعك ثقيلة'}
           infoList={['مدة الوصول 45 الى 60 يوم', 'سرعة في انجاز', 'مناسب للبضائع ثقيلة']}

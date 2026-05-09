@@ -1,5 +1,16 @@
 import { Package, PackageDetails } from "../models";
 
+export function convertGoogleStorageUrl(url: string) {
+  const oldBase = "https://storage.cloud.google.com";
+  const newBase = "https://storage.cloud.google.com";
+
+  if (url.startsWith(oldBase)) {
+    return url.replace(oldBase, newBase);
+  }
+
+  return url;
+}
+
 export const getOrderStatusLabels = (order: Package) => {
   const orderStatusIndex = order.orderStatus;
   let orderStatusText = 'تحت التجهيز';

@@ -108,7 +108,7 @@ Exios Foshan Warehouse
             <p 
               className="text-lg"
               onClick={() => {
-                state.setDialogContent(<img src="https://storage.googleapis.com/exios-bucket/code-example.jpg" />);
+                state.setDialogContent(<img src="https://storage.cloud.google.com/exios-bucket/code-example.jpg" />);
                 state.setShowDialog(true);
               }} 
               >
@@ -138,7 +138,7 @@ Exios Foshan Warehouse
             <p 
               className="text-lg"
               onClick={() => {
-                state.setDialogContent(<img src={`https://storage.googleapis.com/exios-bucket/shipping-mark-${data.shipmentMethod}.jpg`} />);
+                state.setDialogContent(<img src={`https://storage.cloud.google.com/exios-bucket/shipping-mark-${data.shipmentMethod}.jpg`} />);
                 state.setShowDialog(true);
               }} 
               >
@@ -251,7 +251,7 @@ const fromUAE = (data: any, account: User, state: any) => {
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description" className='text-end'>
-            <img src="https://storage.googleapis.com/exios-bucket/lTWvolTk9vnew-uae-address-02.png" alt="" />
+            <img src="https://storage.cloud.google.com/exios-bucket/lTWvolTk9vnew-uae-address-02.png" alt="" />
           </DialogContentText>
         </DialogContent>
         <DialogActions>

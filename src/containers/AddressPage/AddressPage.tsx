@@ -11,7 +11,7 @@ const AddressPage = () => {
       <div className="grid gap-4 xl:grid-cols-3 lg:grid-cols-2 mb-5">
         <InfoCard 
           header="عنوان الصين"
-          imgSrc={'https://storage.googleapis.com/alghad-media/2022/01/ce11f74d-%D8%B5%D9%88%D8%B1-%D8%B9%D9%84%D9%85-%D8%A7%D9%84%D8%B5%D9%8A%D9%86-%D8%B1%D9%85%D8%B2%D9%8A%D8%A7%D8%AA-%D9%88%D8%AE%D9%84%D9%81%D9%8A%D8%A7%D8%AA-%D8%A7%D9%84%D8%B9%D9%84%D9%85-%D8%A7%D9%84%D8%B5%D9%8A%D9%86%D9%8A-1.jpg'}
+          imgSrc={'https://storage.cloud.google.com/alghad-media/2022/01/ce11f74d-%D8%B5%D9%88%D8%B1-%D8%B9%D9%84%D9%85-%D8%A7%D9%84%D8%B5%D9%8A%D9%86-%D8%B1%D9%85%D8%B2%D9%8A%D8%A7%D8%AA-%D9%88%D8%AE%D9%84%D9%81%D9%8A%D8%A7%D8%AA-%D8%A7%D9%84%D8%B9%D9%84%D9%85-%D8%A7%D9%84%D8%B5%D9%8A%D9%86%D9%8A-1.jpg'}
           description={
             `
 Exios Foshan Warehouse </br>
@@ -75,7 +75,7 @@ Exios Foshan Warehouse </br>
 
         <InfoCard 
           header="عنوان بريطانيا"
-          imgSrc={'https://storage.googleapis.com/alghad-media/2021/05/image-3.jpg'}
+          imgSrc={'https://storage.cloud.google.com/alghad-media/2021/05/image-3.jpg'}
           description={
             `
             غير متاح الشحن فقط من بريطانيا </br>

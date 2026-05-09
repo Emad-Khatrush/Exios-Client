@@ -97,7 +97,7 @@ const Home = () => {
 
         <div className="col-span-12 2xl:col-span-4 xl:col-span-4">
           <Card>
-            <div className="relative h-full overflow-hidden bg-cover rounded-xl" style={{ backgroundImage: `url('https://storage.googleapis.com/exios-bucket/customer-shipping.jpg')` }}>
+            <div className="relative h-full overflow-hidden bg-cover rounded-xl" style={{ backgroundImage: `url('https://storage.cloud.google.com/exios-bucket/customer-shipping.jpg')` }}>
               <span className="absolute top-0 left-0 w-full h-full bg-center bg-cover bg-gradient-to-tl from-gray-900 to-slate-800 opacity-80"></span>
               <div className="relative z-10 flex flex-col flex-auto h-full p-4 text-end">
                 <h5 className="pt-2 mb-2 font-bold text-white text-end">كود الشحن الخاص بك هو</h5>
