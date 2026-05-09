@@ -533,7 +533,7 @@ const OrderInfoPage = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button>تراجع تراجع</Button>
+          <Button>تراجع</Button>
         </DialogActions>
       </Dialog>
     </div>
