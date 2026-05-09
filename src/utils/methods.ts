@@ -1,6 +1,6 @@
 import { Package, PackageDetails } from "../models";
 
-export function convertGoogleStorageUrl(url: any) {
+export function convertGoogleStorageUrl(url: string) {
   const oldBase = "https://storage.googleapis.com";
   const newBase = "https://storage.cloud.google.com";
 
