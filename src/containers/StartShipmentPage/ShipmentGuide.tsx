@@ -9,6 +9,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { BiPhoneCall } from "react-icons/bi";
 import ExiosLogo from '../../../public/images/exios-logo.png';
+import download from 'downloadjs';
 
 type Props = {
   data: {
@@ -68,8 +69,15 @@ const fromChina = (data: any, account: User, state: any) => {
             className="disabled:bg-slate-400 disabled:text-white-500 group my-1 relative py-2 px-4 border border-transparent text-base font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             onClick={() => {
               navigator.clipboard.writeText(`
-Exios Foshan Warehouse
-广东省佛山市南海区里水镇科顺路6号 威微物流（Exios仓）${data.shipmentMethod}(${account?.customerId}-${libyanCities.find(city => city.value === data.shipmentTo)?.code})  邓为军 13873096321
+(Exios仓）${data.shipmentMethod}(${account?.customerId}-${libyanCities.find(city => city.value === data.shipmentTo)?.code}) 广东省佛山市南区里水镇洲村工业区一横路15号之三A </br>
+联系人/Contact person: </br>
+杨生:19700263771 </br>
+备注(请认真阅读):（导航搜索：明都LOFT青年社区） </br>
+</br>
+送货时间:周一至周六早上9点至下午6点，周日休息，(送货之前一定要提前电话联系)
+空运货外箱需要套编织袋并注明“空运/BYAIR”及客户唛头，海运货(重货需套编织袋)并标注“海运/BYSEA”及客户唛头，仓库不提供卸货。
+所有货物品牌货不收(如果不如实告知目送至此仓库地址，本公司不承担任何责任后果需供货商自负)，货物如带电需贴电池防火标，随货需装箱单一份(并且需
+要发电子版给公司)。
               `);
               state.setHasCopiedText(true);
             }}
@@ -78,9 +86,15 @@ Exios Foshan Warehouse
           </button>
 
           <p className="my-3 flex text-end">
-            Exios Foshan Warehouse
+            (Exios仓) {data.shipmentMethod}({account?.customerId}-{libyanCities.find(city => city.value === data.shipmentTo)?.code}) 广东省佛山市南区里水镇洲村工业区一横路15号之三A <br />
+            联系人/Contact person: <br />
+            杨生:19700263771 <br />
+            备注(请认真阅读):（导航搜索：明都LOFT青年社区）<br />
             <br />
-            广东省佛山市南海区里水镇科顺路6号 威微物流（Exios仓）{data.shipmentMethod}({account?.customerId}-{libyanCities.find(city => city.value === data.shipmentTo)?.code})  邓为军 13873096321
+            送货时间:周一至周六早上9点至下午6点，周日休息，(送货之前一定要提前电话联系)
+            空运货外箱需要套编织袋并注明“空运/BYAIR”及客户唛头，海运货(重货需套编织袋)并标注“海运/BYSEA”及客户唛头，仓库不提供卸货。
+            所有货物品牌货不收(如果不如实告知目送至此仓库地址，本公司不承担任何责任后果需供货商自负)，货物如带电需贴电池防火标，随货需装箱单一份(并且需
+            要发电子版给公司)。
           </p>
         </li>
 
@@ -93,7 +107,7 @@ Exios Foshan Warehouse
               const node = document.getElementById('shippingMark');
               htmlToImage.toJpeg(node as any)
                 .then(async function (dataUrl) {
-                  await require("downloadjs")(dataUrl, 'shipping Label.jpeg');
+                  await download(dataUrl, 'shipping Label.jpeg');
                 })
                 .catch(function (error) {
                   console.error('oops, something went wrong!', error);

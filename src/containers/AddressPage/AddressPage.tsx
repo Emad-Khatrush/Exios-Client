@@ -14,8 +14,15 @@ const AddressPage = () => {
           imgSrc={'https://storage.cloud.google.com/alghad-media/2022/01/ce11f74d-%D8%B5%D9%88%D8%B1-%D8%B9%D9%84%D9%85-%D8%A7%D9%84%D8%B5%D9%8A%D9%86-%D8%B1%D9%85%D8%B2%D9%8A%D8%A7%D8%AA-%D9%88%D8%AE%D9%84%D9%81%D9%8A%D8%A7%D8%AA-%D8%A7%D9%84%D8%B9%D9%84%D9%85-%D8%A7%D9%84%D8%B5%D9%8A%D9%86%D9%8A-1.jpg'}
           description={
             `
-Exios Foshan Warehouse </br>
-广东省佛山市南海区里水镇科顺路6号 威微物流（Exios仓）(${account?.customerId})  邓为军 13873096321
+(Exios仓）(${account?.customerId}) 广东省佛山市南区里水镇洲村工业区一横路15号之三A </br>
+联系人/Contact person: </br>
+杨生:19700263771 </br>
+备注(请认真阅读):（导航搜索：明都LOFT青年社区） </br>
+</br>
+送货时间:周一至周六早上9点至下午6点，周日休息，(送货之前一定要提前电话联系)
+空运货外箱需要套编织袋并注明“空运/BYAIR”及客户唛头，海运货(重货需套编织袋)并标注“海运/BYSEA”及客户唛头，仓库不提供卸货。
+所有货物品牌货不收(如果不如实告知目送至此仓库地址，本公司不承担任何责任后果需供货商自负)，货物如带电需贴电池防火标，随货需装箱单一份(并且需
+要发电子版给公司)。
 `
           }
           buttonLabel={'ابدا الشحن'}

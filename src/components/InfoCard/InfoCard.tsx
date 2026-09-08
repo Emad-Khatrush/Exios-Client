@@ -59,7 +59,7 @@ const InfoCard = (props: Props) => {
                     setError("يرجى اختيار طريقة الشحن بحري او جوي لنسخ العنوان");
                     return;
                   }
-                  navigator.clipboard.writeText(`${props.description} ${method}` || '');
+                  navigator.clipboard.writeText(`${method} ${props.description}` || '');
                   setHasCopiedText(true);
                 }}
               >
@@ -81,7 +81,7 @@ const InfoCard = (props: Props) => {
               </select>
             }
           </div>
-          {props.description && <p className={`py-2 text-gray-500 dark:text-gray-400 ${props.textDirection === 'ltr' ? 'text-start' : ''}`} dangerouslySetInnerHTML={{ __html: `${props.description} ${method}` || '' }} />}
+          {props.description && <p className={`py-2 text-gray-500 dark:text-gray-400 ${props.textDirection === 'ltr' ? 'text-start' : ''}`} dangerouslySetInnerHTML={{ __html: `${method} ${props.description}` || '' }} />}
 
           {props?.infoList && props.infoList.map((info: string, i: number) => (
             <div key={i} className="flex items-center mt-4 text-gray-700 dark:text-gray-200">

@@ -21,6 +21,10 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import Announcements from './containers/Announcements/Announcements';
 
+declare const process: {
+  env: Record<string, string | undefined>;
+};
+
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_ANALYTICS_KEY,
   authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
