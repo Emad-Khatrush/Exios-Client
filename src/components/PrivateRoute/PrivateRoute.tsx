@@ -1,26 +1,35 @@
 import { useLayoutEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Navigate, Outlet } from 'react-router-dom';
 import api from '../../api';
+import { setAccountData } from '../../actions/session';
 import { addAuthInterceptor } from '../../utils/AuthInterceptor';
 import Navbar from '../Navbar/Navbar';
 import ResponsiveSidebar from '../Sidebar/ResponsiveSidebar';
 import Sidebar from '../Sidebar/Sidebar';
+import PassportVerificationGate from '../PassportVerificationGate/PassportVerificationGate';
 
 const PrivateRoute = () => {
   const [show, setShow] = useState(false);
   const [token, setToken] = useState(localStorage.getItem('authToken'));
   const session = useSelector((state: any) => state.session);
+  const dispatch = useDispatch();
 
   if (!session.isLoggedIn) {
     return <Navigate to="/login" />;
   }
-  
+
   useLayoutEffect(() => {
     if (token) {
       api.verifyToken(token)
       .then(() => {
         setToken(token);
+        // Refresh the account from the server on every load/refresh so status
+        // changes made by an admin (e.g. passport rejection) show up without
+        // requiring the user to log out and back in.
+        api.getMyAccount()
+          .then((res: any) => setAccountData(res.data, session, dispatch))
+          .catch(() => {});
       })
       .catch(() => {
         localStorage.removeItem('user');
@@ -28,6 +37,7 @@ const PrivateRoute = () => {
         window.location.replace('/login');
       })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   
   if (!token) {
@@ -40,6 +50,7 @@ const PrivateRoute = () => {
 
   return (
     <div className="w-full h-full bg-gray-200">
+      <PassportVerificationGate />
       <div className="w-full h-full flex flex-no-wrap flex-row-reverse">
         <Sidebar account={session.account} />
         <ResponsiveSidebar 

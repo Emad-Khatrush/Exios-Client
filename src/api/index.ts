@@ -114,6 +114,20 @@ export class ApiError {
 
 export const base = new APIBase(endpoint);
 
+// fetchFormData returns the raw Response (unlike the axios-based `send`), so multipart
+// callers parse the body themselves and normalize errors into the shape `error.data.message`
+// that the rest of the app already reads (see ApiError / apiErrorsTypes usage).
+const sendMultipart = async (url: string, method: string, body: FormData): Promise<{ data: any }> => {
+  const response = await base.fetchFormData(url, method, body);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const error: any = new Error(data?.message || 'request-failed');
+    error.data = data;
+    throw error;
+  }
+  return { data };
+}
+
 // eslint-disable-next-line import/no-anonymous-default-export
 export default {
   // region common
@@ -129,9 +143,17 @@ export default {
 
   // App Endpoints
 
-  createClientAccount: (formData: User) => base.post(`account/create`, formData),
+  createClientAccount: (formData: FormData) => sendMultipart(`account/create`, 'POST', formData),
 
   updateAccount: (formData: User) => base.put(`account/update`, formData),
+
+  getMyAccount: () => base.get(`account/me`),
+
+  uploadPassport: (file: File) => {
+    const body = new FormData();
+    body.append('passportImage', file);
+    return sendMultipart(`account/passport/upload`, 'POST', body);
+  },
 
   // Auth Endpoints
   login: (body: { username: string, password: string, loginMethod: string }, loginType: 'admin' | 'client') => base.post(`/login`, { ...body, loginType }),

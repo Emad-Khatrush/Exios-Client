@@ -26,3 +26,19 @@ export const updateUser = async (user: User, session: any, dispatch: any) => {
     })
   }
 }
+
+// For endpoints that return the updated user document directly (not via updateAccount),
+// e.g. re-uploading a rejected passport image.
+export const setAccountData = (account: User, session: any, dispatch: any) => {
+  dispatch({
+    type: UPDATE_USER,
+    status: STATUS_SUCCESS,
+    payload: {
+      account
+    }
+  });
+  localStorage.setItem('user', JSON.stringify({
+    ...session,
+    account
+  }));
+}

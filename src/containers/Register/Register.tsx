@@ -22,15 +22,20 @@ const Register = () => {
   const [openTermsModal, setOpenTermsModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState<{ type: 'info' | 'danger' | 'success' | 'warning', message: string } | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [passportFile, setPassportFile] = useState<File | null>(null);
 
   const history = useNavigate();
   const dispatch = useDispatch()
-  
+
   const updateFormState = (name: string, value: any) => {
     setFormData((prevState: any) => ({
       ...prevState,
       [name]: value
     }))
+  }
+
+  const handlePassportChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPassportFile(event.target.files?.[0] || null);
   }
 
   const createAccount = async () => {
@@ -40,10 +45,21 @@ const Register = () => {
         message: 'كلمة المرور لا تطابق كلمة مرور المكرره، الرجاء اعادة كتابته'
       });
     }
+    if (!passportFile) {
+      return setErrorMessage({
+        type: 'warning',
+        message: 'يرجى تحميل صورة جواز السفر لاكمال التسجيل'
+      });
+    }
     setErrorMessage(null);
     setIsLoading(true);
     try {
-      await api.createClientAccount(formData);
+      const multipartData = new FormData();
+      Object.entries(formData || {}).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) multipartData.append(key, value as any);
+      });
+      multipartData.append('passportImage', passportFile);
+      await api.createClientAccount(multipartData);
       const res = await api.login({ username: formData.email, password: formData.password }, 'client');
       const data = res.data;      
       addAuthInterceptor(data.token);
@@ -193,6 +209,27 @@ const Register = () => {
                   onChange={(e) => updateFormState(e.target.name, e.target.value)}
                   disabled={isLoading}
                 />
+              </div>
+
+              <div>
+                <h5 className='mb-2 text-right'>توثيق الهوية</h5>
+                <div className="mb-3 text-right">
+                  <label htmlFor="passportImage" className="block text-sm font-medium text-gray-700 mb-1">
+                    صورة جواز السفر
+                  </label>
+                  <p className="text-xs text-gray-500 mb-2">
+                    يجب رفع صورة واضحة لجواز سفرك لتفعيل حسابك بشكل كامل، سيتم مراجعتها من قبل فريقنا
+                  </p>
+                  <input
+                    id="passportImage"
+                    name="passportImage"
+                    type="file"
+                    accept="image/*"
+                    required
+                    onChange={handlePassportChange}
+                    disabled={isLoading}
+                  />
+                </div>
               </div>
             </div>
 

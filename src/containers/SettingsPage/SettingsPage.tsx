@@ -1,6 +1,7 @@
 import { Alert, AlertColor, Snackbar } from '@mui/material';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { AiOutlineCheckCircle, AiOutlineClockCircle, AiOutlineCloseCircle, AiOutlineCloudUpload } from 'react-icons/ai';
 import { updateUser } from '../../actions/session';
 import Card from '../../components/Card/Card';
 import { libyanCities } from '../../constants/info';
@@ -18,7 +19,7 @@ const SettingsPage = () => {
   });
 
   const dispatch = useDispatch();
-  
+
   const updateFormState = (name: string, value: any) => {
     setCurrentUser((prevState: any) => ({
       ...prevState,
@@ -44,7 +45,7 @@ const SettingsPage = () => {
     }
     setIsLoading(false);
   }
-  
+
   return (
     <div className="container mx-auto py-10 h-64 xl:w-11/12 px-3">
       <Card>
@@ -63,12 +64,12 @@ const SettingsPage = () => {
                     <div className="grid grid-cols-6 gap-6">
                       <div className="col-span-6 sm:col-span-3">
                         <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">اسم الاول</label>
-                        <input required onChange={({ target }) => updateFormState(target.name, target.value)} type="text" value={currentUser.firstName} name="firstName" id="firstName" autoComplete="given-name" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm" />
+                        <input required onChange={({ target }) => updateFormState(target.name, target.value)} type="text" value={currentUser.firstName} disabled name="firstName" id="firstName" autoComplete="given-name" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm disabled:bg-slate-200 hover:cursor-not-allowed" />
                       </div>
 
                       <div className="col-span-6 sm:col-span-3">
                         <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">اسم الثاني</label>
-                        <input required onChange={({ target }) => updateFormState(target.name, target.value)} type="text" value={currentUser.lastName} name="lastName" id="last-name" autoComplete="family-name" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm" />
+                        <input required onChange={({ target }) => updateFormState(target.name, target.value)} type="text" value={currentUser.lastName} disabled name="lastName" id="last-name" autoComplete="family-name" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm disabled:bg-slate-200 hover:cursor-not-allowed" />
                       </div>
 
                       <div className="col-span-6 sm:col-span-4">
@@ -78,13 +79,14 @@ const SettingsPage = () => {
 
                       <div className="col-span-6 sm:col-span-2">
                         <label htmlFor="city" className="block text-sm font-medium text-gray-700">مدينة</label>
-                        <select 
-                          name="city" 
+                        <select
+                          name="city"
                           id="city"
-                          className="mb-3"
+                          className="mb-3 disabled:bg-slate-200 hover:cursor-not-allowed"
                           value={currentUser.city}
                           onChange={({ target }) => updateFormState(target.name, target.value)}
                           required
+                          disabled
                         >
                           {libyanCities.map((city) => (
                             <option key={city.code} value={city.value} className='mr-96'>{city.label}</option>
@@ -94,7 +96,7 @@ const SettingsPage = () => {
 
                       <div className="col-span-6 sm:col-span-3">
                         <label htmlFor="phone" className="block text-sm font-medium text-gray-700">رقم الهاتف</label>
-                        <input disabled required onChange={({ target }) => updateFormState(target.name, target.value)} type="number" value={currentUser.phone} name="phone" id="phone" autoComplete="phone" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm" />
+                        <input disabled required onChange={({ target }) => updateFormState(target.name, target.value)} type="number" value={currentUser.phone} name="phone" id="phone" autoComplete="phone" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm disabled:bg-slate-200 hover:cursor-not-allowed" />
                       </div>
 
                       {/* Profile Pic Soon */}
@@ -109,6 +111,33 @@ const SettingsPage = () => {
                           <button className="mr-5 rounded-md border border-gray-300 bg-white py-2 px-3 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">تغيير</button>
                         </div>
                       </div> */}
+
+                      <div className="col-span-6">
+                        <label className="block text-sm font-medium text-gray-700 mr-1 mb-2">حالة توثيق جواز السفر</label>
+                        <div className="flex items-center gap-3 flex-wrap">
+                          {!currentUser.passportVerification?.imageUrl ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 text-blue-700 px-3 py-1 text-sm font-medium">
+                              <AiOutlineCloudUpload /> لم يتم رفع الصورة بعد، يرجى اكمال الرفع من النافذة الظاهرة
+                            </span>
+                          ) : currentUser.passportVerification?.status === 'verified' ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-green-100 text-green-700 px-3 py-1 text-sm font-medium">
+                              <AiOutlineCheckCircle /> تم التحقق من جواز سفرك
+                            </span>
+                          ) : currentUser.passportVerification?.status === 'rejected' ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-red-100 text-red-700 px-3 py-1 text-sm font-medium">
+                              <AiOutlineCloseCircle /> تم رفض جواز السفر، يرجى اكمال اعادة الرفع من النافذة الظاهرة
+                            </span>
+                          ) : currentUser.passportVerification?.wasRejected ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 text-yellow-700 px-3 py-1 text-sm font-medium">
+                              <AiOutlineClockCircle /> قيد المراجعة بعد اعادة الرفع
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 text-yellow-700 px-3 py-1 text-sm font-medium">
+                              <AiOutlineClockCircle /> قيد المراجعة
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                   <div className="bg-gray-50 px-4 py-3 text-right sm:px-6">
@@ -121,12 +150,12 @@ const SettingsPage = () => {
         </div>
       </Card>
 
-      <Snackbar 
-        open={!!alert.message} 
+      <Snackbar
+        open={!!alert.message}
         autoHideDuration={1500}
         onClose={() => setAlert({ tint: 'success', message: ''})}
       >
-        <Alert 
+        <Alert
           severity={alert.tint as AlertColor}
           onClose={() => setAlert({ tint: 'success', message: ''})}
           style={{ fontSize: '1.3rem', display: 'flex', alignItems: 'center', gap: '10px' }}

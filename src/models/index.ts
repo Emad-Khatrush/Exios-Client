@@ -9,11 +9,21 @@ export type User = {
   city: string
   phone: number
   isAgreeToTermsOfCompany: boolean
+  passportVerification?: PassportVerification
   roles: {
     isAdmin: boolean
     isEmployee: boolean
     isClient: boolean
   }
+}
+
+export type PassportVerification = {
+  status: 'pending' | 'verified' | 'rejected'
+  imageUrl?: string
+  rejectionReason?: string
+  wasRejected?: boolean
+  submittedAt?: string
+  reviewedAt?: string
 }
 
 export type OrderActivity = {
