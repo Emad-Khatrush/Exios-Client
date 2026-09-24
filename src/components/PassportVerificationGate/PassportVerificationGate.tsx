@@ -147,6 +147,7 @@ const PassportVerificationGate = () => {
             <label
               htmlFor="passport-gate-file"
               style={{
+                position: 'relative',
                 display: 'flex',
                 alignItems: 'center',
                 gap: 10,
@@ -162,13 +163,25 @@ const PassportVerificationGate = () => {
               <span style={{ fontSize: '0.88rem', color: file ? '#15803d' : '#6b7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {file ? file.name : 'اضغط هنا لاختيار صورة جواز السفر'}
               </span>
+              {/* The input is stretched transparently over the whole box instead of being `hidden`
+                  (display:none): some mobile browsers (older iOS Safari, in-app browsers like
+                  Facebook/Instagram/WhatsApp) don't open the picker for a display:none input via
+                  its label, so the tap must land on the real input itself. */}
               <input
                 id="passport-gate-file"
                 type="file"
                 accept="image/*"
-                hidden
                 disabled={isUploading}
+                onClick={(e) => { e.currentTarget.value = ''; }}
                 onChange={(e) => setFile(e.target.files?.[0] || null)}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  opacity: 0,
+                  cursor: isUploading ? 'not-allowed' : 'pointer',
+                }}
               />
             </label>
 
