@@ -1,6 +1,6 @@
 import { RiDashboardLine } from 'react-icons/ri';
 import { BsBox } from 'react-icons/bs';
-import { MdAttachMoney, MdContactSupport, MdLocalShipping, MdOutlineAnnouncement } from 'react-icons/md';
+import { MdAttachMoney, MdBlock, MdContactSupport, MdLocalShipping, MdOutlineAnnouncement } from 'react-icons/md';
 import { ImLocation2 } from 'react-icons/im';
 import { TbDeviceMobileMessage } from 'react-icons/tb';
 
@@ -36,12 +36,17 @@ export const routes = [
     path: '/prices'
   },
   {
+    label: 'ممنوعات من الشحن',
+    value: 'prohibitedItems',
+    icon: <MdBlock />,
+    path: '/prohibited-items'
+  },
+  {
     label: 'الإعلانات',
     value: 'announcements',
     icon: <MdOutlineAnnouncement />,
     path: '/announcements'
   },
-  ,
   {
     label: 'شكوى / اقتراح',
     value: 'suggestions',

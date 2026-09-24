@@ -72,6 +72,10 @@ export type Package = {
     total: number,
   }[],
   orderNote: string,
+  customization?: {
+    note?: string,
+    theme?: string,
+  },
   isCanceled: boolean,
   images: {
     filename: string,

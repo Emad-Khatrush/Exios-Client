@@ -181,6 +181,8 @@ export default {
 
   getOrderRating: (orderId: any) => base.get(`client/order/${orderId}/rating`, {}),
 
+  updateOrderCustomization: (orderId: string, body: { note?: string, theme?: string }) => base.put(`client/order/${orderId}/customization`, body),
+
   // Settings Endpoints
   getAnnouncements: () => base.get(`announcements`),
 

@@ -8,6 +8,8 @@ import moment from "moment-timezone";
 import Badge from "../Badge/Badge";
 import { getOrderStatusLabels } from "../../utils/methods";
 import AlertInfo from "../AlertInfo/AlertInfo";
+import { MdOutlineStickyNote2 } from "react-icons/md";
+import { getOrderTheme } from "../../constants/orderThemes";
 
 const shipmentMethodsLabels = {
   air: 'جوي',
@@ -41,10 +43,14 @@ const OrderDetails = (props: Props) => {
     shippingMethodImage = seaShipmentImage;
   }
   const hasTrackingNumber = order.paymentList.find((pkg) => !!pkg.deliveredPackages.trackingNumber)
+  const note = order.customization?.note;
+  const theme = getOrderTheme(order.customization?.theme);
 
   return (
     <div className="mt-8">
-      <Card leaned className="shadow-xl rounded-2xl p-0">
+      <Card leaned className="shadow-xl rounded-2xl p-0 overflow-hidden">
+        {note && <div className="h-1.5" style={{ background: theme.gradient }} />}
+
         {order.shipment.method === 'unknown' &&
           <AlertInfo 
             tint="warning"
@@ -98,6 +104,21 @@ const OrderDetails = (props: Props) => {
                     </p>
                   ))}
                 </div>
+              </div>
+            }
+
+            {note &&
+              <div
+                className="flex items-start gap-2 rounded-xl px-3 py-2 mt-1"
+                style={{ background: theme.gradient }}
+              >
+                <MdOutlineStickyNote2 className="shrink-0 mt-0.5" size={16} style={{ color: theme.text }} />
+                <p
+                  className="text-xs leading-relaxed break-words text-right"
+                  style={{ color: theme.text, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}
+                >
+                  {note}
+                </p>
               </div>
             }
           </div>

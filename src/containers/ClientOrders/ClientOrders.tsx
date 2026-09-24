@@ -40,7 +40,9 @@ const ClientOrders = () => {
         'shipment.method': 1,
         'shipment.fromWhere': 1,
         'shipment.toWhere': 1,
-        'paymentList.deliveredPackages.trackingNumber': 1
+        'paymentList.deliveredPackages.trackingNumber': 1,
+        'customization.note': 1,
+        'customization.theme': 1
       });
       const orders = response.data.results.orders;
       setOrders(orders);
@@ -64,7 +66,9 @@ const ClientOrders = () => {
         'shipment.method': 1,
         'shipment.fromWhere': 1,
         'shipment.toWhere': 1,
-        'paymentList.deliveredPackages.trackingNumber': 1
+        'paymentList.deliveredPackages.trackingNumber': 1,
+        'customization.note': 1,
+        'customization.theme': 1
       });
       const orders = response.data.results.orders;
       const list = response.data.results.countList;
@@ -104,7 +108,9 @@ const ClientOrders = () => {
           'shipment.method': 1,
           'shipment.fromWhere': 1,
           'shipment.toWhere': 1,
-          'paymentList.deliveredPackages.trackingNumber': 1
+          'paymentList.deliveredPackages.trackingNumber': 1,
+        'customization.note': 1,
+        'customization.theme': 1
         });
       } else {
         promise = api.getOrdersBySearch(value, {
@@ -118,7 +124,9 @@ const ClientOrders = () => {
           'shipment.method': 1,
           'shipment.fromWhere': 1,
           'shipment.toWhere': 1,
-          'paymentList.deliveredPackages.trackingNumber': 1
+          'paymentList.deliveredPackages.trackingNumber': 1,
+        'customization.note': 1,
+        'customization.theme': 1
         });
       }
       clearTimeout(quickSearchDelayTimer);

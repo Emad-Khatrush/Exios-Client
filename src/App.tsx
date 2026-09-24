@@ -16,6 +16,7 @@ import { useSelector } from 'react-redux';
 import ResetPasswordPage from './containers/ResetPasswordPage/ResetPasswordPage';
 import AddTrackingNumbers from './containers/AddTrackingNumbers/AddTrackingNumbers';
 import SuggestionsPage from './containers/SuggestionsPage/SuggestionsPage';
+import ProhibitedItemsPage from './containers/ProhibitedItemsPage/ProhibitedItemsPage';
 
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
@@ -66,6 +67,7 @@ const App = () => {
             <Route path='/orders' element={<ClientOrders />} />
             <Route path='/order/:id' element={<OrderInfoPage />} />
             <Route path='/suggestions' element={<SuggestionsPage />} />
+            <Route path='/prohibited-items' element={<ProhibitedItemsPage />} />
             <Route path='*' element={<Navigate to='/home' />} />
           </Route>
         </Routes>

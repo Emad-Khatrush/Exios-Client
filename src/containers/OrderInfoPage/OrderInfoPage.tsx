@@ -16,6 +16,7 @@ import { convertGoogleStorageUrl, getStatusOfPackage } from "../../utils/methods
 import AlertInfo from "../../components/AlertInfo/AlertInfo";
 import SwipeableTextMobileStepper from "../../components/SwipeableTextMobileStepper/SwipeableTextMobileStepper";
 import OrderRatingWidget from "../../components/OrderRatingWidget/OrderRatingWidget";
+import OrderNoteCustomizer from "../../components/OrderNoteCustomizer/OrderNoteCustomizer";
 import InvoiceTrackingWidget from "./InvoiceTrackingWidget";
 
 // const currencyLabels: any = {
@@ -63,6 +64,8 @@ const OrderInfoPage = () => {
       images: 1,
       activity: 1,
       unsureOrder: 1,
+      'customization.note': 1,
+      'customization.theme': 1,
       'shipment.method': 1,
       'shipment.fromWhere': 1,
       'shipment.toWhere': 1,
@@ -243,7 +246,7 @@ const OrderInfoPage = () => {
               بعد ادخالك ارقام التتبع تقوم الشركة بالتتبع هذه ارقام وعندى وصوله الى مخزننا سيتم تحديث الطلبية الى الحالة النشطه
             </p>
             <p>
-              اذا لم ترسل بضائع الى مخزننا، او انشأت طلب تتبع الطلبية بالخطأ، يمكنك حذف الطلب عبر زر الحذف ادناه 
+              اذا لم ترسل بضائع الى مخزننا، او انشأت طلب تتبع الطلبية بالخطأ، يمكنك حذف الطلب عبر زر الحذف ادناه
             </p>
             <button
               className="disabled:bg-slate-400 disabled:text-white-500 group my-1 relative py-2 px-4 mt-2 border border-transparent w-52 md:w-fit text-xs md:text-sm font-bold rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
@@ -255,11 +258,18 @@ const OrderInfoPage = () => {
           </Card>
         }
 
+        <OrderNoteCustomizer
+          orderId={orderId || ''}
+          note={order.customization?.note}
+          themeId={order.customization?.theme}
+          onSaved={(customization) => setOrder(prev => prev ? { ...prev, customization } : prev)}
+        />
+
         {showRatingWidget &&
           <OrderRatingWidget />
         }
 
-        <InvoiceTrackingWidget 
+        <InvoiceTrackingWidget
           announcements={announcements}
           order={order}
         />
@@ -316,6 +326,13 @@ const OrderInfoPage = () => {
         </Card>
       }
 
+      <OrderNoteCustomizer
+        orderId={orderId || ''}
+        note={order.customization?.note}
+        themeId={order.customization?.theme}
+        onSaved={(customization) => setOrder(prev => prev ? { ...prev, customization } : prev)}
+      />
+
       {showRatingWidget &&
         <OrderRatingWidget />
       }
@@ -323,7 +340,7 @@ const OrderInfoPage = () => {
       <Card
         className="rounded-2xl mb-5"
       >
-        <CustomStepper 
+        <CustomStepper
           acriveStep={activeStep}
           steps={steps}
         />
