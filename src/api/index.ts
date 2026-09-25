@@ -190,4 +190,10 @@ export default {
 
   getExchangeRate: () => base.get(`exchangeRate`),
 
+  getActivePopupAds: () => base.get(`popupAds/active`),
+
+  acknowledgePopupAd: (id: string) => base.post(`popupAds/${id}/acknowledge`, {}),
+
+  trackVisit: (body: { sessionId: string, path: string, referrer?: string }) => base.post(`analytics/visit`, body),
+
 }

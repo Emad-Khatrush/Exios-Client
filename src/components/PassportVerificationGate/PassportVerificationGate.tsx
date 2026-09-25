@@ -9,6 +9,16 @@ import { User } from '../../models';
 
 type Mode = 'mustUpload' | 'rejected' | 'pendingReReview';
 
+// Shared with PrivateRoute so it can suppress other blocking dialogs (popup ads)
+// while this gate is up, instead of stacking two non-dismissible dialogs.
+export const getPassportGateMode = (account?: User): Mode | null => {
+  const passport = account?.passportVerification;
+  const hasNeverUploaded = !passport?.imageUrl;
+  const isRejected = passport?.status === 'rejected';
+  const isPendingReReview = passport?.status === 'pending' && !!passport?.wasRejected;
+  return hasNeverUploaded ? 'mustUpload' : isRejected ? 'rejected' : isPendingReReview ? 'pendingReReview' : null;
+};
+
 const STATUS_STYLE: Record<Mode, { bg: string, fg: string, icon: JSX.Element }> = {
   mustUpload: { bg: '#eaf2fe', fg: '#1d4ed8', icon: <AiOutlineCloudUpload size={26} /> },
   rejected: { bg: '#fdecea', fg: '#dc2626', icon: <AiOutlineCloseCircle size={26} /> },
@@ -38,11 +48,7 @@ const PassportVerificationGate = () => {
   const [error, setError] = useState('');
 
   const passport = account?.passportVerification;
-  const hasNeverUploaded = !passport?.imageUrl;
-  const isRejected = passport?.status === 'rejected';
-  const isPendingReReview = passport?.status === 'pending' && !!passport?.wasRejected;
-
-  const mode: Mode | null = hasNeverUploaded ? 'mustUpload' : isRejected ? 'rejected' : isPendingReReview ? 'pendingReReview' : null;
+  const mode = getPassportGateMode(account);
   const needsUploadAction = mode === 'mustUpload' || mode === 'rejected';
 
   const submitUpload = async () => {

@@ -3,7 +3,7 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const isDevelopment = process.env.NODE_ENV === 'development';
 
-module.exports = {
+module.exports = (env) => ({
   entry: path.resolve(__dirname, '..', './src/index.tsx'),
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
@@ -45,7 +45,9 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, '..', './public/index.html'),
     }),
-    new Dotenv()
+    new Dotenv({
+      path: path.resolve(__dirname, '..', env === 'prod' ? '.env.production' : '.env'),
+    })
   ],
   stats: 'errors-only',
-}
+})

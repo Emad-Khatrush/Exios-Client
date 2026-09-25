@@ -7,7 +7,8 @@ import { addAuthInterceptor } from '../../utils/AuthInterceptor';
 import Navbar from '../Navbar/Navbar';
 import ResponsiveSidebar from '../Sidebar/ResponsiveSidebar';
 import Sidebar from '../Sidebar/Sidebar';
-import PassportVerificationGate from '../PassportVerificationGate/PassportVerificationGate';
+import PassportVerificationGate, { getPassportGateMode } from '../PassportVerificationGate/PassportVerificationGate';
+import PopupAdsGate from '../PopupAdsGate/PopupAdsGate';
 
 const PrivateRoute = () => {
   const [show, setShow] = useState(false);
@@ -48,9 +49,14 @@ const PrivateRoute = () => {
 
   addAuthInterceptor(token || '');
 
+  // Popup ads are suppressed while the passport gate is blocking, so the
+  // customer never sees two non-dismissible dialogs stacked on top of each other.
+  const isPassportGateBlocking = !!getPassportGateMode(session.account);
+
   return (
     <div className="w-full h-full bg-gray-200">
       <PassportVerificationGate />
+      {!isPassportGateBlocking && <PopupAdsGate />}
       <div className="w-full h-full flex flex-no-wrap flex-row-reverse">
         <Sidebar account={session.account} />
         <ResponsiveSidebar 

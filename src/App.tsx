@@ -21,6 +21,7 @@ import ProhibitedItemsPage from './containers/ProhibitedItemsPage/ProhibitedItem
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import Announcements from './containers/Announcements/Announcements';
+import RouteChangeTracker from './components/RouteChangeTracker/RouteChangeTracker';
 
 declare const process: {
   env: Record<string, string | undefined>;
@@ -45,6 +46,7 @@ const App = () => {
 
   return (
       <Router>
+        <RouteChangeTracker />
         <Routes>
           <Route path='/' element={<LandingPage />} />
           {!isLoggedIn &&

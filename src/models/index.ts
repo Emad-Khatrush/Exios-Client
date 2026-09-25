@@ -133,6 +133,15 @@ export type Announcement = {
   _id: string
 }
 
+export type PopupAd = {
+  _id: string
+  description: string
+  imageUrl?: string | null
+  icon?: string
+  startDate: string
+  endDate: string
+}
+
 export type ShippingPrice = {
   shippingType: ShippingMethods
   sellingPrice: number
