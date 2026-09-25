@@ -51,37 +51,43 @@ const PopupAdsGate = () => {
       disableEscapeKeyDown
       fullWidth
       maxWidth="xs"
-      PaperProps={{ sx: { borderRadius: '22px', overflowY: 'auto' } }}
+      PaperProps={{ sx: { borderRadius: '22px', overflow: 'hidden', display: 'flex', flexDirection: 'column', maxHeight: 'calc(100% - 64px)' } }}
     >
       <div dir="rtl" className="popup-ad-card">
-        <div className="popup-ad-card__media">
-          {ads.length > 1 && (
-            <span className="popup-ad-card__progress">{index + 1} / {ads.length}</span>
-          )}
+        {/* Only this part scrolls when the image/text don't fit; the CTA
+            button below is a fixed footer that is always visible. */}
+        <div className="popup-ad-card__scroll">
+          <div className="popup-ad-card__media">
+            {ads.length > 1 && (
+              <span className="popup-ad-card__progress">{index + 1} / {ads.length}</span>
+            )}
 
-          {current.imageUrl ? (
-            // object-fit: contain (in the .scss) keeps the whole photo visible, never cropped.
-            <img key={current._id} src={current.imageUrl} alt="" />
-          ) : (
-            <div className="popup-ad-card__icon-badge">
-              <Icon size={38} strokeWidth={1.6} />
-            </div>
-          )}
+            {current.imageUrl ? (
+              // object-fit: contain (in the .scss) keeps the whole photo visible, never cropped.
+              <img key={current._id} src={current.imageUrl} alt="" />
+            ) : (
+              <div className="popup-ad-card__icon-badge">
+                <Icon size={38} strokeWidth={1.6} />
+              </div>
+            )}
+          </div>
+
+          <div className="popup-ad-card__body">
+            <p key={current._id} className="popup-ad-card__description">
+              {current.description}
+            </p>
+
+            {ads.length > 1 && (
+              <div className="popup-ad-card__dots">
+                {ads.map((ad, i) => (
+                  <span key={ad._id} className={`popup-ad-card__dot ${i === index ? 'popup-ad-card__dot--active' : ''}`} />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        <div className="popup-ad-card__body">
-          <p key={current._id} className="popup-ad-card__description">
-            {current.description}
-          </p>
-
-          {ads.length > 1 && (
-            <div className="popup-ad-card__dots">
-              {ads.map((ad, i) => (
-                <span key={ad._id} className={`popup-ad-card__dot ${i === index ? 'popup-ad-card__dot--active' : ''}`} />
-              ))}
-            </div>
-          )}
-
+        <div className="popup-ad-card__footer">
           <button
             type="button"
             className="popup-ad-card__cta"

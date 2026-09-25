@@ -5,7 +5,14 @@
 .popup-ad-card {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
   text-align: center;
+}
+
+.popup-ad-card__scroll {
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .popup-ad-card__media {
@@ -60,7 +67,14 @@
 }
 
 .popup-ad-card__body {
-  padding: 24px 26px 26px;
+  padding: 24px 26px 4px;
+}
+
+.popup-ad-card__footer {
+  flex: 0 0 auto;
+  padding: 14px 26px 26px;
+  background: #ffffff;
+  box-shadow: 0 -8px 16px -12px rgba(17, 24, 39, 0.18);
 }
 
 .popup-ad-card__description {

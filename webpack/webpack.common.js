@@ -38,7 +38,7 @@ module.exports = (env) => ({
   },
   output: {
     path: path.resolve(__dirname, '..', './build'),
-    filename: 'bundle.js',
+    filename: isDevelopment ? 'bundle.js' : 'bundle.[contenthash].js',
     publicPath: '/'
   },
   plugins: [
