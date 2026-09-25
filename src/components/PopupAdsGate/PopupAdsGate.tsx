@@ -51,7 +51,7 @@ const PopupAdsGate = () => {
       disableEscapeKeyDown
       fullWidth
       maxWidth="xs"
-      PaperProps={{ sx: { borderRadius: '22px', overflow: 'hidden' } }}
+      PaperProps={{ sx: { borderRadius: '22px', overflowY: 'auto' } }}
     >
       <div dir="rtl" className="popup-ad-card">
         <div className="popup-ad-card__media">
