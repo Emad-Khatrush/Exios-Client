@@ -116,6 +116,10 @@ export type PackageDetails = {
   }
   link: string
   note: string
+  // The trip (رحلة) the package is loaded on; only present when it is linked to one
+  trip?: {
+    voyage: string
+  }
   status: {
     arrived: boolean
     arrivedLibya: boolean

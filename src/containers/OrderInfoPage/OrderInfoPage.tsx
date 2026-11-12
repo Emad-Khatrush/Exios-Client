@@ -69,6 +69,7 @@ const OrderInfoPage = () => {
       'shipment.method': 1,
       'shipment.fromWhere': 1,
       'shipment.toWhere': 1,
+      'paymentList._id': 1, // needed to match each package to its trip
       'paymentList.status': 1,
       'paymentList.images': 1,
       'paymentList.settings': 1,
@@ -475,6 +476,13 @@ const OrderInfoPage = () => {
                         <div className="flex items-center justify-end mb-8">
                           <p>{shipmentMethodsLabels[packageDetails.deliveredPackages.shipmentMethod]}</p>
                           <h3 className=" font-bold ml-5">:طريقة الشحن</h3>
+                        </div>
+                      }
+
+                      {packageDetails.trip?.voyage &&
+                        <div className="flex items-center justify-end mb-8">
+                          <p className="bidi-text" dir="auto">{packageDetails.trip.voyage}</p>
+                          <h3 className=" font-bold ml-5">:الرحلة</h3>
                         </div>
                       }
 
