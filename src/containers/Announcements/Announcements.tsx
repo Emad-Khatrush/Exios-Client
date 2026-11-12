@@ -65,6 +65,7 @@ const Announcements: React.FC = () => {
         announcements.map((a) => (
           <div
             key={a._id}
+            dir="rtl"
             className={`flex items-start p-4 rounded-xl shadow-md transition hover:shadow-lg bg-white border-r-4 m-2
               ${a.type === "info" ? "border-blue-400" : ""}
               ${a.type === "success" ? "border-green-400" : ""}
@@ -72,14 +73,15 @@ const Announcements: React.FC = () => {
               ${a.type === "error" ? "border-red-400" : ""}
             `}
           >
-            <div className="mr-3">{icons[a.type]}</div>
-            <span className="text-gray-600">{moment(a.publishedAt).format('DD/MM/YYYY')}</span>
-            <div className="text-right flex-1">
-              <h3 className="font-bold text-gray-800">{a.title}</h3>
-              <p className="text-sm text-gray-600 whitespace-pre-line">
+            <div className="ml-3 shrink-0">{icons[a.type]}</div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-bold text-gray-800 bidi-text" dir="auto">{a.title}</h3>
+              <p className="text-sm text-gray-600 bidi-text" dir="auto">
                 {a.message}
               </p>
             </div>
+            {/* Dates always read left-to-right (DD/MM/YYYY) wherever they sit */}
+            <span className="text-gray-500 text-sm whitespace-nowrap mr-3" dir="ltr">{moment(a.publishedAt).format('DD/MM/YYYY')}</span>
           </div>
         ))}
     </div>

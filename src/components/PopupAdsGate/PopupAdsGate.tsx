@@ -73,7 +73,7 @@ const PopupAdsGate = () => {
           </div>
 
           <div className="popup-ad-card__body">
-            <p key={current._id} className="popup-ad-card__description">
+            <p key={current._id} className="popup-ad-card__description bidi-text" dir="auto">
               {current.description}
             </p>
 

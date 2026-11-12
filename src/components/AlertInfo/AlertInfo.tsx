@@ -59,7 +59,7 @@ const AlertInfo = (props: Props) => {
                   {alert.title}
               </span>
               <div className={`text-${alert.color}-500`}>
-                <div className="mt-1">
+                <div className="mt-1 bidi-text" dir="auto">
                   {props.description}
                 </div>
                 {props.forward &&

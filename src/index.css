@@ -43,6 +43,18 @@ html, body, #root {
   font-family: 'Cairo';
 }
 
+/* Text written by the office (announcements, posts, popup ads): Arabic, English or both,
+   with emoji and dates. Use with dir="auto": each line takes its direction from its first
+   letter, so an Arabic line stays right-to-left with its emoji and dates in place, and an
+   English line stays left-to-right. Line breaks are kept. */
+.bidi-text {
+  unicode-bidi: plaintext;
+  text-align: start;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: 'Cairo', 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+}
+
 /* Prohibited items page: cards fade up when the list (or the air/sea tab) renders */
 @media (prefers-reduced-motion: no-preference) {
   .prohibited-item {
