@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+Disallow: /home
+Disallow: /start-shipment
+Disallow: /add-tracking-numbers
+Disallow: /address
+Disallow: /prices
+Disallow: /announcements
+Disallow: /settings
+Disallow: /contact-us
+Disallow: /terms-privacy
+Disallow: /orders
+Disallow: /order/
+Disallow: /suggestions
+Disallow: /prohibited-items
+Disallow: /reset-password
+
+Sitemap: https://exioslibya.com/sitemap.xml

@@ -22,6 +22,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import Announcements from './containers/Announcements/Announcements';
 import RouteChangeTracker from './components/RouteChangeTracker/RouteChangeTracker';
+import SeoManager from './components/SeoManager/SeoManager';
 
 declare const process: {
   env: Record<string, string | undefined>;
@@ -47,6 +48,7 @@ const App = () => {
   return (
       <Router>
         <RouteChangeTracker />
+        <SeoManager />
         <Routes>
           <Route path='/' element={<LandingPage />} />
           {!isLoggedIn &&

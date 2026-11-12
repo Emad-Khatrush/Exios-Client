@@ -1,6 +1,7 @@
 const Dotenv = require('dotenv-webpack');
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 module.exports = (env) => ({
@@ -47,6 +48,13 @@ module.exports = (env) => ({
     }),
     new Dotenv({
       path: path.resolve(__dirname, '..', env === 'prod' ? '.env.production' : '.env'),
+    }),
+    // Files that must be served from the site root as-is (SEO + favicon)
+    new CopyWebpackPlugin({
+      patterns: ['robots.txt', 'sitemap.xml', 'favicon.ico', 'og-image.jpg'].map((file) => ({
+        from: path.resolve(__dirname, '..', 'public', file),
+        to: file,
+      })),
     })
   ],
   stats: 'errors-only',
