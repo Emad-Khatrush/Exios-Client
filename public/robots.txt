@@ -15,4 +15,4 @@ Disallow: /suggestions
 Disallow: /prohibited-items
 Disallow: /reset-password
 
-Sitemap: https://exioslibya.com/sitemap.xml
+Sitemap: https://www.exioslibya.com/sitemap.xml

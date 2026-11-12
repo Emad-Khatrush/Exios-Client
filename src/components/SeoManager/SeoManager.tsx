@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-const SITE_URL = 'https://exioslibya.com';
+const SITE_URL = 'https://www.exioslibya.com';
 const DEFAULT_TITLE = 'اكسيوس | شحن من الصين إلى ليبيا وخدمات الشراء من الصين';
 
 // Public pages Google should index. Every other route is the logged-in app,
