@@ -1,0 +1,62 @@
+/* Prices page: the quote is a shipping waybill with a torn edge between what was counted and the
+   total. The only animation on the page is the waybill arriving when a result first appears and
+   the total settling when it changes: both answer the customer's typing. */
+.ticket {
+  position: relative;
+  background: #fff;
+  border: 1px solid #e4e4e7;
+  border-radius: 18px;
+  box-shadow: 0 1px 2px rgba(24, 24, 27, 0.04), 0 18px 40px -24px rgba(21, 61, 37, 0.35);
+}
+
+.ticket--empty {
+  padding: 22px 20px;
+  border-style: dashed;
+  background: #fafafa;
+  box-shadow: none;
+}
+
+/* The tear: a dashed line with a notch cut into each side */
+.ticket__tear {
+  position: relative;
+  height: 0;
+  margin: 0 20px;
+  border-top: 2px dashed #d4d4d8;
+}
+.ticket__tear::before,
+.ticket__tear::after {
+  content: '';
+  position: absolute;
+  top: -12px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  /* The page behind the card (PrivateRoute: bg-gray-200), so the notch reads as a cut */
+  background: #e5e7eb;
+  border: 1px solid #e4e4e7;
+}
+/* Centred on the card's edge, only the half inside the card is drawn */
+.ticket__tear::before { right: -32px; clip-path: inset(0 50% 0 0); }
+.ticket__tear::after { left: -32px; clip-path: inset(0 0 0 50%); }
+
+.prices-tabs { scrollbar-width: none; }
+.prices-tabs::-webkit-scrollbar { display: none; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .ticket:not(.ticket--empty) { animation: ticket-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .ticket__total { animation: total-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .prices-panel { animation: panel-in 0.3s ease-out both; }
+}
+
+@keyframes ticket-in {
+  from { opacity: 0; transform: translateY(14px) rotate(-0.6deg); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes total-in {
+  from { opacity: 0.35; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes panel-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

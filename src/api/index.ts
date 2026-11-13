@@ -190,6 +190,9 @@ export default {
 
   getExchangeRate: () => base.get(`exchangeRate`),
 
+  // Everything the Prices page shows (admin: Settings > Customer prices)
+  getPricing: () => base.get(`pricing`),
+
   getActivePopupAds: () => base.get(`popupAds/active`),
 
   acknowledgePopupAd: (id: string) => base.post(`popupAds/${id}/acknowledge`, {}),
