@@ -3,7 +3,7 @@ import { AiOutlineClose } from 'react-icons/ai';
 import image from '../../../public/images/exios-logo.png';
 import { routes } from '../PrivateRoute/routes';
 import ResponsiveFooterSidbar from './ResponsiveFooterSidbar';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { User } from '../../models';
 
 type Props = {
@@ -44,7 +44,7 @@ const ResponsiveSidebar = (props: Props) => {
                     onClick={() => setShow(!show)}
                   >
                     <div className="flex items-center text-2xl justify-end">
-                      <Link to={route.path} className="ml-2 mr-3 min-w-0 text-right leading-snug">{route.label}</Link>
+                      <NavLink to={route.path} className={({ isActive }) => `ml-2 mr-3 min-w-0 text-right leading-snug ${isActive ? 'font-bold text-green-700' : ''}`}>{route.label}</NavLink>
                       <div className="shrink-0">
                         {route.icon}
                       </div>

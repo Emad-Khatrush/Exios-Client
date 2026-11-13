@@ -5,7 +5,10 @@ export type Tier = { upTo: number | null, type?: 'fixed' | 'percent', value?: nu
 export type ShippingRoute = {
   key: string, country: string, method: 'air' | 'sea', label: string, countryLabel: string,
   unit: 'kg' | 'cbm', price: number, duration: string, note: string, minCharge: number,
+  // Price by kind of goods; the first is the base price
+  categories: Category[],
 };
+export type Category = { key: string, label: string, price: number };
 export type Container = { key: string, label: string, route: string, price: number, duration: string };
 export type Office = { key: string, label: string, whatsapp: string, cities: string[] };
 export type Pricing = {
@@ -13,12 +16,12 @@ export type Pricing = {
   shipping: { note: string, volumetricDivisor: number, routes: ShippingRoute[] } | null,
   purchase: { note: string, minCommission: number, tiers: Tier[], sites: { key: string, label: string, feePercent: number }[] } | null,
   alipay: { note: string, tiers: Tier[] } | null,
-  swift: { note: string, percent: number, fixedFee: number, minFee: number } | null,
+  swift: { note: string, tiers: Tier[], fixedFee: number, minFee: number } | null,
   fcl: { note: string, containers: Container[] } | null,
   offices: Office[],
 };
 
-export type Line = { label: string, value: number, hint?: string, strong?: boolean };
+export type Line = { label: string, value: number, hint?: string, strong?: boolean, text?: string };
 export type Quote = { title: string, lines: Line[], total: number, totalLabel: string, summary: string[] };
 
 const cents = (n: number) => Math.round(n * 100) / 100;
@@ -36,6 +39,8 @@ export const toNumber = (value: string | number) => {
 
 export const money = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 })}`;
 export const plain = (n: number, digits = 2) => n.toLocaleString('en-US', { maximumFractionDigits: digits });
+// Numbers inside Arabic text: isolated left-to-right, so "$200 - $1,000" and "3%" are not flipped
+export const ltr = (text: string) => `⁦${text}⁩`;
 
 // The bracket an amount falls in: the first whose upper bound it does not pass
 export const tierFor = (tiers: Tier[], amount: number) => tiers.find((t) => t.upTo === null || amount <= t.upTo) || tiers[tiers.length - 1];
@@ -43,9 +48,12 @@ export const tierFor = (tiers: Tier[], amount: number) => tiers.find((t) => t.up
 // ---- Shipping: air by the greater of actual and volumetric weight, sea by CBM
 export const shippingQuote = (
   route: ShippingRoute,
-  input: { amount: number, length?: number, width?: number, height?: number, boxes?: number },
+  input: { amount: number, length?: number, width?: number, height?: number, boxes?: number, categoryKey?: string },
   divisor: number,
 ): Quote | null => {
+  const category = route.categories?.find((c) => c.key === input.categoryKey) || route.categories?.[0];
+  const unitPrice = category?.price || route.price;
+  const kind = route.categories?.length > 1 && category ? category.label : '';
   const boxes = Math.max(1, Math.floor(input.boxes || 1));
   const dims = (input.length || 0) * (input.width || 0) * (input.height || 0) * boxes;
   const lines: Line[] = [];
@@ -63,19 +71,20 @@ export const shippingQuote = (
     if (!charged) return null;
     lines.push({ label: 'الحجم', value: cents(charged), hint: 'CBM', strong: true });
   }
-  const freight = up(charged * route.price);
+  const freight = up(charged * unitPrice);
   const total = Math.max(freight, route.minCharge || 0);
-  lines.push({ label: `السعر لكل ${route.unit === 'kg' ? 'كجم' : 'متر مكعب'}`, value: route.price, hint: 'USD' });
+  if (kind) lines.unshift({ label: 'نوع البضاعة', value: 0, text: kind });
+  lines.push({ label: `السعر لكل ${route.unit === 'kg' ? 'كجم' : 'متر مكعب'}`, value: unitPrice, hint: 'USD' });
   if (total > freight) lines.push({ label: 'الحد الأدنى للشحنة', value: route.minCharge, hint: 'USD' });
   return {
-    title: route.label,
+    title: kind ? `${route.label} (${kind})` : route.label,
     lines,
     total,
     totalLabel: 'تكلفة الشحن التقريبية',
     summary: [
-      `${route.label}`,
+      kind ? `${route.label} - ${kind}` : route.label,
       route.unit === 'kg' ? `الوزن المحسوب: ${plain(charged)} كجم` : `الحجم: ${plain(charged)} CBM`,
-      `السعر: ${money(route.price)} لكل ${route.unit === 'kg' ? 'كجم' : 'CBM'}`,
+      `السعر: ${money(unitPrice)} لكل ${route.unit === 'kg' ? 'كجم' : 'CBM'}`,
       `التكلفة التقريبية: ${money(total)}`,
     ],
   };
@@ -91,8 +100,8 @@ export const purchaseQuote = (cfg: NonNullable<Pricing['purchase']>, amount: num
   const commission = Math.ceil(Math.max(raw, cfg.minCommission || 0));
   const total = cents(amount + siteFee + commission);
   const lines: Line[] = [{ label: 'قيمة المشتريات', value: amount, hint: 'USD' }];
-  if (siteFee) lines.push({ label: `رسوم ${site.label} ${plain(site.feePercent)}%`, value: siteFee, hint: 'USD' });
-  lines.push({ label: tier?.type === 'percent' ? `عمولة الشراء ${plain(tier.value || 0)}%` : 'عمولة الشراء', value: commission, hint: 'USD' });
+  if (siteFee) lines.push({ label: `رسوم ${site.label} ${ltr(`${plain(site.feePercent)}%`)}`, value: siteFee, hint: 'USD' });
+  lines.push({ label: tier?.type === 'percent' ? `عمولة الشراء ${ltr(`${plain(tier.value || 0)}%`)}` : 'عمولة الشراء', value: commission, hint: 'USD' });
   return {
     title: `شراء من ${site?.label || 'المواقع'}`,
     lines,
@@ -125,15 +134,16 @@ export const alipayQuote = (cfg: NonNullable<Pricing['alipay']>, yuan: number): 
   };
 };
 
-// ---- SWIFT: a percentage with a minimum, plus a fixed bank fee
+// ---- SWIFT: the bracket's commission (a percentage or a fixed amount) with a minimum, plus a fixed bank fee
 export const swiftQuote = (cfg: NonNullable<Pricing['swift']>, amount: number): Quote | null => {
   if (!amount) return null;
-  const percentFee = up(amount * (cfg.percent || 0) / 100);
+  const tier = tierFor(cfg.tiers, amount);
+  const percentFee = tier?.type === 'fixed' ? (tier.value || 0) : up(amount * (tier?.value || 0) / 100);
   const commission = Math.max(percentFee, cfg.minFee || 0);
   const total = cents(amount + commission + (cfg.fixedFee || 0));
   const lines: Line[] = [
     { label: 'مبلغ الحوالة', value: amount, hint: 'USD' },
-    { label: commission > percentFee ? 'العمولة (الحد الأدنى)' : `العمولة ${plain(cfg.percent)}%`, value: commission, hint: 'USD' },
+    { label: commission > percentFee ? 'العمولة (الحد الأدنى)' : tier?.type === 'fixed' ? 'العمولة' : `العمولة ${ltr(`${plain(tier?.value || 0)}%`)}`, value: commission, hint: 'USD' },
   ];
   if (cfg.fixedFee) lines.push({ label: 'رسوم بنكية ثابتة', value: cfg.fixedFee, hint: 'USD' });
   return {

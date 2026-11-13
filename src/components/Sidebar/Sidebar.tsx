@@ -1,6 +1,6 @@
 import image from '../../../public/images/exios-logo.png';
 import { routes } from '../PrivateRoute/routes';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { User } from '../../models';
 
 type Props = {
@@ -20,13 +20,15 @@ const Sidebar = (props: Props) => {
       </div>
       <ul aria-orientation="vertical" className="py-1">
         {routes.map((route: any) => (
-          <li key={route.value} className="mr-4 pl-6 cursor-pointer text-gray-600 text-sm leading-3 tracking-normal mt-4 mb-4 py-2 hover:text-green-700 focus:green-indigo-700 focus:outline-none">
-            <div className="flex items-center text-xl justify-end">
-              <Link to={route.path} className="ml-2 mr-3">{route.label}</Link>
-              <div>
-                {route.icon}
-              </div>
-            </div>
+          <li key={route.value} className="mr-4 pl-6 text-sm leading-3 tracking-normal mt-4 mb-4">
+            {/* The page you are on is green, so the split price pages are easy to tell apart */}
+            <NavLink
+              to={route.path}
+              className={({ isActive }) => `flex items-center justify-end gap-3 py-2 text-xl transition-colors duration-150 hover:text-green-700 ${isActive ? 'font-bold text-green-700' : 'text-gray-600'}`}
+            >
+              <span>{route.label}</span>
+              <span>{route.icon}</span>
+            </NavLink>
           </li>
         ))}
       </ul>

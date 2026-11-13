@@ -10,7 +10,7 @@ type Props = {
   emptyText: string,
 };
 
-const lineValue = (line: Line) => (line.hint === 'USD' ? money(line.value) : `${plain(line.value, 4)}${line.hint ? ` ${line.hint === 'كجم' ? 'كجم' : line.hint}` : ''}`);
+const lineValue = (line: Line) => line.text ?? (line.hint === 'USD' ? money(line.value) : `${plain(line.value, 4)}${line.hint ? ` ${line.hint === 'كجم' ? 'كجم' : line.hint}` : ''}`);
 
 // The result of a calculation, drawn as a shipping waybill: what was counted, the total, and the
 // button that sends it to the office on WhatsApp
@@ -36,7 +36,7 @@ const QuoteTicket = ({ quote, offices, city, customer, emptyText }: Props) => {
           {quote.lines.map((line) => (
             <div key={line.label} className="flex items-baseline justify-between gap-3 text-sm">
               <dt className={line.strong ? 'font-semibold text-zinc-800' : 'text-zinc-500'}>{line.label}</dt>
-              <dd dir="ltr" className={`tabular-nums whitespace-nowrap ${line.strong ? 'font-bold text-zinc-900' : 'font-medium text-zinc-700'}`}>{lineValue(line)}</dd>
+              <dd dir={line.text ? 'rtl' : 'ltr'} className={`tabular-nums whitespace-nowrap ${line.strong ? 'font-bold text-zinc-900' : 'font-medium text-zinc-700'}`}>{lineValue(line)}</dd>
             </div>
           ))}
         </dl>

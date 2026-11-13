@@ -63,7 +63,11 @@ const App = () => {
             <Route path='/start-shipment' element={<StartShipmentPage />} />
             <Route path='/add-tracking-numbers' element={<AddTrackingNumbers />} />
             <Route path='/address' element={<AddressPage />} />
-            <Route path='/prices' element={<PricesPage />} />
+            {/* The old link (home page shortcut, bookmarks) opens shipping prices */}
+            <Route path='/prices' element={<Navigate to='/prices/shipping' replace />} />
+            <Route path='/prices/shipping' element={<PricesPage group='shipping' />} />
+            <Route path='/prices/purchase' element={<PricesPage group='purchase' />} />
+            <Route path='/prices/transfers' element={<PricesPage group='transfers' />} />
             <Route path='/announcements' element={<Announcements />} />
             <Route path='/settings' element={<SettingsPage />} />
             <Route path='/contact-us' element={<ContactUs />} />

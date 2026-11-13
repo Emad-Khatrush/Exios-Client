@@ -1,6 +1,6 @@
 import { RiDashboardLine } from 'react-icons/ri';
 import { BsBox } from 'react-icons/bs';
-import { MdAttachMoney, MdBlock, MdContactSupport, MdLocalShipping, MdOutlineAnnouncement } from 'react-icons/md';
+import { MdBlock, MdFlight, MdShoppingCart, MdSwapHoriz, MdContactSupport, MdLocalShipping, MdOutlineAnnouncement } from 'react-icons/md';
 import { ImLocation2 } from 'react-icons/im';
 import { TbDeviceMobileMessage } from 'react-icons/tb';
 
@@ -29,11 +29,24 @@ export const routes = [
     icon: <ImLocation2 />,
     path: '/address'
   },
+  // Prices are split by service so each is one tap away
   {
-    label: 'الاسعار',
-    value: 'prices',
-    icon: <MdAttachMoney />,
-    path: '/prices'
+    label: 'أسعار الشحن',
+    value: 'shippingPrices',
+    icon: <MdFlight />,
+    path: '/prices/shipping'
+  },
+  {
+    label: 'أسعار الشراء',
+    value: 'purchasePrices',
+    icon: <MdShoppingCart />,
+    path: '/prices/purchase'
+  },
+  {
+    label: 'الحوالات المالية',
+    value: 'transferPrices',
+    icon: <MdSwapHoriz />,
+    path: '/prices/transfers'
   },
   {
     label: 'ممنوعات من الشحن',

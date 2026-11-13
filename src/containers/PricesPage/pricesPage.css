@@ -39,6 +39,66 @@
 .ticket__tear::before { right: -32px; clip-path: inset(0 50% 0 0); }
 .ticket__tear::after { left: -32px; clip-path: inset(0 0 0 50%); }
 
+/* Brackets (purchase, Alipay, SWIFT) as steps from small to large amounts. The step the typed
+   amount falls in lights up, so the customer sees which rate applies to them. */
+.tier-ladder {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 640px) { .tier-ladder { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1280px) { .tier-ladder { grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); } }
+
+.tier-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid #e4e4e7;
+  border-radius: 16px;
+  background: #fafafa;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+.tier-step__range { font-size: 0.82rem; font-weight: 600; color: #71717a; }
+.tier-step__value { display: grid; gap: 2px; }
+.tier-step__value b {
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: #18181b;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.tier-step__value small { font-size: 0.78rem; color: #71717a; }
+.tier-step.is-active {
+  border-color: #15803d;
+  background: #f0fdf4;
+  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.12);
+}
+.tier-step.is-active .tier-step__value b { color: #166534; }
+.tier-step__here {
+  position: absolute;
+  top: -10px;
+  left: 12px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: #15803d;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+@media (max-width: 639px) {
+  .tier-step { flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; }
+  .tier-step__value { text-align: left; }
+  .tier-step__value b { font-size: 1.4rem; text-align: left; }
+}
+
+.route-card { min-height: 100%; }
+
 .prices-tabs { scrollbar-width: none; }
 .prices-tabs::-webkit-scrollbar { display: none; }
 
