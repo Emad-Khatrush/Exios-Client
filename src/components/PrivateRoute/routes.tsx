@@ -1,75 +1,49 @@
-import { RiDashboardLine } from 'react-icons/ri';
-import { BsBox } from 'react-icons/bs';
-import { MdBlock, MdFlight, MdShoppingCart, MdSwapHoriz, MdContactSupport, MdLocalShipping, MdOutlineAnnouncement } from 'react-icons/md';
-import { ImLocation2 } from 'react-icons/im';
-import { TbDeviceMobileMessage } from 'react-icons/tb';
+import {
+  ArrowLeftRight, Ban, FileText, Headset, House, LucideIcon, Megaphone, MessageSquareText, Package, Plane, Rocket,
+  ShoppingBag, Warehouse,
+} from 'lucide-react';
 
-export const routes = [
+export type AppRoute = {
+  label: string
+  value: string
+  icon: LucideIcon
+  path: string
+}
+
+export type RouteGroup = {
+  // Groups without a title are the everyday pages at the top of the sidebar
+  title?: string
+  routes: AppRoute[]
+}
+
+export const routeGroups: RouteGroup[] = [
   {
-    label: 'الصفحة الرئيسية',
-    value: 'home',
-    icon: <RiDashboardLine />,
-    path: '/home'
+    routes: [
+      { label: 'الصفحة الرئيسية', value: 'home', icon: House, path: '/home' },
+      { label: 'طلبياتي', value: 'myOrders', icon: Package, path: '/orders' },
+      { label: 'ابدأ الشحن', value: 'startShip', icon: Rocket, path: '/start-shipment' },
+      { label: 'عناويننا', value: 'address', icon: Warehouse, path: '/address' },
+    ],
   },
   {
-    label: 'طلبياتي',
-    value: 'myOrders',
-    icon: <BsBox />,
-    path: '/orders'
+    // Prices are split by service so each is one tap away
+    title: 'الأسعار',
+    routes: [
+      { label: 'أسعار الشحن', value: 'shippingPrices', icon: Plane, path: '/prices/shipping' },
+      { label: 'أسعار الشراء', value: 'purchasePrices', icon: ShoppingBag, path: '/prices/purchase' },
+      { label: 'الحوالات المالية', value: 'transferPrices', icon: ArrowLeftRight, path: '/prices/transfers' },
+    ],
   },
   {
-    label: 'ابدأ بالشحن',
-    value: 'startShip',
-    icon: <MdLocalShipping />,
-    path: '/start-shipment'
+    title: 'المساعدة',
+    routes: [
+      { label: 'الإعلانات', value: 'announcements', icon: Megaphone, path: '/announcements' },
+      { label: 'ممنوعات الشحن', value: 'prohibitedItems', icon: Ban, path: '/prohibited-items' },
+      { label: 'شكوى / اقتراح', value: 'suggestions', icon: MessageSquareText, path: '/suggestions' },
+      { label: 'الشروط والسياسات', value: 'terms', icon: FileText, path: '/terms-privacy' },
+      { label: 'تواصل معنا', value: 'contactUs', icon: Headset, path: '/contact-us' },
+    ],
   },
-  {
-    label: 'عناوننا',
-    value: 'address',
-    icon: <ImLocation2 />,
-    path: '/address'
-  },
-  // Prices are split by service so each is one tap away
-  {
-    label: 'أسعار الشحن',
-    value: 'shippingPrices',
-    icon: <MdFlight />,
-    path: '/prices/shipping'
-  },
-  {
-    label: 'أسعار الشراء',
-    value: 'purchasePrices',
-    icon: <MdShoppingCart />,
-    path: '/prices/purchase'
-  },
-  {
-    label: 'الحوالات المالية',
-    value: 'transferPrices',
-    icon: <MdSwapHoriz />,
-    path: '/prices/transfers'
-  },
-  {
-    label: 'ممنوعات من الشحن',
-    value: 'prohibitedItems',
-    icon: <MdBlock />,
-    path: '/prohibited-items'
-  },
-  {
-    label: 'الإعلانات',
-    value: 'announcements',
-    icon: <MdOutlineAnnouncement />,
-    path: '/announcements'
-  },
-  {
-    label: 'شكوى / اقتراح',
-    value: 'suggestions',
-    icon: <TbDeviceMobileMessage />,
-    path: '/suggestions'
-  },
-  {
-    label: 'تواصل معنا',
-    value: 'contactUs',
-    icon: <MdContactSupport />,
-    path: '/contact-us'
-  }
-]
+];
+
+export const routes: AppRoute[] = routeGroups.flatMap((g) => g.routes);

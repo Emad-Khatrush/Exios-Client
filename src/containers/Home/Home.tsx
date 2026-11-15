@@ -1,173 +1,208 @@
-import InfoWidget from "../../components/InfoWidget/InfoWidget";
-import { FiPackage } from 'react-icons/fi';
-import { FaCheck, FaFileInvoiceDollar, FaWarehouse } from "react-icons/fa";
-import AlertWidget from "../../components/AlertWidget/AlertWidget";
-import ShortcutInfoWidget from "../../components/ShortcutInfoWidget/ShortcutInfoWidget";
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import {
+  ArrowLeft, Ban, Check, CircleCheckBig, Copy, FileText, MapPin, MessageSquareText, PackageCheck, PackageOpen, PackagePlus,
+  Phone, Receipt, Rocket, ShoppingBag, Tags, Warehouse,
+} from 'lucide-react';
+import { TbBrandWhatsapp } from 'react-icons/tb';
+import api from '../../api';
+import AnnouncementBar from '../../components/AnnouncementBar/AnnouncementBar';
+import LatestPosts from './LatestPosts';
+import RecentShipments from './RecentShipments';
+import Flag from '../PricesPage/Flag';
+import { money, Pricing, updatedLabel } from '../PricesPage/pricingMath';
+import { Announcement, Package } from '../../models';
+import { officeFor, whatsappLink } from '../../constants/contact';
+import { useCopy } from '../../utils/useCopy';
+import './home.css';
 
-import OrderImage from "../../../public/images/box.png";
-import Address from "../../../public/images/online-shop.png";
-import Prices from "../../../public/images/cash.png";
-import Terms from "../../../public/images/placeholder.png";
-import Contact from "../../../public/images/24-hours.png";
-import Card from "../../components/Card/Card";
-import { Link } from "react-router-dom";
-import AlertInfo from "../../components/AlertInfo/AlertInfo";
-import { useSelector } from "react-redux";
-import { useEffect, useState } from "react";
-import api from "../../api";
-import { Announcement } from "../../models";
+type Counts = { activeOrders: number, readyForReceivement: number, receivedOrders: number, totalPaidInvoices: number };
+
+const greeting = () => {
+  const h = new Date().getHours();
+  return h < 12 ? 'صباح الخير' : h < 18 ? 'مساء الخير' : 'مساء النور';
+};
+
+const SHORTCUTS = [
+  { to: '/start-shipment', icon: Rocket, title: 'ابدأ الشحن', text: 'خطوات شحنة جديدة' },
+  { to: '/address', icon: Warehouse, title: 'عناويننا', text: 'عنوان المخزن وعلامة الشحن' },
+  { to: '/add-tracking-numbers', icon: PackagePlus, title: 'إضافة رقم تتبع', text: 'عند شحن البائع لطردك' },
+  { to: '/prices/shipping', icon: Tags, title: 'أسعار الشحن', text: 'الأسعار والحاسبة' },
+  { to: '/prices/purchase', icon: ShoppingBag, title: 'أسعار الشراء', text: 'نشتري لك من المواقع' },
+  { to: '/prohibited-items', icon: Ban, title: 'ممنوعات الشحن', text: 'ما لا يمكن شحنه' },
+  { to: '/terms-privacy', icon: FileText, title: 'الشروط', text: 'شروط الشحن والشراء' },
+  { to: '/contact-us', icon: Phone, title: 'تواصل معنا', text: 'المكاتب والأرقام' },
+];
 
 const Home = () => {
   const account = useSelector((state: any) => state.session.account);
-  
-  const [countList, setCountList] = useState({
-    activeOrders: 0,
-    readyForReceivement: 0,
-    receivedOrders: 0,
-    totalPaidInvoices: 0
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [announcements, setAnnouncements] = useState([]);
+  const { copied, copy } = useCopy();
+  const [counts, setCounts] = useState<Counts | null>(null);
+  const [orders, setOrders] = useState<Package[] | null>(null);
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [pricing, setPricing] = useState<Pricing | null>(null);
+  const [unreadReplies, setUnreadReplies] = useState(0);
 
+  // Each block loads on its own: a slow or failed one never holds the others back
   useEffect(() => {
-    getHomeData();
-  }, [])
-  
-  const getHomeData = async () => {
-    try {
-      setIsLoading(true);
-      const response = await api.getHomeData();
-      const data = response.data.results;
+    api.getHomeData().then((res: any) => setCounts(res.data?.results?.countList || null)).catch(() => setCounts({ activeOrders: 0, readyForReceivement: 0, receivedOrders: 0, totalPaidInvoices: 0 }));
+    api.getAnnouncements().then((res: any) => setAnnouncements(Array.isArray(res?.data) ? res.data : [])).catch(() => undefined);
+    api.getOrdersForUser('all', {
+      orderId: 1, createdAt: 1, orderStatus: 1, isPayment: 1, isShipment: 1, productName: 1,
+      'shipment.method': 1, 'shipment.fromWhere': 1, 'shipment.toWhere': 1,
+      'paymentList._id': 1, 'paymentList.status': 1, 'paymentList.settings': 1,
+      'paymentList.deliveredPackages.trackingNumber': 1, 'paymentList.deliveredPackages.weight': 1,
+    }).then((res: any) => setOrders(res.data?.results?.orders || [])).catch(() => setOrders([]));
+    api.getPricing().then((res: any) => setPricing(res?.data || null)).catch(() => undefined);
+    api.get('client/feedback')
+      .then((res: any) => setUnreadReplies(Array.isArray(res?.data) ? res.data.filter((f: any) => f.unread).length : 0))
+      .catch(() => undefined);
+  }, []);
 
-      const announcements = (await api.getAnnouncements())?.data; 
-      setAnnouncements(announcements);
-      setCountList(data.countList);
-    } catch (error) {
-      console.log(error);
-    }
-    setIsLoading(false);
-  }
+  const id = account?.customerId || '';
+  const firstName = account?.firstName || '';
+  const office = officeFor(account?.city);
+  const ready = counts?.readyForReceivement || 0;
+
+  const routes = pricing?.shipping?.routes || [];
+  const todayPrices = routes.filter((r) => r.country === 'china' || r.country === 'uae').slice(0, 3);
+  const rate = pricing?.exchangeRate;
+  const pricesUpdated = updatedLabel(pricing?.shipping?.updatedAt);
+
+  const stats = [
+    { key: 'active', label: 'طلبيات نشطة', value: counts?.activeOrders, icon: PackageOpen, to: '/orders' },
+    { key: 'ready', label: 'جاهزة للاستلام', value: counts?.readyForReceivement, icon: PackageCheck, to: '/orders', hot: ready > 0 },
+    { key: 'done', label: 'تم تسليمها', value: counts?.receivedOrders, icon: CircleCheckBig, to: '/orders' },
+    { key: 'invoices', label: 'إجمالي الفواتير', value: counts ? money(counts.totalPaidInvoices || 0) : undefined, icon: Receipt, to: '/orders', ltr: true },
+  ];
 
   return (
-    <div className="container mx-auto py-10 h-64 xl:w-11/12 px-3">
-      {announcements && announcements.length > 0 && announcements.map((announcement: Announcement) => (
-        <div className="mb-5">
-          <AlertInfo 
-            tint="info"
-            description={announcement.description}
-          />
-        </div>
-      ))}
-      
-      <div className="grid gap-4 xl:grid-cols-4 lg:grid-cols-2 mb-5">
-        <InfoWidget
-          icon={<FiPackage color="#3d3d3d" size={'46px'} />}
-          description={'طلبيات النشطه'}
-          total={String(countList?.activeOrders)}
-          bgColor={'bg-yellow-200'}
-          isLoading={isLoading}
-        />
-        <InfoWidget 
-          icon={<FaFileInvoiceDollar color="#3d3d3d" size={'40px'} />}
-          description={'اجمالي الفواتير'}
-          total={String(countList?.totalPaidInvoices) + '$'}
-          bgColor={'bg-gray-200'}
-          isLoading={isLoading}
-        />
-        <InfoWidget 
-          icon={<FaWarehouse color="#3d3d3d" size={'40px'} />}
-          description={'جاهزه للتسليم'}
-          total={String(countList?.readyForReceivement)}
-          bgColor={'bg-sky-100'}
-          isLoading={isLoading}
-        />
-        <InfoWidget 
-          icon={<FaCheck color="#3d3d3d" size={'40px'} />}
-          description={'تم التسليم'}
-          total={String(countList?.receivedOrders)}
-          bgColor={'bg-emerald-100'}
-          isLoading={isLoading}
-        />
-      </div>
-
-      <div className="grid gap-4 grid-cols-12 mb-4">
-        <div className="col-span-12 2xl:col-span-8 xl:col-span-8">
-          <AlertWidget />
-        </div>
-
-        <div className="col-span-12 2xl:col-span-4 xl:col-span-4">
-          <Card>
-            <div className="relative h-full overflow-hidden bg-cover rounded-xl" style={{ backgroundImage: `url('https://storage.cloud.google.com/exios-bucket/customer-shipping.jpg')` }}>
-              <span className="absolute top-0 left-0 w-full h-full bg-center bg-cover bg-gradient-to-tl from-gray-900 to-slate-800 opacity-80"></span>
-              <div className="relative z-10 flex flex-col flex-auto h-full p-4 text-end">
-                <h5 className="pt-2 mb-2 font-bold text-white text-end">كود الشحن الخاص بك هو</h5>
-                <div className="flex justify-end">
-                  <h5 className="mb-4 font-bold text-white w-fit text-4xl rounded-lg p-1 bg-slate-400">{account.customerId}</h5>
-                </div>
-                <p className="text-white text-end mb-5">يمكنك استعمال هذا الكود عند ارسال البضائع الى عناويننا، يعتبر هذا الكود ثابت ومخزون عليه جميع معلوماتك ماعليك الا ان تكتبه في العنوان و على صندوق</p>
-                <div className="flex justify-end">
-                  <Link className=" w-fit rounded-lg p-1 mt-auto bg-slate-500 mb-0 font-semibold leading-normal text-white group text-sm text-end" to={'/start-shipment'}>
-                    عرض التعليمات
-                    <i className="fas fa-arrow-right ease-bounce text-sm group-hover:translate-x-1.25 ml-1 leading-normal transition-all duration-200" aria-hidden="true"></i>
-                  </Link>
-                </div>
-              </div>
+    <div dir="rtl" lang="ar" className="hm-page page-enter w-full px-4 pb-16 pt-6 sm:px-6 lg:px-8 lg:pt-8">
+      <div className="mx-auto max-w-6xl">
+        {/* Welcome, the customer's code, and the one thing most visits are for */}
+        <header className="hm-hero">
+          <div className="hm-hero__text">
+            <p className="hm-hero__hello">{greeting()}{firstName ? `، ${firstName}` : ''}</p>
+            <h1>{ready > 0
+              ? (ready === 1 ? 'عندك طلبية جاهزة للاستلام' : `عندك ${ready} طلبيات جاهزة للاستلام`)
+              : 'من أين نشحن لك اليوم؟'}
+            </h1>
+            <div className="hm-hero__actions">
+              {ready > 0
+                ? <Link className="hm-btn hm-btn--light" to="/orders">عرض طلبياتي <ArrowLeft size={18} aria-hidden /></Link>
+                : <Link className="hm-btn hm-btn--light" to="/start-shipment"><Rocket size={18} aria-hidden /> ابدأ الشحن</Link>}
+              <Link className="hm-btn hm-btn--ghost" to="/address">عناويننا</Link>
             </div>
-          </Card>
-        </div>
-      </div>
+          </div>
+          <div className="hm-code">
+            <span className="hm-code__label">كود الشحن الخاص بك</span>
+            <bdi className="hm-code__value" dir="ltr">{id}</bdi>
+            <button type="button" className={`hm-code__copy ${copied === 'code' ? 'is-done' : ''}`} onClick={() => copy('code', id)}>
+              {copied === 'code' ? <><Check size={15} aria-hidden /> نُسخ</> : <><Copy size={15} aria-hidden /> نسخ الكود</>}
+            </button>
+            <span className="hm-code__hint">يُكتب في العنوان وعلى الكرتونة، وبه نعرف أن الطرد لك.</span>
+          </div>
+        </header>
 
-      <div className="grid gap-4 2xl:gap-10 2xl:grid-cols-9 xl:grid-cols-6">
-        <div className="col-span-1 2xl:col-span-3 xl:col-span-3">
-          <ShortcutInfoWidget 
-            title={'طلبياتي'}
-            description={'عرض جميع طلباتك التي وصلت الى مخزننا الخارجية'}
-            buttonLabel={'عرض'}
-            imgSrc={OrderImage}
-            path={"/orders"}
-          />
+        <div>
+          <AnnouncementBar announcements={announcements} />
+          {unreadReplies > 0 && (
+            <Link to="/suggestions" className="hm-notice">
+              <MessageSquareText size={20} aria-hidden />
+              <span>{unreadReplies === 1 ? 'وصلك رد جديد من المكتب على شكواك' : `وصلتك ${unreadReplies} ردود جديدة من المكتب على شكاواك`}</span>
+              <b>عرض الرد <ArrowLeft size={16} aria-hidden /></b>
+            </Link>
+          )}
         </div>
-        <div className="col-span-1 2xl:col-span-3 xl:col-span-3">
-          <ShortcutInfoWidget 
-            title={'عناوننا'}
-            description={'عرض جميع العناوين الخاصه بالشركة للشحن منه'}
-            buttonLabel={'عرض'}
-            imgSrc={Address}
-            path={"/address"}
-          />
+
+        {/* Numbers */}
+        <ul className="hm-stats">
+          {stats.map(({ key, label, value, icon: Icon, to, hot, ltr }) => (
+            <li key={key}>
+              <Link to={to} className={`hm-stat ${hot ? 'is-hot' : ''}`}>
+                <span className="hm-stat__icon" aria-hidden><Icon size={22} /></span>
+                <span className="hm-stat__label">{label}</span>
+                {value === undefined
+                  ? <span className="hm-sk hm-sk--num" aria-hidden />
+                  : <bdi className="hm-stat__value" dir={ltr ? 'ltr' : undefined}>{value}</bdi>}
+              </Link>
+            </li>
+          ))}
+        </ul>
+
+        <LatestPosts />
+
+        <div className="hm-grid">
+          {/* The two newest shipments and their packages */}
+          <RecentShipments orders={orders} total={orders?.length || 0} />
+
+          <aside className="hm-side">
+            {/* Today's prices */}
+            {(!!todayPrices.length || rate?.rate) && (
+              <section className="hm-card" aria-labelledby="hm-prices">
+                <div className="hm-card__head">
+                  <h2 id="hm-prices">أسعار اليوم</h2>
+                  <Link to="/prices/shipping">الحاسبة</Link>
+                </div>
+                <ul className="hm-prices">
+                  {todayPrices.map((r) => (
+                    <li key={r.key}>
+                      <span className="flag-frame"><Flag country={r.country} size={20} /></span>
+                      <span>{r.method === 'air' ? 'جوي' : 'بحري'} من {r.countryLabel || (r.country === 'china' ? 'الصين' : 'الإمارات')}</span>
+                      <b dir="ltr">{money(r.price)}</b>
+                      <small>لكل {r.unit === 'cbm' ? 'م³' : 'كجم'}</small>
+                    </li>
+                  ))}
+                  {rate?.rate && (
+                    <li className="hm-prices__rate">
+                      <span className="hm-prices__usd" aria-hidden>$</span>
+                      <span>سعر صرف الدولار</span>
+                      <b dir="ltr">{rate.rate}</b>
+                      <small>دينار</small>
+                    </li>
+                  )}
+                </ul>
+                {pricesUpdated && <p className="hm-muted">آخر تحديث للأسعار: {pricesUpdated.short}</p>}
+              </section>
+            )}
+
+            {/* The customer's office */}
+            <section className="hm-card hm-office" aria-labelledby="hm-office">
+              <div className="hm-card__head"><h2 id="hm-office">{office.name}</h2><span className="hm-office__tag">مكتبك</span></div>
+              <p className="hm-office__address"><MapPin size={16} aria-hidden /> {office.address}</p>
+              <div className="hm-office__actions">
+                <a
+                  className="hm-btn hm-btn--primary"
+                  href={whatsappLink(office.whatsapp, `مرحباً، أنا ${[account?.firstName, account?.lastName].filter(Boolean).join(' ') || 'عميل إكسيوس'}${id ? ` - كود العميل ${id}` : ''}.\n`)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <TbBrandWhatsapp size={19} aria-hidden /> واتساب
+                </a>
+                <a className="hm-btn hm-btn--outline" href={`tel:${office.phones[0]}`}><Phone size={16} aria-hidden /> <bdi dir="ltr">{office.phones[0]}</bdi></a>
+              </div>
+            </section>
+          </aside>
         </div>
-        <div className="col-span-1 2xl:col-span-3 xl:col-span-3">
-          <ShortcutInfoWidget 
-            title={'الاسعار'}
-            description={'اسعار الشراء والشحن من جميع الدول التي نتعامل معه'}
-            buttonLabel={'عرض'}
-            imgSrc={Prices}
-            path={"/prices"}
-          />
-        </div>
-        <div className="col-span-1 2xl:col-span-3 xl:col-span-3">
-          <ShortcutInfoWidget 
-            title={'الشروط'}
-            description={'شروط الشركة للشراء والشحن من عن طريقنا ونقاط مهمه في تفاصيل الشحن'}
-            buttonLabel={'عرض'}
-            imgSrc={Terms}
-            path={'/terms-privacy'}
-          />
-        </div>
-        <div className="col-span-1 2xl:col-span-3 xl:col-span-3">
-          <ShortcutInfoWidget 
-            title={'التواصل'}
-            description={'موجودين في خدمتكم على مدار 24 ساعة متواصله خلال 7 ايام'}
-            buttonLabel={'عرض'}
-            imgSrc={Contact}
-            path={'/contact-us'}
-          />
-        </div>
+
+        {/* Everything else, one tap away */}
+        <section aria-labelledby="hm-short">
+          <h2 id="hm-short" className="hm-title">الوصول السريع</h2>
+          <ul className="hm-shortcuts">
+            {SHORTCUTS.map(({ to, icon: Icon, title, text }) => (
+              <li key={to}>
+                <Link to={to} className="hm-short">
+                  <span className="hm-short__icon" aria-hidden><Icon size={21} /></span>
+                  <span className="hm-short__text"><b>{title}</b><small>{text}</small></span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
       </div>
-      
-      <br />
     </div>
-  )
-}
+  );
+};
 
 export default Home;

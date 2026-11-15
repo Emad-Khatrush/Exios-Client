@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import {
   TbArrowLeft,
   TbBrandFacebook,
+  TbBrandTiktok,
   TbBoxMultiple,
   TbBrandWhatsapp,
   TbBuildingBank,
@@ -26,6 +27,7 @@ import {
   TbX,
 } from 'react-icons/tb';
 
+import { EMAIL, FACEBOOK_URL, OFFICES as offices, TIKTOK_URL, whatsappLink } from '../../constants/contact';
 import logo from '../../../public/images/exios-logo.png';
 import portImage from '../../../public/images/landing/port.jpg';
 import shipImage from '../../../public/images/landing/ship.jpg';
@@ -132,24 +134,7 @@ const faqJsonLd = JSON.stringify({
   })),
 });
 
-// whatsapp: the number of each office that answers on WhatsApp (international format, no +)
-const offices = [
-  {
-    city: 'مكتب طرابلس',
-    address: 'باب بن غشير، زنقة ميدان مدرسة اقرأ',
-    phones: ['0915643265', '0912068211'],
-    whatsapp: '218915643265',
-  },
-  {
-    city: 'مكتب بنغازي',
-    address: 'الهواري - بنغازي',
-    phones: ['0919078031', '0919734019'],
-    whatsapp: '218919734019',
-  },
-];
-
-const EMAIL = 'emad.khatrush@exioslibya.com';
-const FACEBOOK_URL = 'https://www.facebook.com/exioscompany';
+// Offices, numbers and links live in constants/contact.ts, shared with the in-app contact page
 
 /** Fades its content up once it scrolls into view (skipped under reduced motion via CSS). */
 const Reveal = ({ children, className = '', delay = 0 }: { children: ReactNode; className?: string; delay?: number }) => {
@@ -556,11 +541,15 @@ const LandingPage = () => {
 
           <div className="mt-12 grid gap-4 lg:grid-cols-3">
             {offices.map((office, index) => (
-              <Reveal key={office.city} delay={index * 80}>
+              <Reveal key={office.key} delay={index * 80}>
                 <article className="h-full rounded-3xl border border-zinc-200 bg-white p-7">
                   <TbMapPin size={28} className="text-green-700" />
-                  <h3 className="mt-5 text-xl font-bold">{office.city}</h3>
+                  <h3 className="mt-5 text-xl font-bold">{office.name}</h3>
                   <p className="mt-2 leading-relaxed text-zinc-600">{office.address}</p>
+                  <a href={office.mapsUrl} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1.5 text-sm font-bold text-green-700 hover:underline">
+                    <TbMapPin size={16} />
+                    الاتجاهات على خرائط Google
+                  </a>
                   <ul className="mt-5 space-y-2">
                     {office.phones.map((phone) => (
                       <li key={phone}>
@@ -572,13 +561,13 @@ const LandingPage = () => {
                     ))}
                   </ul>
                   <a
-                    href={`https://wa.me/${office.whatsapp}`}
+                    href={whatsappLink(office.whatsapp)}
                     target="_blank"
                     rel="noreferrer"
                     className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-green-700 px-5 py-3 font-bold text-white transition hover:bg-green-800 active:scale-[0.98]"
                   >
                     <TbBrandWhatsapp size={22} />
-                    واتساب {office.city}
+                    واتساب {office.name}
                   </a>
                 </article>
               </Reveal>
@@ -602,6 +591,15 @@ const LandingPage = () => {
                 >
                   <TbBrandFacebook size={20} />
                   فيسبوك
+                </a>
+                <a
+                  href={TIKTOK_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-zinc-200 bg-white px-5 py-3 font-bold text-zinc-800 transition hover:border-zinc-400 active:scale-[0.98]"
+                >
+                  <TbBrandTiktok size={20} />
+                  تيك توك
                 </a>
               </article>
             </Reveal>

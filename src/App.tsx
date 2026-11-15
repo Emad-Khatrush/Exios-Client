@@ -1,28 +1,34 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
-import PrivateRoute from './components/PrivateRoute/PrivateRoute';
-import LandingPage from "./containers/LandingPage/LandingPage";
-import Register from './containers/Register/Register';
-import Login from './containers/Login/Login';
-import Home from './containers/Home/Home';
-import StartShipmentPage from './containers/StartShipmentPage/StartShipmentPage';
-import ClientOrders from './containers/ClientOrders/ClientOrders';
-import OrderInfoPage from './containers/OrderInfoPage/OrderInfoPage';
-import AddressPage from './containers/AddressPage/AddressPage';
-import PricesPage from './containers/PricesPage/PricesPage';
-import TermsAndPrivacy from './containers/TermsAndPrivacy/TermsAndPrivacy';
-import ContactUs from './containers/ContactUs/ContactUs';
-import SettingsPage from './containers/SettingsPage/SettingsPage';
 import { useSelector } from 'react-redux';
-import ResetPasswordPage from './containers/ResetPasswordPage/ResetPasswordPage';
-import AddTrackingNumbers from './containers/AddTrackingNumbers/AddTrackingNumbers';
-import SuggestionsPage from './containers/SuggestionsPage/SuggestionsPage';
-import ProhibitedItemsPage from './containers/ProhibitedItemsPage/ProhibitedItemsPage';
-
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import Announcements from './containers/Announcements/Announcements';
+import { initializeApp } from 'firebase/app';
+import { getAnalytics } from 'firebase/analytics';
+import LandingPage from './containers/LandingPage/LandingPage';
 import RouteChangeTracker from './components/RouteChangeTracker/RouteChangeTracker';
 import SeoManager from './components/SeoManager/SeoManager';
+import PageLoader from './components/PageLoader/PageLoader';
+
+// Every page except the landing page is its own file, downloaded the first time it is opened.
+// Visitors to the landing page no longer download the whole app, and each page opens with only
+// what it needs.
+// The signed-in shell (sidebar, passport gate, popup ads) too: landing page visitors never need it
+const PrivateRoute = lazy(() => import('./components/PrivateRoute/PrivateRoute'));
+const Register = lazy(() => import('./containers/Register/Register'));
+const Login = lazy(() => import('./containers/Login/Login'));
+const ResetPasswordPage = lazy(() => import('./containers/ResetPasswordPage/ResetPasswordPage'));
+const Home = lazy(() => import('./containers/Home/Home'));
+const StartShipmentPage = lazy(() => import('./containers/StartShipmentPage/StartShipmentPage'));
+const ClientOrders = lazy(() => import('./containers/ClientOrders/ClientOrders'));
+const OrderInfoPage = lazy(() => import('./containers/OrderInfoPage/OrderInfoPage'));
+const AddressPage = lazy(() => import('./containers/AddressPage/AddressPage'));
+const PricesPage = lazy(() => import('./containers/PricesPage/PricesPage'));
+const TermsAndPrivacy = lazy(() => import('./containers/TermsAndPrivacy/TermsAndPrivacy'));
+const ContactUs = lazy(() => import('./containers/ContactUs/ContactUs'));
+const SettingsPage = lazy(() => import('./containers/SettingsPage/SettingsPage'));
+const AddTrackingNumbers = lazy(() => import('./containers/AddTrackingNumbers/AddTrackingNumbers'));
+const SuggestionsPage = lazy(() => import('./containers/SuggestionsPage/SuggestionsPage'));
+const ProhibitedItemsPage = lazy(() => import('./containers/ProhibitedItemsPage/ProhibitedItemsPage'));
+const Announcements = lazy(() => import('./containers/Announcements/Announcements'));
 
 declare const process: {
   env: Record<string, string | undefined>;
@@ -38,47 +44,48 @@ const firebaseConfig = {
   measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
 };
 
+// Once, when the app loads (it used to run again on every render of App)
+getAnalytics(initializeApp(firebaseConfig));
+
 const App = () => {
   const isLoggedIn = useSelector((state: any) => state.session.isLoggedIn);
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  getAnalytics(app);
 
   return (
       <Router>
         <RouteChangeTracker />
         <SeoManager />
-        <Routes>
-          <Route path='/' element={<LandingPage />} />
-          {!isLoggedIn &&
-            <>
-              <Route path='/login' element={<Login />} />
-              <Route path='/signup' element={<Register />} />
-              <Route path='/reset-password' element={<ResetPasswordPage />} />
-            </>
-          }
-          <Route element={<PrivateRoute />}>
-            <Route path='/home' element={<Home />} />
-            <Route path='/start-shipment' element={<StartShipmentPage />} />
-            <Route path='/add-tracking-numbers' element={<AddTrackingNumbers />} />
-            <Route path='/address' element={<AddressPage />} />
-            {/* The old link (home page shortcut, bookmarks) opens shipping prices */}
-            <Route path='/prices' element={<Navigate to='/prices/shipping' replace />} />
-            <Route path='/prices/shipping' element={<PricesPage group='shipping' />} />
-            <Route path='/prices/purchase' element={<PricesPage group='purchase' />} />
-            <Route path='/prices/transfers' element={<PricesPage group='transfers' />} />
-            <Route path='/announcements' element={<Announcements />} />
-            <Route path='/settings' element={<SettingsPage />} />
-            <Route path='/contact-us' element={<ContactUs />} />
-            <Route path='/terms-privacy' element={<TermsAndPrivacy />} />
-            <Route path='/orders' element={<ClientOrders />} />
-            <Route path='/order/:id' element={<OrderInfoPage />} />
-            <Route path='/suggestions' element={<SuggestionsPage />} />
-            <Route path='/prohibited-items' element={<ProhibitedItemsPage />} />
-            <Route path='*' element={<Navigate to='/home' />} />
-          </Route>
-        </Routes>
+        <Suspense fallback={<PageLoader fullScreen />}>
+          <Routes>
+            <Route path='/' element={<LandingPage />} />
+            {!isLoggedIn &&
+              <>
+                <Route path='/login' element={<Login />} />
+                <Route path='/signup' element={<Register />} />
+                <Route path='/reset-password' element={<ResetPasswordPage />} />
+              </>
+            }
+            <Route element={<PrivateRoute />}>
+              <Route path='/home' element={<Home />} />
+              <Route path='/start-shipment' element={<StartShipmentPage />} />
+              <Route path='/add-tracking-numbers' element={<AddTrackingNumbers />} />
+              <Route path='/address' element={<AddressPage />} />
+              {/* The old link (home page shortcut, bookmarks) opens shipping prices */}
+              <Route path='/prices' element={<Navigate to='/prices/shipping' replace />} />
+              <Route path='/prices/shipping' element={<PricesPage group='shipping' />} />
+              <Route path='/prices/purchase' element={<PricesPage group='purchase' />} />
+              <Route path='/prices/transfers' element={<PricesPage group='transfers' />} />
+              <Route path='/announcements' element={<Announcements />} />
+              <Route path='/settings' element={<SettingsPage />} />
+              <Route path='/contact-us' element={<ContactUs />} />
+              <Route path='/terms-privacy' element={<TermsAndPrivacy />} />
+              <Route path='/orders' element={<ClientOrders />} />
+              <Route path='/order/:id' element={<OrderInfoPage />} />
+              <Route path='/suggestions' element={<SuggestionsPage />} />
+              <Route path='/prohibited-items' element={<ProhibitedItemsPage />} />
+              <Route path='*' element={<Navigate to='/home' />} />
+            </Route>
+          </Routes>
+        </Suspense>
       </Router>
   )
 }

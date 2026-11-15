@@ -1,0 +1,40 @@
+/* Forgotten password: one small card in the middle of the page, no photo (login.css for the parts) */
+@media (min-width: 960px) {
+  .lg.rs { grid-template-columns: 1fr; }
+}
+.rs-box { max-width: 400px; text-align: center; }
+.rs-box .lg-logo { width: 92px; margin-bottom: 18px; }
+.rs-form, .rs-box .lg-field { text-align: start; }
+.rs-form { margin-top: 20px; }
+
+/* the round badge above the heading */
+.rs-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 12px;
+  border-radius: 18px;
+  background: #e8f3ec;
+  color: var(--lg-brand);
+}
+.rs-icon.is-ok { background: var(--lg-brand); color: #fff; box-shadow: 0 10px 22px -12px rgba(21, 128, 61, 0.8); }
+.rs-icon.is-warn { background: #fef3c7; color: #b45309; }
+@media (prefers-reduced-motion: no-preference) {
+  .rs-icon.is-ok { animation: rs-pop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.35) both; }
+}
+@keyframes rs-pop { from { opacity: 0; transform: scale(0.6) rotate(-8deg); } }
+
+/* after sending / saving */
+.rs-done { display: grid; justify-items: center; }
+.rs-done .lg-lead { display: block; }
+.rs-email { display: inline-block; margin-top: 2px; font-weight: 800; color: var(--lg-ink); word-break: break-all; }
+.rs-tips { display: grid; gap: 4px; margin: 14px 0 0; padding: 10px 14px; border-radius: 12px; background: #f4f7f5; font-size: 0.85rem; color: var(--lg-muted); list-style: none; }
+.rs-btn { width: 100%; margin-top: 16px; text-decoration: none; }
+.rs-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 10px; margin-top: 14px; font-size: 0.88rem; color: var(--lg-muted); }
+.rs-link { display: inline-flex; align-items: center; gap: 5px; font-weight: 800; color: var(--lg-brand); }
+.rs-link:hover:not(:disabled) { text-decoration: underline; text-underline-offset: 3px; }
+.lg .rs-link:disabled { background: transparent; color: var(--lg-muted); cursor: default; }
+.rs-center { margin-top: 10px; text-align: center; }
+.rs-box .lg-help a { display: inline-flex; align-items: center; gap: 4px; }
+.rs-box .rg-meter { margin-top: 2px; }

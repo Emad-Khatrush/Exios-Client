@@ -1,617 +1,697 @@
-import { useEffect, useState } from "react";
-import { FaShippingFast, FaWarehouse } from "react-icons/fa";
-import { GrStakeholder } from "react-icons/gr";
-import { MdExpandMore } from "react-icons/md";
-import Card from "../../components/Card/Card";
-import CustomStepper from "../../components/CustomStepper/CustomStepper";
-import ImageViewer from "../../components/ImageViewer/ImageViewer";
-import InfoDetailsCard from "../../components/InfoDetailsCard/InfoDetailsCard";
-import { Accordion, AccordionDetails, AccordionSummary, Alert, AlertColor, Avatar, AvatarGroup, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Snackbar, Typography } from "@mui/material";
-import Badge from "../../components/Badge/Badge";
-import { useNavigate, useParams } from "react-router-dom";
-import api from "../../api";
-import { Announcement, Package, PackageDetails } from "../../models";
-import moment from "moment-timezone";
-import { convertGoogleStorageUrl, getStatusOfPackage } from "../../utils/methods";
-import AlertInfo from "../../components/AlertInfo/AlertInfo";
-import SwipeableTextMobileStepper from "../../components/SwipeableTextMobileStepper/SwipeableTextMobileStepper";
-import OrderRatingWidget from "../../components/OrderRatingWidget/OrderRatingWidget";
-import OrderNoteCustomizer from "../../components/OrderNoteCustomizer/OrderNoteCustomizer";
-import InvoiceTrackingWidget from "./InvoiceTrackingWidget";
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import {
+  AlertTriangle, ArrowRight, Ban, Box, Check, CircleHelp, Clock3, Copy, ListX, Loader2, MapPin, OctagonX, PackageSearch, Phone,
+  Plane, Printer, Receipt, ScanSearch, Ship, StickyNote, Trash2, Truck,
+} from 'lucide-react';
+import { TbBrandWhatsapp } from 'react-icons/tb';
+import api from '../../api';
+import { Package, PackageDetails } from '../../models';
+import { OFFICES, officeFor, whatsappLink } from '../../constants/contact';
+import { libyanCities } from '../../constants/info';
+import { getOrderTheme, OrderTheme } from '../../constants/orderThemes';
+import logo from '../../../public/images/exios-logo.png';
+import { useCopy } from '../../utils/useCopy';
+import Flag from '../PricesPage/Flag';
+import OrderRatingWidget from '../../components/OrderRatingWidget/OrderRatingWidget';
+import OrderNoteCustomizer from '../../components/OrderNoteCustomizer/OrderNoteCustomizer';
+import PackageCard from './PackageCard';
+import FileViewer, { KIND_ICONS, toViewerFile } from '../../components/FileViewer/FileViewer';
+import {
+  COUNTRY_KEYS, METHOD_LABEL, PACKAGE_STAGES, SHIPMENT_STAGES, dateText, goodsName, isBlocked, isPurchaseInvoice, shipMethod, nextStepText,
+  packageStage, placeName, shippingCost, relativeDay, shipmentStage, stageKey, stageLabel, timeText, usd, visiblePackages,
+} from '../ClientOrders/orderUtils';
+import '../ClientOrders/orders.css';
+import './orderInfo.css';
 
-// const currencyLabels: any = {
-//   USD: '$',
-//   LYD: 'دينار'
-// }
+const ORDER_FIELDS = {
+  orderId: 1, createdAt: 1, updatedAt: 1, orderStatus: 1, isPayment: 1, isShipment: 1, isFinished: 1, isCanceled: 1,
+  unsureOrder: 1, productName: 1, customerInfo: 1, totalInvoice: 1, images: 1, activity: 1,
+  'customization.note': 1, 'customization.theme': 1,
+  shippingBlocked: 1, shippingBlockReason: 1, shippingBlockedAt: 1,
+  'shipment.method': 1, 'shipment.fromWhere': 1, 'shipment.toWhere': 1, 'shipment.estimatedDelivery': 1,
+  'paymentList._id': 1, // needed to match each package to its trip
+  'paymentList.status': 1, 'paymentList.images': 1, 'paymentList.settings': 1,
+  'paymentList.deliveredPackages.arrivedAt': 1, 'paymentList.deliveredPackages.trackingNumber': 1,
+  'paymentList.deliveredPackages.shipmentMethod': 1, 'paymentList.deliveredPackages.weight': 1,
+  'paymentList.deliveredPackages.exiosPrice': 1, 'paymentList.deliveredPackages.boxesCount': 1,
+  'paymentList.deliveredPackages.deliveredInfo': 1,
+};
 
-const shipmentMethodsLabels = {
-  air: 'جوي',
-  sea: 'بحري',
-  unknown: 'غير معروف'
-}
+// Files open in the same viewer as the admin panel (images, PDFs, video…)
+type Photos = { files: any[], index: number } | null;
 
-const OrderInfoPage = () => {
-  const [ activeStep, setActiveStep ] = useState(0);
-  const [order, setOrder] = useState<Package>();
-  const [orderRating, setOrderRating] = useState();
-  const [isLoading, setIsLoading] = useState(false);
-  const [showImages, setShowImages] = useState<any>(undefined);
-  const [announcements, setAnnouncements] = useState([]);
-  const [alert, setAlert] = useState({
-    tint: 'success',
-    message: ''
-  });
-  
-  let { id: orderId } = useParams();
-  const history = useNavigate();
+const cleanText = (v?: any) => {
+  const t = String(v ?? '').trim();
+  return t && t !== '.' && t !== '-' && t !== '0' ? t : '';
+};
 
-  const fetchOrder = async () => {
-    setIsLoading(true);
+/* ---------- Shared pieces ---------- */
 
-    const orderRate = await api.getOrderRating(orderId);    
-    setOrderRating(orderRate.data);
-
-    const order = await api.getSingleOrder(orderId || '', {
-      orderId: 1,
-      createdAt: 1,
-      orderStatus: 1,
-      isPayment: 1,
-      isShipment: 1,
-      productName: 1,
-      customerInfo: 1,
-      totalInvoice: 1,
-      debt: 1,
-      images: 1,
-      activity: 1,
-      unsureOrder: 1,
-      'customization.note': 1,
-      'customization.theme': 1,
-      'shipment.method': 1,
-      'shipment.fromWhere': 1,
-      'shipment.toWhere': 1,
-      'paymentList._id': 1, // needed to match each package to its trip
-      'paymentList.status': 1,
-      'paymentList.images': 1,
-      'paymentList.settings': 1,
-      'paymentList.deliveredPackages.arrivedAt': 1,
-      'paymentList.deliveredPackages.trackingNumber': 1,
-      'paymentList.deliveredPackages.shipmentMethod': 1,
-      'paymentList.deliveredPackages.weight': 1,
-      'paymentList.deliveredPackages.exiosPrice': 1,
-    });
-    setOrder(order.data);
-
-    const orderStatus = order.data.orderStatus;
-    if ((order.data.isPayment && order.data.isShipment) || (order.data.isPayment && !order.data.isShipment)) {
-      if (orderStatus === 2 || orderStatus === 3) {
-        setActiveStep(2);
-      } else if (orderStatus > 3) {
-        setActiveStep(orderStatus - 1);
-      } else {
-        setActiveStep(orderStatus);
-      }
-    } else if (!order.data.isPayment && order.data.isShipment) {
-      if (orderStatus === 1 || orderStatus === 2) {
-        setActiveStep(1);
-      } else if (orderStatus > 2) {
-        setActiveStep(orderStatus - 1);
-      } else {
-        setActiveStep(orderStatus);
-      }
-    }
-    setIsLoading(false);
-  }
-
-  useEffect(() => {
-    fetchOrder();
-    fetchAnnouncements();
-  }, [])
-
-  const fetchAnnouncements = async () => {
-    try {
-      setIsLoading(true);
-      const announcements = (await api.getAnnouncements())?.data; 
-      setAnnouncements(announcements);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  const deleteUnsureOrder = async () => {
-    try {
-      setIsLoading(true);
-      await api.deleteUnsureOrder(orderId as string);
-      setAlert({
-        message: 'تم حذف الطلب بنجاح',
-        tint: 'success'
-      });
-      history('/orders');
-    } catch (error) {
-      console.log(error);
-      setAlert({
-        message: 'حدث خطا اثناء انشاء العملية',
-        tint: 'error'
-      });
-    }
-    setIsLoading(false);
-  }
-
-  
-  if (isLoading || !order) {
-    return (
-      <Box className='h-full items-center justify-center' sx={{ display: 'flex' }}>
-        <CircularProgress />
-      </Box>
-    )
-  }
-  
-  const steps = generateSteps(order);
-  // const columns = [...defaultColumns()];
-  // const list = generateDataToListType(order.activity).reverse();
-
-  const customerInfo = [
-    {
-      label: 'رقم الكود',
-      value: order.orderId
-    },
-    {
-      label: 'اسم الزبون',
-      value: order.customerInfo.fullName
-    },
-    {
-      label: 'رقم الهاتف',
-      value: order.customerInfo.phone
-    },
-    {
-      label: 'بريد الاكتروني',
-      value: order.customerInfo.email || '-'
-    },
-  ]
-
-  const packageInfo = [
-    {
-      label: 'نوع البضائع',
-      value: order.productName
-    },
-    {
-      label: 'الشحنه من',
-      value: order.shipment.fromWhere
-    },
-    {
-      label: 'عنوان الاستلام',
-      value: order.shipment.toWhere
-    },
-    {
-      label: 'نوع الشحن',
-      value: shipmentMethodsLabels[order.shipment.method]
-    }
-  ]
-
-  const otherInfo = [
-    {
-      label: 'تاريخ انشاء الفاتورة',
-      value: moment(order.createdAt).format('DD/MM/YYYY')
-    },
-    {
-      label: 'حجم/وزن',
-      value: '-'
-    },
-    {
-      label: 'قيمة الفاتورة',
-      value: `${order?.totalInvoice} $`
-    },
-    // {
-    //   label: 'الدين المتبقي',
-    //   value: order?.debt?.total > 0 ? `${order?.debt?.total} ${currencyLabels[order?.debt?.currency]}` : 'لا يوجد',
-    //   tint: 'danger'
-    // }
-  ]
-
-  const relatedImages: any = []; 
-  order.images.forEach(img => {
-    relatedImages.push(convertGoogleStorageUrl(img.path));
-  })
-
-  const packages = order.paymentList;
-  const showRatingWidget = ((order.orderStatus === 4 || order.orderStatus === 5) || !!(packages.find((packageDetail: PackageDetails) => packageDetail.status.received))) && !orderRating;
-  
-  // Invoice
-  if (order.isPayment && !order.isShipment) {
-    return (
-      <div className="container mx-auto py-10 h-64 xl:w-11/12 px-3">
-        {announcements && announcements.length > 0 && announcements.map((announcement: Announcement) => (
-          <div className="mb-5">
-            <AlertInfo 
-              tint="info"
-              description={announcement.description}
-            />
-          </div>
+const Activity = ({ order }: { order: Package }) => {
+  const items = (order.activity || []).slice().reverse();
+  if (!items.length) return null;
+  return (
+    <section className="oi-card" aria-labelledby="oi-activity">
+      <h2 id="oi-activity" className="oi-card__title">سجل الطلبية</h2>
+      <ol className="oi-log">
+        {items.map((a, i) => (
+          <li key={i} className={i === 0 ? 'is-latest' : ''}>
+            <span className="oi-log__dot" aria-hidden />
+            <p className="oi-log__text bidi-text" dir="auto">{a.description}</p>
+            <p className="oi-log__meta">
+              {cleanText(a.country) && <span>{a.country}</span>}
+              {a.createdAt && <span>{relativeDay(a.createdAt)} · <bdi dir="ltr">{timeText(a.createdAt)}</bdi></span>}
+            </p>
+          </li>
         ))}
+      </ol>
+    </section>
+  );
+};
 
-        {order.isCanceled &&
-          <div className="mb-4">
-            <AlertInfo
-              tint="danger"
-              description={'هذه طلبية قد تم الغاءها من قبل ادارة الشركة، اذا تظن ان حدث خطا يرجى تواصل مع اقرب مندوب للشركة'}
-            />
-          </div>
-        }
-
-        {order.unsureOrder &&
-          <Card
-            className="rounded-2xl mb-5 text-end"
-          >
-            <p>
-              بعد ادخالك ارقام التتبع تقوم الشركة بالتتبع هذه ارقام وعندى وصوله الى مخزننا سيتم تحديث الطلبية الى الحالة النشطه
-            </p>
-            <p>
-              اذا لم ترسل بضائع الى مخزننا، او انشأت طلب تتبع الطلبية بالخطأ، يمكنك حذف الطلب عبر زر الحذف ادناه
-            </p>
-            <button
-              className="disabled:bg-slate-400 disabled:text-white-500 group my-1 relative py-2 px-4 mt-2 border border-transparent w-52 md:w-fit text-xs md:text-sm font-bold rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-              onClick={deleteUnsureOrder}
-              disabled={isLoading}
-            >
-              حذف هذه الطلبية
+const Receipts = ({ order, onOpen }: { order: Package, onOpen: (p: Photos) => void }) => {
+  const files = (order.images || []).filter((img) => img?.path);
+  if (!files.length) return null;
+  return (
+    <section className="oi-card" aria-labelledby="oi-receipts">
+      <h2 id="oi-receipts" className="oi-card__title">الإيصالات والمستندات</h2>
+      <div className="oi-docs">
+        {files.map((raw, i) => {
+          const f = toViewerFile(raw);
+          const Icon = KIND_ICONS[f.kind];
+          return (
+            <button key={`${i}:${f.url}`} type="button" className="oi-doc" onClick={() => onOpen({ files, index: i })} aria-label={`عرض المستند ${i + 1}`}>
+              {f.kind === 'image'
+                ? <img src={f.url} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} />
+                : <span className="oi-thumb__file"><Icon size={24} aria-hidden /><em>{f.ext || 'file'}</em></span>}
             </button>
-          </Card>
-        }
-
-        <OrderNoteCustomizer
-          orderId={orderId || ''}
-          note={order.customization?.note}
-          themeId={order.customization?.theme}
-          onSaved={(customization) => setOrder(prev => prev ? { ...prev, customization } : prev)}
-        />
-
-        {showRatingWidget &&
-          <OrderRatingWidget />
-        }
-
-        <InvoiceTrackingWidget
-          announcements={announcements}
-          order={order}
-        />
+          );
+        })}
       </div>
-    )
-  }
+    </section>
+  );
+};
+
+const HelpCard = ({ order, office, customerId }: { order: Package, office: ReturnType<typeof officeFor>, customerId: string }) => (
+  <section className="oi-card oi-help oi-noprint" aria-labelledby="oi-help">
+    <CircleHelp size={22} aria-hidden />
+    <div>
+      <h2 id="oi-help">عندك سؤال عن هذه الطلبية؟</h2>
+      <p>راسل {office.name}، ورقم الطلبية مكتوب في رسالتك.</p>
+    </div>
+    <a
+      className="oi-btn oi-btn--wa"
+      href={whatsappLink(office.whatsapp, `مرحباً، عندي سؤال عن الطلبية رقم ${order.orderId}${customerId ? ` (كود العميل ${customerId})` : ''}.\n`)}
+      target="_blank"
+      rel="noreferrer"
+    >
+      <TbBrandWhatsapp size={19} aria-hidden /> واتساب
+    </a>
+  </section>
+);
+
+const CopyChip = ({ value, copied, copy }: { value: string, copied: string, copy: (id: string, v: string) => void }) => (
+  <button type="button" className={`or-copy ${copied === 'order' ? 'is-done' : ''}`} onClick={() => copy('order', value)} aria-label={`نسخ الرقم ${value}`}>
+    <bdi dir="ltr">{value}</bdi>
+    {copied === 'order' ? <Check size={13} aria-hidden /> : <Copy size={13} aria-hidden />}
+  </button>
+);
+
+// The customer's colour, pressed onto the order like a postage stamp.
+// - pressKey changes on arrival and on every save: the stamp is pressed again, with an ink ring.
+// - while picking, its colour eases with the page (it is drawn from --oi-accent) and a sheen
+//   passes over it for each new colour, so it looks freshly inked rather than swapped.
+const ThemeStamp = ({ theme, note, preview, pressKey }: { theme: OrderTheme, note?: string, preview: boolean, pressKey: number }) => (
+  <span className="oi-tstamp-wrap oi-noprint" key={pressKey}>
+    <button
+      type="button"
+      className="oi-tstamp"
+      style={{ color: theme.text }}
+      onClick={() => document.getElementById('oi-note-anchor')?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
+      aria-label={note ? `ملاحظتي: ${note}` : 'معاينة لون الطلبية'}
+    >
+      <i className="oi-tstamp__sheen" key={theme.id} aria-hidden />
+      <StickyNote size={16} aria-hidden />
+      <span className="oi-tstamp__label">{preview && !note ? 'معاينة' : 'ملاحظتي'}</span>
+      {note && <span className="oi-tstamp__text">{note}</span>}
+    </button>
+  </span>
+);
+
+/* ---------- Purchase invoice ---------- */
+
+const PurchaseView = ({ order, setOrder, onPhotos, office, customerId, customerName, theme, preview, onPreview, pressKey }: {
+  order: Package, setOrder: (o: Package) => void, onPhotos: (p: Photos) => void, office: ReturnType<typeof officeFor>,
+  customerId: string, customerName: string, theme: OrderTheme | null, preview: boolean, onPreview: (t?: string | null) => void,
+  pressKey: number,
+}) => {
+  const { copied, copy } = useCopy();
+  const paid = Number(order.orderStatus) >= 1;
+  const name = goodsName(order);
+  const stamp = order.isCanceled ? 'ملغاة' : paid ? 'تم الشراء' : 'قيد الشراء';
 
   return (
-    <div className="container mx-auto py-10 h-64 xl:w-11/12 px-3">
-      {announcements && announcements.length > 0 && announcements.map((announcement: Announcement) => (
-        <div className="mb-5">
-          <AlertInfo 
-            tint="info"
-            description={announcement.description}
-          />
+    <div className="oi-purchase or-anim" style={{ ['--i' as any]: 1 }}>
+      <article className={`oi-bill ${order.isCanceled ? 'is-canceled' : paid ? 'is-paid' : 'is-pending'}`} aria-labelledby="oi-bill-title">
+        {/* Printed copy only: the company's letterhead */}
+        <div className="oi-print-head">
+          <img src={logo} alt="Exios" />
+          <div>
+            <b>شركة اكسيوس للشحن وخدمات الشراء</b>
+            <span>www.exioslibya.com</span>
+          </div>
+          <div className="oi-print-head__doc">
+            <b>فاتورة شراء</b>
+            <span>رقم <bdi dir="ltr">{order.orderId}</bdi></span>
+          </div>
         </div>
-      ))}
-      
-      {order.isCanceled &&
-        <div className="mb-4">
-          <AlertInfo
-            tint="danger"
-            description={'هذه طلبية قد تم الغاءها من قبل ادارة الشركة، اذا تظن ان حدث خطا يرجى تواصل مع اقرب مندوب للشركة'}
-          />
-        </div>
-      }
 
-      {order.shipment.method === 'unknown' &&
-        <div className="mb-4">
-          <AlertInfo
-            tint="warning"
-            description={`طريقة الشحن غير معروفة، يرجى التواصل مع خدمة العملاء واعلامهم بطريقة الشحن جوي ام بحري.`}
-          />
-        </div>
-      }
+        {theme && <div className="oi-bill__theme"><ThemeStamp theme={theme} note={order.customization?.note} preview={preview} pressKey={pressKey} /></div>}
 
-      {order.unsureOrder &&
-        <Card
-          className="rounded-2xl mb-5 text-end"
-        >
-          <p>
-            بعد ادخالك ارقام التتبع تقوم الشركة بالتتبع هذه ارقام وعندى وصوله الى مخزننا سيتم تحديث الطلبية الى الحالة النشطه
-          </p>
-          <p>
-            اذا لم ترسل بضائع الى مخزننا، او انشأت طلب تتبع الطلبية بالخطأ، يمكنك حذف الطلب عبر زر الحذف ادناه 
-          </p>
-          <button
-            className="disabled:bg-slate-400 disabled:text-white-500 group my-1 relative py-2 px-4 mt-2 border border-transparent w-52 md:w-fit text-xs md:text-sm font-bold rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            onClick={deleteUnsureOrder}
-            disabled={isLoading}
-          >
-            حذف هذه الطلبية
+        <div className="oi-bill__top">
+          <span className="oi-bill__brand"><Receipt size={18} aria-hidden /> <span id="oi-bill-title">فاتورة شراء</span></span>
+          <span className="or-stamp">{stamp}</span>
+        </div>
+
+        <p className="oi-bill__label">قيمة الفاتورة</p>
+        <p className="oi-bill__amount"><bdi dir="ltr">{usd(order.totalInvoice)}</bdi></p>
+
+        <dl className="oi-bill__rows">
+          <div><dt>رقم الفاتورة</dt><dd><CopyChip value={order.orderId} copied={copied} copy={copy} /></dd></div>
+          <div><dt>التاريخ</dt><dd>{dateText(order.createdAt)}</dd></div>
+          {name !== 'فاتورة شراء' && <div><dt>البضاعة</dt><dd>{name}</dd></div>}
+          {(cleanText(order.customerInfo?.fullName) || customerName) && <div><dt>العميل</dt><dd>{cleanText(order.customerInfo?.fullName) || customerName}</dd></div>}
+          {customerId && <div><dt>كود العميل</dt><dd><bdi dir="ltr">{customerId}</bdi></dd></div>}
+          <div><dt>الحالة</dt><dd>{stamp}</dd></div>
+        </dl>
+
+        {/* Two steps only: the invoice is made, then we pay the seller */}
+        {!order.isCanceled && (
+          <ol className="oi-bill__steps">
+            <li className="is-done"><span aria-hidden><Check size={13} strokeWidth={3} /></span>أُنشئت الفاتورة</li>
+            <li className={paid ? 'is-done' : 'is-now'}>
+              <span aria-hidden>{paid ? <Check size={13} strokeWidth={3} /> : <Clock3 size={13} />}</span>
+              {paid ? 'دفعنا للبائع' : 'ندفع للبائع'}
+            </li>
+          </ol>
+        )}
+
+        <p className="oi-bill__note">
+          {order.isCanceled
+            ? 'أُلغيت هذه الفاتورة. إن كنت تظن أن هذا خطأ تواصل مع المكتب.'
+            : paid
+              ? 'دفعنا المبلغ للبائع. تابع معه موعد الإرسال، وعندما تصل البضاعة لمخزننا تظهر كشحنة جديدة في «الشحنات».'
+              : 'نجهّز عملية الشراء. نُحدّث الفاتورة عند الدفع للبائع.'}
+        </p>
+
+        {/* Printed copy only: where to reach us, and when it was printed */}
+        <div className="oi-print-foot">
+          <p>شكراً لتعاملك مع اكسيوس. المبالغ بالدولار الأمريكي.</p>
+          <ul>
+            {OFFICES.map((o) => (
+              <li key={o.key}><b>{o.name}</b> {o.address} · <bdi dir="ltr">{o.phones.join(' - ')}</bdi></li>
+            ))}
+          </ul>
+          <p className="oi-print-foot__meta">طُبعت من حساب العميل في تطبيق اكسيوس بتاريخ <bdi dir="ltr">{dateText(new Date())} {timeText(new Date())}</bdi></p>
+        </div>
+
+        <div className="oi-bill__actions oi-noprint">
+          {paid && <Link to="/orders" className="oi-btn oi-btn--outline">الشحنات</Link>}
+          <button type="button" className="oi-btn oi-btn--outline" onClick={() => window.print()}>
+            <Printer size={17} aria-hidden /> طباعة
           </button>
-        </Card>
-      }
-
-      <OrderNoteCustomizer
-        orderId={orderId || ''}
-        note={order.customization?.note}
-        themeId={order.customization?.theme}
-        onSaved={(customization) => setOrder(prev => prev ? { ...prev, customization } : prev)}
-      />
-
-      {showRatingWidget &&
-        <OrderRatingWidget />
-      }
-
-      <Card
-        className="rounded-2xl mb-5"
-      >
-        <CustomStepper
-          acriveStep={activeStep}
-          steps={steps}
-        />
-      </Card>
-
-      <div className="grid gap-6 grid-cols-1 xl:grid-cols-3 md:grid-cols-2 mb-5">
-        <InfoDetailsCard 
-          title="تفاصيل العميل"
-          data={customerInfo as any}
-        />
-
-        <InfoDetailsCard 
-          title="تفاصيل الشحنه"
-          data={packageInfo as any}
-        />
-
-        <InfoDetailsCard 
-          title="تفاصيل اخرى"
-          data={otherInfo as any}
-        />
-
-        <div>
-          <Card
-            className="rounded-2xl mb-5"
-          >
-            <h2 className='text-right text-2xl font-medium mb-7 mt-2'>صور متعلقة بالطلبية</h2>
-            <ImageViewer
-              images={relatedImages}
-            />
-          </Card>
         </div>
+      </article>
 
-        <div className="col-span-1 xl:col-span-2 md:col-span-2">
-          {/* Activity Timeline */}
-          {order?.activity?.length > 0 && (
-            <Card className="rounded-2xl shadow-md bg-white p-6 text-right">
-              <h2 className="text-xl font-bold mb-6 border-b pb-2">سجل النشاطات</h2>
+      <div className="oi-purchase__side">
+        <Receipts order={order} onOpen={onPhotos} />
+        <div id="oi-note-anchor">
+          <OrderNoteCustomizer
+            orderId={order._id}
+            note={order.customization?.note}
+            themeId={order.customization?.theme}
+            onPreview={onPreview}
+            onSaved={(customization) => setOrder({ ...order, customization })}
+          />
+        </div>
+        <Activity order={order} />
+        <HelpCard order={order} office={office} customerId={customerId} />
+      </div>
+    </div>
+  );
+};
 
-              <div className="relative border-r-2 border-gray-200 pr-6 space-y-6">
-                {order.activity
-                  .slice() // copy array
-                  .reverse() // show latest first
-                  .map((item, index) => (
-                  <div key={index} className="relative flex items-start">
-                    {/* Circle marker */}
-                    <div className="absolute -right-3 top-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs shadow">
-                      {index + 1}
-                    </div>
+/* ---------- Shipment ---------- */
 
-                    <div className="flex-1 pr-4">
-                      <p className="text-sm text-gray-600">
-                        <span className="font-semibold">{item.country}</span> - {item.description}
-                      </p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        {moment(item.createdAt).format('DD/MM/YYYY HH:mm')}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+const OrderInfoPage = () => {
+  const { id: orderId } = useParams();
+  const navigate = useNavigate();
+  const account = useSelector((state: any) => state.session.account);
+  const office = officeFor(account?.city);
+  const customerId = account?.customerId || '';
+  const { copied, copy } = useCopy();
+
+  const [order, setOrder] = useState<Package | null>(null);
+  const [rated, setRated] = useState(true);
+  const [failed, setFailed] = useState(false);
+  const [photos, setPhotos] = useState<Photos>(null);
+  const [pkgFilter, setPkgFilter] = useState<number | 'all'>('all');
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+  // While the customer picks a colour the page shows it live; undefined = not editing
+  const [previewTheme, setPreviewTheme] = useState<string | null | undefined>(undefined);
+  // The colour is inked in a moment after the page opens (so it eases in), and pressed again on each save
+  const [inked, setInked] = useState(false);
+  const [pressKey, setPressKey] = useState(0);
+  const [stamped, setStamped] = useState(false);
+  const stampTimer = useRef<number>();
+  const stampNow = () => {
+    setPressKey((k) => k + 1);
+    setStamped(true);
+    window.clearTimeout(stampTimer.current);
+    stampTimer.current = window.setTimeout(() => setStamped(false), 1400);
+  };
+  useEffect(() => () => window.clearTimeout(stampTimer.current), []);
+
+  useEffect(() => {
+    let alive = true;
+    setOrder(null);
+    setFailed(false);
+    api.getSingleOrder(orderId || '', ORDER_FIELDS)
+      .then((res: any) => { if (alive) setOrder(res.data); })
+      .catch(() => { if (alive) setFailed(true); });
+    api.getOrderRating(orderId)
+      .then((res: any) => { if (alive) setRated(!!res?.data); })
+      .catch(() => undefined);
+    return () => { alive = false; };
+  }, [orderId]);
+
+  const loadedId = order?._id;
+  useEffect(() => {
+    setInked(false);
+    if (!loadedId) return undefined;
+    const t = window.setTimeout(() => setInked(true), 280);
+    return () => window.clearTimeout(t);
+  }, [loadedId]);
+
+  const packages = useMemo(() => (order ? visiblePackages(order) : []), [order]);
+  const stageCounts = useMemo(() => {
+    const c: Record<number, number> = {};
+    packages.forEach((p) => { const s = packageStage(p); c[s] = (c[s] || 0) + 1; });
+    return c;
+  }, [packages]);
+
+  const deleteUnsure = async () => {
+    setDeleting(true);
+    setDeleteError('');
+    try {
+      await api.deleteUnsureOrder(orderId as string);
+      navigate('/orders?tab=unsure', { replace: true });
+    } catch {
+      setDeleteError('لم يُحذف الطلب. حاول مرة أخرى.');
+      setDeleting(false);
+    }
+  };
+
+  const back = (
+    <Link to={order && isPurchaseInvoice(order) ? '/orders?view=purchases' : '/orders'} className="oi-back oi-noprint">
+      <ArrowRight size={17} aria-hidden /> طلبياتي
+    </Link>
+  );
+
+  if (failed) {
+    return (
+      <div dir="rtl" lang="ar" className="or-page oi-page">
+        <div className="or-wrap">
+          {back}
+          <div className="or-empty">
+            <PackageSearch size={36} aria-hidden />
+            <b>لم نجد هذه الطلبية</b>
+            <p>ربما حُذفت أو أن الرابط غير صحيح. ابحث عنها في قائمة طلبياتك.</p>
+            <Link to="/orders" className="or-btn or-btn--primary">طلبياتي</Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!order) {
+    return (
+      <div dir="rtl" lang="ar" className="or-page oi-page" aria-busy="true">
+        <div className="or-wrap">
+          {back}
+          <div className="oi-sk oi-sk--head" />
+          <div className="oi-sk oi-sk--hero" />
+          <div className="oi-layout">
+            <div className="oi-sk oi-sk--block" />
+            <div className="oi-sk oi-sk--block" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const openPhotos = (p: Photos) => setPhotos(p);
+  const customerName = [account?.firstName, account?.lastName].filter(Boolean).join(' ');
+
+  // The order's colour: the saved one (only with a note, as on the list), or the one being previewed.
+  // It drives --oi-accent, which is animated, so the page eases from one colour to the next.
+  const savedTheme = order.customization?.note ? (order.customization?.theme || 'emerald') : null;
+  const themeId = previewTheme !== undefined ? previewTheme : savedTheme;
+  const previewing = previewTheme !== undefined;
+  // until the page has settled, show it in the plain green; then the customer's colour eases in
+  const theme = themeId && (inked || previewing) ? getOrderTheme(themeId) : null;
+  const themeStyle = theme ? ({ ['--oi-accent' as any]: theme.accent } as React.CSSProperties) : undefined;
+  const pageClass = `or-page oi-page ${theme ? 'has-theme' : ''} ${stamped ? 'is-stamped' : ''}`;
+  const lightbox = (
+    <FileViewer open={!!photos} files={photos?.files} startIndex={photos?.index || 0} onClose={() => setPhotos(null)} />
+  );
+
+  if (isPurchaseInvoice(order)) {
+    return (
+      <div dir="rtl" lang="ar" className={pageClass} style={themeStyle}>
+        <div className="or-wrap">
+          {back}
+          <PurchaseView
+            order={order}
+            setOrder={(o) => { setOrder(o); setPreviewTheme(undefined); if (o.customization?.note) stampNow(); }}
+            onPhotos={openPhotos}
+            office={office}
+            customerId={customerId}
+            customerName={customerName}
+            theme={theme}
+            preview={previewing}
+            onPreview={setPreviewTheme}
+            pressKey={pressKey}
+          />
+        </div>
+        {lightbox}
+      </div>
+    );
+  }
+
+  const stage = shipmentStage(order);
+  const blocked = isBlocked(order);
+  const key = blocked ? 'blocked' : order.unsureOrder ? 'unsure' : stageKey(order);
+  const country = COUNTRY_KEYS.includes(order.shipment?.fromWhere) ? order.shipment.fromWhere : '';
+  const from = placeName(order.shipment?.fromWhere);
+  const to = placeName(order.shipment?.toWhere);
+  // The order's destination when it is not the office's own city (sent on from there)
+  const toKey = String(order.shipment?.toWhere || '').trim().toLowerCase();
+  const toCity = libyanCities.find((c) => c.value === toKey || c.label === to);
+  const otherCity = to && toCity?.value !== office.key && (toCity?.label || to) !== office.city ? (toCity?.label || to) : '';
+  const method = shipMethod(order);
+  // packages the office left without a method (and not yet handed over)
+  const pkgsNoMethod = packages.filter((p) => p.deliveredPackages?.shipmentMethod === 'unknown' && packageStage(p) < 4).length;
+  const MethodIcon = blocked ? OctagonX : order.unsureOrder ? ScanSearch : method === 'sea' ? Ship : method === 'air' ? Plane : Box;
+  const delivered = order.isFinished || stage === 4 || packages.some((p) => p.status?.received);
+  // Where to collect: shown while the order, or any one of its packages, waits at the office
+  const showPickup = !blocked && (key === 'ready' || !!stageCounts[3]) && !order.isFinished && stage !== 4;
+  const showRating = delivered && !rated && !order.unsureOrder;
+
+  // Weight per unit across the packages, e.g. "42.5 كجم · 1.2 م³"
+  const totals = packages.reduce((acc, p) => {
+    const w = p.deliveredPackages?.weight;
+    if (w?.total) {
+      const unit = String(w.measureUnit || '').toLowerCase() === 'cbm' ? 'م³' : 'كجم';
+      acc[unit] = Math.round(((acc[unit] || 0) + Number(w.total)) * 100) / 100;
+    }
+    return acc;
+  }, {} as Record<string, number>);
+  const totalsText = Object.entries(totals).map(([u, v]) => `${v} ${u}`).join(' · ');
+  const cost = shippingCost(packages);
+
+  const filtered = pkgFilter === 'all' ? packages : packages.filter((p) => packageStage(p) === pkgFilter);
+  const stagesPresent = Object.keys(stageCounts).map(Number).sort();
+
+  const details = [
+    { k: 'رقم الطلبية', v: <CopyChip value={order.orderId} copied={copied} copy={copy} /> },
+    { k: 'البضاعة', v: goodsName(order) },
+    from && { k: 'من', v: from },
+    to && { k: 'إلى', v: to },
+    { k: 'طريقة الشحن', v: METHOD_LABEL[method] },
+    { k: 'تاريخ الإنشاء', v: dateText(order.createdAt) },
+    order.shipment?.estimatedDelivery && !delivered && { k: 'الوصول المتوقع', v: dateText(order.shipment.estimatedDelivery) },
+    order.isPayment && Number(order.totalInvoice) > 0 && { k: 'قيمة المشتريات', v: <bdi dir="ltr">{usd(order.totalInvoice)}</bdi> },
+    cleanText(order.customerInfo?.fullName) && { k: 'المستلم', v: order.customerInfo.fullName },
+    cleanText(order.customerInfo?.phone) && { k: 'الهاتف', v: <bdi dir="ltr">{String(order.customerInfo.phone)}</bdi> },
+  ].filter(Boolean) as { k: string, v: React.ReactNode }[];
+
+  return (
+    <div dir="rtl" lang="ar" className={pageClass} style={themeStyle}>
+      <div className="or-wrap">
+        {back}
+
+        {/* What it is */}
+        <header className="oi-head or-anim" style={{ ['--i' as any]: 1 }}>
+          <span className={`oi-head__icon is-${key}`} aria-hidden><MethodIcon size={24} /></span>
+          <div className="oi-head__text">
+            <h1>{goodsName(order)}</h1>
+            <p>
+              <CopyChip value={order.orderId} copied={copied} copy={copy} />
+              {(from || to) && (
+                <span className="oi-head__route">
+                  {country && <span className="flag-frame"><Flag country={country} size={15} /></span>}
+                  {from}{from && to && ' ← '}{to}
+                </span>
+              )}
+              <span>أُنشئت {relativeDay(order.createdAt)}</span>
+            </p>
+          </div>
+          {theme && <ThemeStamp theme={theme} note={order.customization?.note} preview={previewing} pressKey={pressKey} />}
+        </header>
+
+        {order.isCanceled && (
+          <div className="oi-alert is-danger" role="status">
+            <Ban size={20} aria-hidden />
+            <p>أُلغيت هذه الطلبية من الإدارة. إن كنت تظن أن هذا خطأ تواصل مع {office.name}.</p>
+          </div>
+        )}
+
+        {(method === 'unknown' || pkgsNoMethod > 0) && !order.unsureOrder && !order.isCanceled && !order.isFinished && (
+          <div className="oi-alert is-warn" role="status">
+            <AlertTriangle size={20} aria-hidden />
+            <p>
+              <b>{method === 'unknown' ? 'طريقة الشحن غير محددة.' : pkgsNoMethod === 1 ? 'طرد واحد طريقة شحنه غير محددة.' : `${pkgsNoMethod} طرود طريقة شحنها غير محددة.`}</b>
+              {' '}يجب تأكيدها مع الشركة: جوي أم بحري، حتى لا تتأخر شحنتك.
+            </p>
+            <a className="oi-btn oi-btn--small" href={whatsappLink(office.whatsapp, `مرحباً، بخصوص الطلبية ${order.orderId}: أريد الشحن `)} target="_blank" rel="noreferrer">
+              <TbBrandWhatsapp size={17} aria-hidden /> التأكيد مع الشركة
+            </a>
+          </div>
+        )}
+
+        {/* Where it is now, and what happens next */}
+        {!order.isCanceled && (
+          <section className={`oi-status or-anim is-${key}`} style={{ ['--i' as any]: 2 }} aria-labelledby="oi-status-title">
+            <p className="oi-status__kicker">الحالة الآن</p>
+            <h2 id="oi-status-title">{stageLabel(order)}</h2>
+            <p className="oi-status__next">{nextStepText(order, office.name)}</p>
+
+            {blocked && (
+              <div className="oi-block">
+                <p className="oi-block__label"><OctagonX size={16} aria-hidden /> سبب الإيقاف، كما كتبه المكتب</p>
+                <p className="oi-block__reason bidi-text" dir="auto">{order.shippingBlockReason || 'لم يُكتب سبب. تواصل مع المكتب لمعرفته.'}</p>
+                {order.shippingBlockedAt && <p className="oi-block__date">أُوقفت {relativeDay(order.shippingBlockedAt)}</p>}
+                <div className="oi-block__actions">
+                  <a
+                    className="oi-btn oi-btn--light-red"
+                    href={whatsappLink(office.whatsapp, `مرحباً، بخصوص الطلبية الموقوفة ${order.orderId}${customerId ? ` (كود العميل ${customerId})` : ''}: `)}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <TbBrandWhatsapp size={17} aria-hidden /> تواصل مع المكتب
+                  </a>
+                  <Link className="oi-btn oi-btn--ghost-light" to="/prohibited-items"><ListX size={16} aria-hidden /> قائمة الممنوعات</Link>
+                </div>
               </div>
-            </Card>
-          )}
-          {/* <Card
-            className="rounded-2xl mb-5"
-          >
-            <h2 className='text-right text-2xl font-medium mb-7 mt-2'>الانشطة العامة</h2>
-            <div style={{ height: 400, width: '100%' }}>
-              <DataGrid
-                rows={list}
-                columns={columns}
-                pageSize={6}
-                rowsPerPageOptions={[5]}
-                // checkboxSelection
-                disableSelectionOnClick
+            )}
+
+            {!order.unsureOrder && !blocked && (
+              <ol className="oi-steps">
+                {SHIPMENT_STAGES.map((s, i) => (
+                  <li key={s.key} className={i < stage ? 'is-done' : i === stage ? 'is-now' : ''} aria-current={i === stage ? 'step' : undefined}>
+                    <span className="oi-steps__dot" aria-hidden>{i < stage || (i === stage && stage === 4) ? <Check size={13} strokeWidth={3} /> : null}</span>
+                    <span className="oi-steps__label">{s.short}</span>
+                  </li>
+                ))}
+              </ol>
+            )}
+
+            {showPickup && (
+              <div className="oi-pickup">
+                <div className="oi-pickup__where">
+                  <MapPin size={18} aria-hidden />
+                  <span><b>{office.name}</b>{office.address}</span>
+                </div>
+                <div className="oi-pickup__actions">
+                  <a className="oi-btn oi-btn--dark" href={office.mapsUrl} target="_blank" rel="noreferrer"><MapPin size={16} aria-hidden /> الموقع</a>
+                  <a className="oi-btn oi-btn--light" href={`tel:${office.phones[0]}`}><Phone size={16} aria-hidden /> اتصال</a>
+                  <a
+                    className="oi-btn oi-btn--light"
+                    href={whatsappLink(office.whatsapp, `مرحباً، أريد استلام الطلبية ${order.orderId}${customerId ? ` (كود العميل ${customerId})` : ''}.\n`)}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <TbBrandWhatsapp size={17} aria-hidden /> واتساب
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {/* Not collecting at this office: ask it, on WhatsApp, to send the order on to their city.
+                The order's destination is filled in when it is not the office's own city. */}
+            {showPickup && (
+              <a
+                className="oi-elsewhere"
+                href={whatsappLink(
+                  office.whatsapp,
+                  `مرحباً، أريد إرسال الطلبية ${order.orderId}${customerId ? ` (كود العميل ${customerId})` : ''} لأستلمها في مدينة أخرى.\n`
+                  + `المدينة: ${otherCity}\n`
+                  + 'العنوان أو ملاحظة: ',
+                )}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <span className="oi-elsewhere__icon" aria-hidden><Truck size={18} /></span>
+                <span className="oi-elsewhere__text">
+                  <b>{otherCity ? `تريد استلامها في ${otherCity}؟` : 'تريد استلامها في مدينة أخرى؟'}</b>
+                  <small>راسل {office.name} على واتساب ليرسلها لك، ويخبرك بالرسوم والموعد.</small>
+                </span>
+                <TbBrandWhatsapp size={20} className="oi-elsewhere__wa" aria-hidden />
+              </a>
+            )}
+          </section>
+        )}
+
+        {order.unsureOrder && (
+          <div className="oi-alert is-info">
+            <ScanSearch size={20} aria-hidden />
+            <p>إن لم ترسل بضاعة لمخزننا، أو أخطأت في رقم التتبع، احذف هذا الطلب.</p>
+            <button type="button" className="oi-btn oi-btn--small oi-btn--danger" onClick={() => setConfirmDelete(true)}>
+              <Trash2 size={16} aria-hidden /> حذف الطلب
+            </button>
+          </div>
+        )}
+
+        <div className="oi-layout or-anim" style={{ ['--i' as any]: 3 }}>
+          <div className="oi-main">
+            {showRating && <OrderRatingWidget />}
+
+            {/* Packages: each travels on its own */}
+            <section className="oi-card" aria-labelledby="oi-pkgs">
+              <div className="oi-card__head">
+                <h2 id="oi-pkgs" className="oi-card__title">
+                  {order.unsureOrder ? 'أرقام التتبع' : 'الطرود'} <span className="oi-count">{packages.length}</span>
+                </h2>
+                {totalsText && <span className="oi-muted">{totalsText}</span>}
+              </div>
+
+              {/* Shipping total: each package's price × its weight, added up */}
+              {cost.priced > 0 && !order.unsureOrder && (
+                <div className="oi-cost">
+                  <span>
+                    <b>إجمالي الشحن</b>
+                    <small>
+                      {cost.priced < cost.count
+                        ? `لـ ${cost.priced} من ${cost.count} طرود. الباقي لم يُوزن أو يُسعَّر بعد.`
+                        : 'سعر كل طرد × وزنه أو حجمه'}
+                    </small>
+                  </span>
+                  <strong><bdi dir="ltr">{usd(cost.total)}</bdi></strong>
+                </div>
+              )}
+
+              {packages.length > 2 && stagesPresent.length > 1 && (
+                <div className="or-chips oi-pkg-filter" role="tablist" aria-label="تصفية الطرود">
+                  <button type="button" role="tab" aria-selected={pkgFilter === 'all'} className={`or-chip ${pkgFilter === 'all' ? 'is-on' : ''}`} onClick={() => setPkgFilter('all')}>
+                    الكل <span>{packages.length}</span>
+                  </button>
+                  {stagesPresent.map((s) => (
+                    <button key={s} type="button" role="tab" aria-selected={pkgFilter === s} className={`or-chip ${pkgFilter === s ? 'is-on' : ''}`} onClick={() => setPkgFilter(s)}>
+                      {PACKAGE_STAGES[s]} <span>{stageCounts[s]}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {packages.length ? (
+                <ul className="oi-pkgs">
+                  {filtered.map((p: PackageDetails) => {
+                    const index = packages.indexOf(p);
+                    return (
+                      <PackageCard
+                        key={p._id || index}
+                        pkg={p}
+                        index={index}
+                        copied={copied}
+                        copy={copy}
+                        onPhotos={(files, index) => openPhotos({ files, index })}
+                      />
+                    );
+                  })}
+                </ul>
+              ) : (
+                <p className="oi-empty-line">لم يصل أي طرد لمخزننا بعد. عندما يصل نسجّله ونزنه ويظهر هنا مع صوره.</p>
+              )}
+            </section>
+
+            <Activity order={order} />
+          </div>
+
+          <aside className="oi-side">
+            <section className="oi-card" aria-labelledby="oi-details">
+              <h2 id="oi-details" className="oi-card__title">تفاصيل الطلبية</h2>
+              <dl className="oi-dl">
+                {details.map((d) => (
+                  <div key={d.k}><dt>{d.k}</dt><dd>{d.v}</dd></div>
+                ))}
+              </dl>
+            </section>
+
+            <div id="oi-note-anchor">
+              <OrderNoteCustomizer
+                orderId={orderId || ''}
+                note={order.customization?.note}
+                themeId={order.customization?.theme}
+                onPreview={setPreviewTheme}
+                onSaved={(customization) => {
+                  setOrder((prev) => (prev ? { ...prev, customization } : prev));
+                  setPreviewTheme(undefined);
+                  if (customization.note) stampNow();
+                }}
               />
             </div>
-          </Card> */}
+
+            <Receipts order={order} onOpen={openPhotos} />
+            <HelpCard order={order} office={office} customerId={customerId} />
+          </aside>
         </div>
-
-        {packages.length > 0 &&
-          <div className="col-span-1 xl:col-span-3 md:col-span-2">
-            <h3 className="text-lg font-bold text-end mb-1">متابعة طرودي في الطلبية</h3>
-            <p className="text-slate-800 text-end mb-5"> لديك {packages.length} طرود يمكن متابعته، يمكن تتبع طرودك اين وصلت ادناه </p>
-            {packages.map((packageDetails: PackageDetails, i: number) => {
-              const { statusIndex, lastActivity } = getStatusOfPackage(packageDetails);
-              const step = linkSteps[statusIndex];
-              const trackingNumber = packageDetails.deliveredPackages.trackingNumber;
-
-              return (
-                <Card
-                  leaned
-                  className="mb-5"
-                >
-                  {packageDetails.deliveredPackages.shipmentMethod === 'unknown' &&
-                    <div className="mb-4">
-                      <AlertInfo
-                        tint="warning"
-                        description={`طريقة الشحن غير معروفة، يرجى التواصل مع خدمة العملاء واعلامهم بطريقة الشحن جوي ام بحري.`}
-                      />
-                    </div>
-                  }
-                  <Accordion defaultExpanded={statusIndex !== 3}>
-                    <AccordionSummary
-                      expandIcon={<MdExpandMore />}
-                      aria-controls="panel1bh-content"
-                      id="panel1bh-header"
-                    >
-                      <Typography sx={{ width: '30%', flexShrink: 0, fontSize: '16px', fontWeight: 'bold' }}>
-                        Package { trackingNumber ? trackingNumber : i + 1}
-                      </Typography>
-                      <Badge class=" text-sm md:text-base" text={step.label} color={statusIndex === 3 ? 'success' : 'primary'} />
-                    </AccordionSummary>
-                    <AccordionDetails>
-                      <div className="flex items-center justify-end mb-8">
-                        <p>{lastActivity}</p>
-                        <h3 className=" font-bold ml-5">:اخر نشاط</h3>
-                      </div>
-
-                      <div className="flex items-center justify-end mb-8">
-                        <p>{trackingNumber || 'لا يوجد'}</p>
-                        <h3 className=" font-bold ml-5">:{trackingNumber.length === 4 ? 'اخر 4 ارقام من رقم التتبع' : 'رقم التتبع'}</h3>
-                      </div>
-
-                      {packageDetails.status.arrived &&
-                        <div className="flex items-center justify-end mb-8">
-                          <p>{moment(packageDetails.deliveredPackages.arrivedAt).format('DD/MM/YYYY')}</p>
-                          <h3 className=" font-bold ml-5">:تاريخ وصولها في مخازن الخارجية</h3>
-                        </div>
-                      }
-
-                      {packageDetails.deliveredPackages.shipmentMethod &&
-                        <div className="flex items-center justify-end mb-8">
-                          <p>{shipmentMethodsLabels[packageDetails.deliveredPackages.shipmentMethod]}</p>
-                          <h3 className=" font-bold ml-5">:طريقة الشحن</h3>
-                        </div>
-                      }
-
-                      {packageDetails.trip?.voyage &&
-                        <div className="flex items-center justify-end mb-8">
-                          <p className="bidi-text" dir="auto">{packageDetails.trip.voyage}</p>
-                          <h3 className=" font-bold ml-5">:الرحلة</h3>
-                        </div>
-                      }
-
-                      {packageDetails.deliveredPackages?.weight?.total > 0 &&
-                       packageDetails.deliveredPackages?.weight?.measureUnit && (
-                        <div className="flex items-center justify-end mb-8">
-                          <p>
-                            {`${packageDetails.deliveredPackages.weight.total} ${packageDetails.deliveredPackages.weight.measureUnit}`}
-                          </p>
-                          <h3 className="font-bold ml-5">:الوزن/الحجم</h3>
-                        </div>
-                      )}
-
-                      {packageDetails.deliveredPackages?.exiosPrice &&
-                        <div className="flex items-center justify-end mb-8">
-                          <p>{`${packageDetails.deliveredPackages.exiosPrice} $`}</p>
-                          <h3 className=" font-bold ml-5">:KG/CBM سعر</h3>
-                        </div>
-                      }
-
-                      {packageDetails.images.length > 0 &&
-                        <div className="flex items-center justify-end mb-8">
-                          <AvatarGroup sx={{ cursor: 'pointer' }} onClick={() => setShowImages(packageDetails.images)} max={4}>
-                            {(packageDetails.images || []).map(image => (
-                              <Avatar alt={image.filename} src={convertGoogleStorageUrl(image.path)} />
-                            ))}
-                          </AvatarGroup>
-                          <h3 className=" font-bold ml-5">:صور البضائع</h3>
-                        </div>
-                      }
-                      
-                      <CustomStepper 
-                        acriveStep={statusIndex}
-                        steps={linkSteps}
-                      />
-                    </AccordionDetails>
-                  </Accordion>
-                </Card>
-              )
-            })}
-          </div>
-        }
       </div>
-      <br />
-      <br />
-      <br />
-      <Snackbar 
-        open={!!alert.message} 
-        autoHideDuration={1500}
-        onClose={() => setAlert({ tint: 'success', message: ''})}
-      >
-        <Alert 
-          severity={alert.tint as AlertColor}
-          onClose={() => setAlert({ tint: 'success', message: ''})}
-          style={{ fontSize: '1.3rem', display: 'flex', alignItems: 'center', gap: '10px' }}
-        >
-          {alert.message}
-        </Alert>
-      </Snackbar>
 
-      <Dialog
-        open={!!showImages}
-        onClose={() => setShowImages(undefined)}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title" className='text-end'>
-          صور البضائع
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description" className='text-end'>
-            <SwipeableTextMobileStepper data={showImages} />
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button>تراجع</Button>
-        </DialogActions>
-      </Dialog>
+      {lightbox}
+
+      {confirmDelete && (
+        <div className="oi-modal" role="dialog" aria-modal="true" aria-labelledby="oi-del-title" onClick={(e) => { if (e.target === e.currentTarget && !deleting) setConfirmDelete(false); }}>
+          <div className="oi-modal__box">
+            <span className="oi-modal__icon" aria-hidden><Trash2 size={22} /></span>
+            <h2 id="oi-del-title">حذف طلب المتابعة؟</h2>
+            <p>نتوقف عن متابعة {packages.length > 1 ? 'أرقام التتبع هذه' : 'رقم التتبع هذا'}. لا يمكن التراجع عن الحذف.</p>
+            {deleteError && <p className="oi-error" role="alert">{deleteError}</p>}
+            <div className="oi-modal__actions">
+              <button type="button" className="oi-btn oi-btn--quiet" onClick={() => setConfirmDelete(false)} disabled={deleting} autoFocus>تراجع</button>
+              <button type="button" className="oi-btn oi-btn--danger" onClick={deleteUnsure} disabled={deleting}>
+                {deleting ? <Loader2 size={17} className="oi-spin" aria-hidden /> : <Trash2 size={17} aria-hidden />} حذف
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  )
-}
-
-const generateSteps = (order: Package) => {
-  const steps = [
-    {
-      label: 'تجهيز الطلبية',
-      stepIcon: FaShippingFast
-    },
-    {
-      label: 'وصلت الى المخزن',
-      stepIcon: FaWarehouse
-    },
-    {
-      label: 'وصلت الى ليبيا',
-      stepIcon: FaWarehouse
-    },
-    {
-      label: 'تم التسليم',
-      stepIcon: GrStakeholder
-    }
-  ]
-
-  if (order.isPayment) {
-    steps.splice(1, 0, {
-      label: 'اتمام الشراء',
-      stepIcon: FaWarehouse
-    })
-  }
-
-  return steps;
-}
-
-const linkSteps = [
-  {
-    label: 'تجهيز الطلبية',
-    stepIcon: FaShippingFast
-  },
-  {
-    label: 'وصلت الى المخزن',
-    stepIcon: FaWarehouse
-  },
-  {
-    label: 'وصلت الى ليبيا',
-    stepIcon: FaWarehouse
-  },
-  {
-    label: 'تم التسليم',
-    stepIcon: GrStakeholder
-  }
-]
+  );
+};
 
 export default OrderInfoPage;

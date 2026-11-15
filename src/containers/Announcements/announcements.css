@@ -1,0 +1,209 @@
+/* Announcements: a dated board. Each notice hangs off a rail by its date; the kind of notice
+   (important, warning, good news, info) colours only its marker and label, so a red notice
+   stands out without the page turning into a traffic light. */
+
+/* The app sets text-align: left on html/body; start follows dir="rtl" */
+.announcements-page { text-align: start; }
+
+.notice[data-tone="info"] { --tone: #3f6b52; --tone-bg: #eef5f0; }
+.notice[data-tone="success"] { --tone: #15803d; --tone-bg: #f0fdf4; }
+.notice[data-tone="warning"] { --tone: #b45309; --tone-bg: #fffbeb; }
+.notice[data-tone="error"] { --tone: #b91c1c; --tone-bg: #fef2f2; }
+
+/* "3 new notices since your last visit" */
+.new-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.new-count__dot { width: 8px; height: 8px; border-radius: 50%; background: #16a34a; box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.18); }
+
+/* Filter by kind: only shown when the board holds more than one kind */
+.notice-filter { display: flex; flex-wrap: wrap; gap: 8px; }
+.notice-filter button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 6px 14px;
+  border-radius: 12px;
+  border: 1px solid #e4e4e7;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #3f3f46;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+/* Scoped under the group: Tailwind's reset gives [type='button'] a transparent background at the same specificity */
+.notice-filter button { background: #fff; }
+.notice-filter button:hover { border-color: #a1a1aa; }
+.notice-filter button.is-active { background: #18181b; border-color: #18181b; color: #fff; }
+.notice-filter button[data-tone="error"] svg { color: #b91c1c; }
+.notice-filter button[data-tone="warning"] svg { color: #b45309; }
+.notice-filter button[data-tone="success"] svg { color: #15803d; }
+.notice-filter button[data-tone="info"] svg { color: #3f6b52; }
+.notice-filter button.is-active svg { color: currentColor; }
+.notice-filter__n {
+  min-width: 1.5rem;
+  padding: 0 6px;
+  border-radius: 8px;
+  background: rgba(24, 24, 27, 0.07);
+  font-size: 0.8rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.notice-filter button.is-active .notice-filter__n { background: rgba(255, 255, 255, 0.2); }
+.notice-filter button:focus-visible,
+.notice__more:focus-visible,
+.board-state__retry:focus-visible { outline: 2px solid #15803d; outline-offset: 2px; }
+
+/* Month heading sits on the rail like a stop on a route */
+.notice-month + .notice-month { margin-top: 28px; }
+.notice-month__title {
+  margin: 0 0 14px;
+  padding-inline-start: 76px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #52525b;
+}
+
+.notice-list { position: relative; margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; }
+/* The rail, running behind the date column */
+.notice-list::before {
+  content: '';
+  position: absolute;
+  inset-block: 8px;
+  inset-inline-start: 31px;
+  width: 2px;
+  border-radius: 2px;
+  background: #d4d4d8;
+}
+
+.notice { position: relative; display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: start; }
+
+/* The date tab: a day and a month, framed in the notice's colour */
+.notice__date {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0 7px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 0 0 1px #d4d4d8, 0 0 0 5px #e5e7eb;
+  line-height: 1;
+}
+.notice__day { font-size: 1.6rem; font-weight: 800; color: #18181b; font-variant-numeric: tabular-nums; }
+.notice__mon { margin-top: 4px; font-size: 0.8rem; font-weight: 700; color: var(--tone, #71717a); }
+
+.notice__card {
+  min-width: 0;
+  padding: 16px 18px 18px;
+  border-radius: 18px;
+  background: #fff;
+  position: relative;
+  box-shadow: 0 1px 2px rgba(24, 24, 27, 0.05), 0 12px 28px -22px rgba(21, 61, 37, 0.45);
+}
+
+/* The notice colour as a straight bar along the card edge nearest the date */
+.notice__card::before {
+  content: "";
+  position: absolute;
+  inset-block: 18px;
+  inset-inline-start: 0;
+  width: 4px;
+  border-start-end-radius: 4px;
+  border-end-end-radius: 4px;
+  background: var(--tone, #d4d4d8);
+}
+
+.notice__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.notice__tone {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 8px;
+  background: var(--tone-bg);
+  color: var(--tone);
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+.notice__new {
+  padding: 3px 9px;
+  border-radius: 8px;
+  background: #15803d;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+.notice__ago { margin-inline-start: auto; font-size: 0.875rem; font-weight: 600; color: #71717a; white-space: nowrap; }
+
+.notice__title { margin-top: 10px; font-size: 1.2rem; font-weight: 800; line-height: 1.5; color: #18181b; text-wrap: balance; }
+.notice__message { margin-top: 6px; font-size: 1.05rem; line-height: 1.85; color: #3f3f46; }
+.notice__message.is-clamped {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.notice__more {
+  margin-top: 6px;
+  padding: 4px 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #15803d;
+}
+.notice__more:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+/* Empty and error states */
+.board-state {
+  padding: 40px 20px;
+  border: 2px dashed #d4d4d8;
+  border-radius: 20px;
+  background: #fafafa;
+  text-align: center;
+}
+.board-state__retry {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-weight: 800;
+  transition: background-color 0.2s ease;
+}
+.board-state .board-state__retry { background: #15803d; color: #fff; }
+.board-state .board-state__retry:hover { background: #166534; }
+
+/* Skeleton: same shape as a notice */
+.notice--skeleton .notice__date { height: 58px; }
+.sk { display: inline-block; border-radius: 6px; background: #ececee; }
+@media (prefers-reduced-motion: no-preference) {
+  .sk { animation: sk-pulse 1.4s ease-in-out infinite; }
+  /* New notices arrive once, the moment the board loads */
+  .notice:has(.notice__new) .notice__card { animation: notice-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+}
+@keyframes sk-pulse { 50% { opacity: 0.55; } }
+@keyframes notice-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Phones: a narrower date tab so the text gets the width */
+@media (max-width: 480px) {
+  .notice { grid-template-columns: 50px minmax(0, 1fr); gap: 10px; }
+  .notice-list::before { inset-inline-start: 24px; }
+  .notice-month__title { padding-inline-start: 60px; }
+  .notice__day { font-size: 1.35rem; }
+  .notice__card { padding: 14px 14px 16px; }
+  .notice__title { font-size: 1.1rem; }
+  .notice__message { font-size: 1rem; }
+}

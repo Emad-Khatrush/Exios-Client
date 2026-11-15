@@ -1,49 +1,169 @@
-import Card from "../../components/Card/Card";
-import { HiOfficeBuilding } from 'react-icons/hi';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { Ban, Check, Copy, ExternalLink, Mail, MapPin, MessageSquareWarning, Navigation, PackageSearch, Phone, Tags, Warehouse } from 'lucide-react';
+import { TbBrandFacebook, TbBrandTiktok, TbBrandWhatsapp } from 'react-icons/tb';
+import { EMAIL, FACEBOOK_URL, OFFICES, Office, TIKTOK_URL, officeFor, whatsappLink } from '../../constants/contact';
+import './contact.css';
+
+// Copies a value and says so on the button itself for a moment
+const useCopy = () => {
+  const [copied, setCopied] = useState('');
+  const copy = async (value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+    } catch {
+      // Older browsers: a hidden field and the copy command
+      const field = document.createElement('textarea');
+      field.value = value;
+      document.body.appendChild(field);
+      field.select();
+      document.execCommand('copy');
+      field.remove();
+    }
+    setCopied(value);
+    window.setTimeout(() => setCopied((v) => (v === value ? '' : v)), 1600);
+  };
+  return { copied, copy };
+};
+
+// The things customers most often ask about, answered without waiting for a reply
+const SHORTCUTS = [
+  { to: '/address', icon: Warehouse, title: 'عنوان المخزن في الصين', text: 'العنوان مع كودك، جاهز للنسخ' },
+  { to: '/orders', icon: PackageSearch, title: 'حالة طلبياتي', text: 'أين وصلت شحنتك الآن' },
+  { to: '/prices/shipping', icon: Tags, title: 'أسعار الشحن', text: 'آخر الأسعار والحاسبة' },
+  { to: '/prohibited-items', icon: Ban, title: 'ممنوعات الشحن', text: 'ما لا يمكن شحنه جواً أو بحراً' },
+  { to: '/suggestions', icon: MessageSquareWarning, title: 'شكوى أو اقتراح', text: 'تابعها والرد عليها من التطبيق' },
+];
+
+const OfficeCard = ({ office, nearest, greeting, copied, copy }: {
+  office: Office, nearest: boolean, greeting: string, copied: string, copy: (v: string) => void,
+}) => (
+  <article className={`ct-office ${nearest ? 'is-nearest' : ''}`} aria-labelledby={`ct-${office.key}`}>
+    <header className="ct-office__head">
+      <span className="ct-office__pin" aria-hidden><MapPin size={22} /></span>
+      <div>
+        <h2 id={`ct-${office.key}`}>{office.name}</h2>
+        {nearest && <span className="ct-office__badge">الأقرب لك</span>}
+      </div>
+    </header>
+
+    <p className="ct-office__address">{office.address}</p>
+    {office.directions && <p className="ct-office__directions">{office.directions}</p>}
+
+    <ul className="ct-phones" aria-label={`أرقام ${office.name}`}>
+      {office.phones.map((phone) => (
+        <li key={phone}>
+          <a href={`tel:${phone}`} className="ct-phone">
+            <Phone size={17} aria-hidden />
+            <bdi dir="ltr">{phone}</bdi>
+          </a>
+          <button type="button" className={`ct-copy ${copied === phone ? 'is-done' : ''}`} onClick={() => copy(phone)} aria-label={`نسخ الرقم ${phone}`}>
+            {copied === phone ? <><Check size={15} aria-hidden /> نُسخ</> : <><Copy size={15} aria-hidden /> نسخ</>}
+          </button>
+        </li>
+      ))}
+    </ul>
+
+    <div className="ct-office__actions">
+      <a className="ct-btn ct-btn--wa" href={whatsappLink(office.whatsapp, greeting)} target="_blank" rel="noreferrer">
+        <TbBrandWhatsapp size={19} aria-hidden />
+        راسل {office.name} على واتساب
+      </a>
+      <a className="ct-btn ct-btn--ghost" href={office.mapsUrl} target="_blank" rel="noreferrer">
+        <Navigation size={16} aria-hidden />
+        الاتجاهات
+      </a>
+    </div>
+  </article>
+);
 
 const ContactUs = () => {
+  const account = useSelector((state: any) => state.session.account);
+  const { copied, copy } = useCopy();
+  const nearest = officeFor(account?.city);
+  // The nearest office first; the map opens on it too
+  const offices = [nearest, ...OFFICES.filter((o) => o.key !== nearest.key)];
+  const [mapKey, setMapKey] = useState(nearest.key);
+  const mapOffice = OFFICES.find((o) => o.key === mapKey) || nearest;
+
+  const name = [account?.firstName, account?.lastName].filter(Boolean).join(' ');
+  const code = account?.customerId || '';
+  // WhatsApp opens with who is writing, so the office finds the customer without asking
+  const greeting = `مرحباً، أنا ${name || 'عميل إكسيوس'}${code ? ` - كود العميل ${code}` : ''}.\n`;
 
   return (
-    <div className="container mx-auto py-10 h-64 xl:w-11/12 px-3">
-      <Card className="mb-10">
-        <h1 className=" text-3xl text-end my-10 mt-5">تواصل معنا</h1>
-        <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 place-items-center mb-8">
-          <div className=" bg-green-100 p-4 pb-9 rounded-xl text-start w-fit" style={{ direction: 'rtl' }}>
-            <div className=" bg-green-600 w-fit p-2 rounded-xl mb-8">
-              <HiOfficeBuilding size={35} color="#fff" />
-            </div>
-            <h1 className=" text-xl font-bold mb-2">مكتب طرابلس</h1>
-            <p className=" text-slate-600 mb-1">باب بن غشير زنقه ميدان مدرسه اقرأ خلي محلات مواد الزينه للجملة</p>
-            <p className=" text-slate-600 mb-1">علي يسارك أول زنقه بعدهم على اليسار بعدها أول زنقه على اليمين</p>
-            <p className=" text-slate-600 mb-1">رقم الهاتف: 0915643265</p>
-            <p className=" text-slate-600 mb-1">رقم الهاتف: 0912068211</p>
-            <p className=" text-slate-600">البريد الاكتروني: emad.khatrush@exioslibya.com</p>
+    <div dir="rtl" lang="ar" className="ct-page w-full px-4 pb-16 pt-6 sm:px-6 lg:px-8 lg:pt-8">
+      <div className="mx-auto max-w-6xl">
+        <header className="ct-hero">
+          <div>
+            <h1 className="text-2xl font-extrabold text-zinc-900 sm:text-3xl">تواصل معنا</h1>
+            <p className="mt-1 max-w-[56ch] text-base leading-relaxed text-zinc-600 sm:text-lg">
+              زورنا في أحد مكاتبنا، أو راسل المكتب الأقرب لك على واتساب. الرسالة تفتح جاهزة باسمك وكودك.
+            </p>
           </div>
+          {code && (
+            <div className="ct-code">
+              <span className="ct-code__label">كود العميل</span>
+              <bdi className="ct-code__value" dir="ltr">{code}</bdi>
+              <button type="button" className={`ct-copy ${copied === code ? 'is-done' : ''}`} onClick={() => copy(code)} aria-label="نسخ كود العميل">
+                {copied === code ? <><Check size={15} aria-hidden /> نُسخ</> : <><Copy size={15} aria-hidden /> نسخ</>}
+              </button>
+              <span className="ct-code__hint">اذكره عند التواصل لنصل لطلبياتك أسرع</span>
+            </div>
+          )}
+        </header>
 
-          <div className=" bg-green-100 p-4 pb-9 rounded-xl text-start w-fit" style={{ direction: 'rtl' }}>
-            <div className=" bg-green-600 w-fit p-2 rounded-xl mb-8">
-              <HiOfficeBuilding size={35} color="#fff" />
-            </div>
-            <h1 className=" text-xl font-bold mb-2">مكتب بنغازي</h1>
-            <p className=" text-slate-600 mb-1">مكتب بنغازي سيدي حسين بالقرب من مول حياة شارع بوذن</p>
-            <p className=" text-slate-600 mb-1">رقم الهاتف: 0919078031</p>
-            <p className=" text-slate-600 mb-1">رقم الهاتف: 0919734019</p>
-            <p className=" text-slate-600">البريد الاكتروني: emad.khatrush@exioslibya.com</p>
-          </div>
+        <div className="ct-offices">
+          {offices.map((office) => (
+            <OfficeCard key={office.key} office={office} nearest={office.key === nearest.key && !!account?.city} greeting={greeting} copied={copied} copy={copy} />
+          ))}
         </div>
 
-        <hr />
+        {/* One map at a time: the office picked above it */}
+        <section className="ct-map" aria-labelledby="ct-map-title">
+          <div className="ct-map__bar">
+            <h2 id="ct-map-title">الموقع على الخريطة</h2>
+            <div className="ct-tabs" role="tablist" aria-label="المكتب">
+              {OFFICES.map((o) => (
+                <button key={o.key} type="button" role="tab" aria-selected={mapKey === o.key} className={mapKey === o.key ? 'is-active' : ''} onClick={() => setMapKey(o.key)}>
+                  {o.city}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="ct-map__frame">
+            <iframe key={mapOffice.key} title={`خريطة ${mapOffice.name}`} src={mapOffice.mapEmbed} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen />
+          </div>
+          <a className="ct-map__open" href={mapOffice.mapsUrl} target="_blank" rel="noreferrer">
+            افتح {mapOffice.name} في خرائط Google <ExternalLink size={15} aria-hidden />
+          </a>
+        </section>
 
-        <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 place-items-center my-8">
-          <h2 className="font-bold text-3xl bg-green-100 p-5 rounded-xl">مكتب طرابلس</h2>
-          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3351.111901251624!2d13.205703015546595!3d32.868758586608415!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x13a89344ae74c95d%3A0xaa1f074a1e5c2548!2z2LTYsdmD2Kkg2KfZg9iz2YrZiNizINmE2YTYp9iz2KrZitix2KfYryDZiNin2YTYqti12K_Zitix!5e0!3m2!1str!2str!4v1668264403979!5m2!1str!2str" width="100%" height="400" loading="lazy" />
-          
-          <h2 className="font-bold text-3xl bg-green-100 p-5 rounded-xl">مكتب بنغازي</h2>
-          <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6976713.190836714!2d17.71335029024947!3d31.37006417132124!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x13831dd3277be3bd%3A0x70064feeb0e8c73c!2z2LTYsdmD2Kkg2KfZg9iz2YrZiNizINmE2YTYp9iz2KrZitix2KfYryDZiNin2YTYqti12K_Zitix!5e0!3m2!1str!2str!4v1668264519873!5m2!1str!2str" width="100%" height="400" loading="lazy" />
-        </div>
-      </Card>
+        <section className="ct-shortcuts" aria-labelledby="ct-short-title">
+          <h2 id="ct-short-title">قبل أن تراسلنا</h2>
+          <p>قد تجد جوابك هنا مباشرة.</p>
+          <ul>
+            {SHORTCUTS.map(({ to, icon: Icon, title, text }) => (
+              <li key={to}>
+                <Link to={to} className="ct-short">
+                  <span className="ct-short__icon" aria-hidden><Icon size={20} /></span>
+                  <span className="ct-short__text"><b>{title}</b><small>{text}</small></span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <footer className="ct-more">
+          <span>راسلنا أو تابعنا على</span>
+          <a href={`mailto:${EMAIL}`} className="ct-chip"><Mail size={17} aria-hidden /> البريد الإلكتروني</a>
+          <a href={FACEBOOK_URL} target="_blank" rel="noreferrer" className="ct-chip"><TbBrandFacebook size={18} aria-hidden /> فيسبوك</a>
+          <a href={TIKTOK_URL} target="_blank" rel="noreferrer" className="ct-chip"><TbBrandTiktok size={18} aria-hidden /> تيك توك</a>
+        </footer>
+      </div>
     </div>
-  )
-}
+  );
+};
 
 export default ContactUs;

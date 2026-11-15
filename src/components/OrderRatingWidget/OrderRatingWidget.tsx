@@ -1,115 +1,110 @@
-import { useParams } from "react-router-dom";
-import api from "../../api";
-import Card from "../Card/Card";
-import RatingStars from "../RatingStars/RatingStars";
-import { useState } from "react";
-import AlertInfo from "../AlertInfo/AlertInfo";
+import { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { HeartHandshake, Loader2, Star } from 'lucide-react';
+import api from '../../api';
 
-const defaultFields = [
-  {
-    name: 'employeeQuestion',
-    label: 'كيف كانت تعامل الموظفين معك؟',
-    type: 'rating'
-  },
-  {
-    name: 'generalQuestion',
-    label: 'ماهو رايك بالخدمات التي تحصلت عليها بشكل عام؟',
-    type: 'rating'
-  },
-  {
-    name: 'reviewQuestion',
-    label: 'اعطنى رايك على الخدمات التي تحصلت عليها',
-    type: 'text'
-  }
-]
+// The questions the office reads; the names are what the API stores, so they stay as they are
+const QUESTIONS = [
+  { name: 'employeeQuestion', label: 'كيف كان تعامل الموظفين معك؟', type: 'rating' },
+  { name: 'generalQuestion', label: 'ما رأيك في الخدمة بشكل عام؟', type: 'rating' },
+  { name: 'reviewQuestion', label: 'اكتب لنا رأيك', type: 'text' },
+];
 
+const WORDS = ['', 'سيئة', 'مقبولة', 'جيدة', 'جيدة جداً', 'ممتازة'];
+
+const Stars = ({ label, value, onChange, disabled }: { label: string, value: number, onChange: (v: number) => void, disabled: boolean }) => {
+  const [hover, setHover] = useState(0);
+  const shown = hover || value;
+  return (
+    <fieldset className="oi-rate__row">
+      <legend>{label}</legend>
+      <div className="oi-stars" onMouseLeave={() => setHover(0)}>
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            type="button"
+            className={n <= shown ? 'is-on' : ''}
+            onClick={() => onChange(n)}
+            onMouseEnter={() => setHover(n)}
+            disabled={disabled}
+            aria-pressed={value === n}
+            aria-label={`${n} من 5`}
+          >
+            <Star size={26} aria-hidden />
+          </button>
+        ))}
+        <span className="oi-stars__word" aria-live="polite">{WORDS[shown]}</span>
+      </div>
+    </fieldset>
+  );
+};
+
+/* After delivery: two star ratings and a few words, sent once */
 const OrderRatingWidget = () => {
-  let { id: orderId } = useParams();
+  const { id: orderId } = useParams();
+  const [values, setValues] = useState<Record<string, any>>({});
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
+  const [sent, setSent] = useState(false);
 
-  const [fields, setFields] = useState(defaultFields);
-  const [alert, setAlert] = useState<{ message: string, tint: 'info' | 'danger' | 'success' | 'warning' } | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(false);
+  const complete = QUESTIONS.every((q) => (q.type === 'text' ? String(values[q.name] || '').trim() : values[q.name]));
 
-  const createRating = async () => {
+  const send = async () => {
+    if (!complete) { setError('قيّم بالنجوم واكتب رأيك قبل الإرسال.'); return; }
+    setError('');
+    setSending(true);
     try {
-      let hasError = false;
-      fields.forEach((field: any) => {
-        if (!field.value) {
-          setAlert({
-            message: "يرجى تعبية جميع الخانات قبل ارسال",
-            tint: 'danger'
-          });
-          hasError = true;
-        }
-      })
-      if (hasError) return;
-      setAlert(undefined);
-      setIsLoading(true);
-      await api.createRatingForOrder(orderId, {questions: fields});
-      setAlert({
-        message: 'تم ارسال تقييمكم بنجاح، شكرا لكم',
-        tint: 'success'
-      });
-    } catch (error) {
-      console.log(error);
-      setIsLoading(false);
+      await api.createRatingForOrder(orderId, { questions: QUESTIONS.map((q) => ({ ...q, value: values[q.name] })) });
+      setSent(true);
+    } catch {
+      setError('لم يُرسل تقييمك. تحقق من اتصالك وحاول مرة أخرى.');
     }
+    setSending(false);
+  };
+
+  if (sent) {
+    return (
+      <section className="oi-card oi-rate is-sent" aria-live="polite">
+        <HeartHandshake size={30} aria-hidden />
+        <b>وصلنا تقييمك، شكراً لك</b>
+        <p>رأيك يساعدنا نحسّن خدمتنا.</p>
+      </section>
+    );
   }
 
   return (
-    <Card
-      className="rounded-2xl mb-5 text-end"
-    >
-      {alert && 
-        <AlertInfo
-          tint={alert.tint}
-          description={alert.message}
+    <section className="oi-card oi-rate" aria-labelledby="oi-rate-title">
+      <h2 id="oi-rate-title" className="oi-card__title">كيف كانت تجربتك؟</h2>
+      <p className="oi-muted">استلمت شحنتك. قيّم خدمتنا في أقل من دقيقة.</p>
+
+      {QUESTIONS.filter((q) => q.type === 'rating').map((q) => (
+        <Stars
+          key={q.name}
+          label={q.label}
+          value={values[q.name] || 0}
+          onChange={(v) => setValues((s) => ({ ...s, [q.name]: v }))}
+          disabled={sending}
         />
-      }
-
-      <p className="mb-4 mt-3">
-        شكرا لتعاملك مع شركة اكسيوس، لان رايك يهمنا اعطنى رأيك في الخدمات التي تلقيتها 
-      </p>
-
-      {fields.map(field => (
-        <div className="flex justify-end items-end flex-col mb-8">
-          <label className=" font-bold mb-3"> {field.label} </label>
-          {field.type === 'text' ?
-            <textarea
-              className="mt-2"
-              name={field.name}
-              cols={20} 
-              rows={2}
-              onChange={(event) => {
-                const foundField = fields.find(question => question.name === event.target.name) as any;
-                foundField.value = event.target.value;
-                setFields(fields);
-              }}
-              disabled={isLoading}
-            />
-            :
-            <RatingStars
-              name={field.name}
-              onChange={(value, event) => {
-                const foundField = fields.find(question => question.name === event.target.name) as any;
-                foundField.value = value;
-                setFields(fields);
-              }}
-              disbaled={isLoading}
-            />
-          }
-        </div>
       ))}
 
-      <button
-        className="disabled:bg-slate-400 disabled:text-white-500 group my-1 relative py-2 px-4 mt-2 border border-transparent w-52 md:w-fit text-xs md:text-sm font-bold rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-        onClick={createRating}
-        disabled={isLoading}
-      >
-        ارسل تقييمك
+      <label className="oi-rate__text">
+        <span>اكتب لنا رأيك</span>
+        <textarea
+          rows={3}
+          value={values.reviewQuestion || ''}
+          onChange={(e) => setValues((s) => ({ ...s, reviewQuestion: e.target.value }))}
+          placeholder="ما الذي أعجبك؟ وما الذي نحسّنه؟"
+          disabled={sending}
+        />
+      </label>
+
+      {error && <p className="oi-error" role="alert">{error}</p>}
+
+      <button type="button" className="oi-btn oi-btn--primary oi-btn--block" onClick={send} disabled={sending}>
+        {sending ? <Loader2 size={18} className="oi-spin" aria-hidden /> : <Star size={17} aria-hidden />} إرسال التقييم
       </button>
-    </Card>
-  )
-}
+    </section>
+  );
+};
 
 export default OrderRatingWidget;

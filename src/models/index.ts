@@ -77,6 +77,10 @@ export type Package = {
     theme?: string,
   },
   isCanceled: boolean,
+  // Stopped by the office (e.g. prohibited goods), with the reason they wrote for the customer
+  shippingBlocked?: boolean,
+  shippingBlockReason?: string,
+  shippingBlockedAt?: string,
   images: {
     filename: string,
     path: string,
@@ -92,6 +96,7 @@ export type Package = {
 }
 
 export type PackageDetails = {
+  _id?: string
   images: {
     fileType: string
     filename: string
@@ -108,6 +113,10 @@ export type PackageDetails = {
     receivedShipmentLYD: number
     receivedShipmentUSD: number
     trackingNumber: string
+    boxesCount?: string
+    deliveredInfo?: {
+      deliveredDate?: Date
+    }
     weight: {
       total: number, 
       measureUnit: string
@@ -167,4 +176,4 @@ export type ExchangeRate = {
 
 export type ShippingMethods = 'air' | 'sea';
 
-export type OrderStatusType = 'all' |'active' | 'arrivedWarehouse' | 'readyForPickup' | 'shipment' | 'arriving' | 'unpaid' | 'unsure' | 'canceled'
+export type OrderStatusType = 'all' | 'active' | 'arrivedWarehouse' | 'readyForPickup' | 'finished' | 'blocked' | 'invoiceOrders' | 'shipment' | 'arriving' | 'unpaid' | 'unsure' | 'canceled'

@@ -1,0 +1,118 @@
+/* Settings: the account at a glance, quiet white cards, one action per row. */
+
+.st-page { text-align: start; }
+.st-page a:focus-visible,
+.st-page button:focus-visible { outline: 2px solid #15803d; outline-offset: 2px; }
+
+/* Who */
+.st-profile {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-top: 20px;
+  padding: 22px;
+  border-radius: 22px;
+  background:
+    radial-gradient(90% 140% at 100% 0%, rgba(34, 197, 94, 0.35), transparent 60%),
+    #14532d;
+  color: #fff;
+}
+.st-avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: #fff;
+  color: #14532d;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+.st-profile__text { flex: 1 1 180px; min-width: 0; }
+.st-profile__text h2 { font-size: 1.4rem; font-weight: 800; }
+.st-profile__text p { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 2px; color: #d1fae5; font-weight: 600; }
+.st-verified { display: inline-flex; align-items: center; gap: 4px; color: #86efac; font-weight: 800; }
+.st-unverified { color: #fde68a; font-weight: 800; }
+.st-dot { opacity: 0.6; }
+.st-code { display: flex; align-items: center; gap: 10px; padding: 10px 12px 10px 14px; border-radius: 16px; background: rgba(255, 255, 255, 0.12); }
+.st-code > span { font-size: 0.8rem; font-weight: 700; color: #bbf7d0; }
+.st-code bdi { font-size: 1.4rem; font-weight: 800; letter-spacing: 0.04em; }
+.st-code button { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; color: #fff; transition: background-color 0.2s ease; }
+.st-profile .st-code button { background: rgba(255, 255, 255, 0.16); }
+.st-profile .st-code button:hover { background: rgba(255, 255, 255, 0.28); }
+.st-profile .st-code button.is-done { background: #fff; color: #15803d; }
+
+/* Cards */
+.st-card {
+  margin-top: 16px;
+  padding: 22px;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(24, 24, 27, 0.05), 0 18px 40px -32px rgba(21, 61, 37, 0.45);
+}
+@media (max-width: 480px) { .st-card, .st-profile { padding: 18px; } }
+.st-card__head h2 { font-size: 1.15rem; font-weight: 800; color: #18181b; }
+.st-card__head p { margin-top: 2px; font-size: 0.92rem; color: #71717a; }
+
+.st-rows { margin: 14px 0 0; }
+.st-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 16px; padding: 13px 0; border-top: 1px solid #f4f4f5; }
+.st-row:first-child { border-top: 0; }
+.st-row dt { display: flex; align-items: center; gap: 10px; font-size: 0.95rem; font-weight: 700; color: #71717a; }
+.st-row dt svg { color: #a1a1aa; }
+.st-row dd { font-size: 1rem; font-weight: 800; color: #18181b; overflow-wrap: anywhere; }
+
+.st-note { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; padding: 14px 16px; border-radius: 16px; background: #fafafa; }
+.st-note p { flex: 1 1 240px; font-size: 0.92rem; line-height: 1.7; color: #52525b; }
+
+.st-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 42px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.st-btn:disabled { opacity: 0.7; cursor: default; }
+.st-btn--wa { background: #15803d; color: #fff; }
+.st-btn--wa:hover { background: #166534; }
+.st-page .st-btn--outline { border: 1px solid #d4d4d8; background: #fff; color: #27272a; }
+.st-page .st-btn--outline:hover:not(:disabled) { border-color: #15803d; color: #15803d; }
+.st-page .st-btn--danger { border: 1px solid #fecaca; background: #fff; color: #b91c1c; }
+.st-page .st-btn--danger:hover { background: #fef2f2; }
+
+/* Passport: the colour says where it stands */
+.st-passport { display: flex; align-items: flex-start; gap: 14px; }
+.st-passport h2 { font-size: 1.1rem; font-weight: 800; color: #18181b; }
+.st-passport p { margin-top: 3px; font-size: 0.95rem; line-height: 1.7; color: #52525b; }
+.st-passport__icon { display: grid; place-items: center; flex-shrink: 0; width: 48px; height: 48px; border-radius: 14px; }
+.st-passport.is-verified .st-passport__icon { background: #f0fdf4; color: #15803d; }
+.st-passport.is-review .st-passport__icon { background: #fffbeb; color: #b45309; }
+.st-passport.is-rejected { box-shadow: inset 0 0 0 1px #fecaca; }
+.st-passport.is-rejected .st-passport__icon { background: #fef2f2; color: #b91c1c; }
+.st-passport.is-missing .st-passport__icon { background: #eff6ff; color: #1d4ed8; }
+.st-passport__reason { padding: 8px 12px; margin-top: 8px !important; border-radius: 10px; background: #fef2f2; color: #991b1b !important; font-weight: 700; }
+
+/* Security rows */
+.st-action { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 14px; padding: 14px 0; border-top: 1px solid #f4f4f5; }
+.st-card__head + .st-action { margin-top: 6px; border-top: 0; }
+.st-action__icon { display: grid; place-items: center; flex-shrink: 0; width: 42px; height: 42px; border-radius: 12px; background: #f4f4f5; color: #3f3f46; }
+.st-action__icon.is-danger { background: #fef2f2; color: #b91c1c; }
+.st-action__text { display: grid; flex: 1 1 200px; min-width: 0; gap: 2px; }
+.st-action__text b { font-weight: 800; color: #18181b; }
+.st-action__text small { font-size: 0.875rem; line-height: 1.7; color: #71717a; overflow-wrap: anywhere; }
+@media (max-width: 480px) { .st-action .st-btn { width: 100%; } }
+
+@media (prefers-reduced-motion: no-preference) {
+  .st-page > div > * { animation: st-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .st-page > div > *:nth-child(3) { animation-delay: 0.05s; }
+  .st-page > div > *:nth-child(4) { animation-delay: 0.1s; }
+  .st-page > div > *:nth-child(5) { animation-delay: 0.15s; }
+}
+@keyframes st-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }

@@ -1,6 +1,29 @@
 /* Prices page: the quote is a shipping waybill with a torn edge between what was counted and the
    total. The only animation on the page is the waybill arriving when a result first appears and
    the total settling when it changes: both answer the customer's typing. */
+
+/* The app sets text-align: left on html/body (index.css), which dir="rtl" does not undo: start
+   follows the page direction, so Arabic headings and text sit on the right */
+.prices-page { text-align: start; }
+
+/* Who carries a shared shipping: icon, "Shipping line", then the name */
+.carrier-pill {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 1rem;
+}
+.carrier-pill__label { font-weight: 600; color: #3f3f46; }
+/* Arabic name, then the English one after a gap: a gap, not a margin, so the space lands
+   between them whatever the direction of each part */
+.carrier-name { display: inline-flex; flex-wrap: wrap; align-items: baseline; column-gap: 8px; }
+.carrier-latin { font-size: 0.8em; font-weight: 600; color: #71717a; }
+
 .ticket {
   position: relative;
   background: #fff;
@@ -63,7 +86,7 @@
   background: #fafafa;
   transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
-.tier-step__range { font-size: 0.82rem; font-weight: 600; color: #71717a; }
+.tier-step__range { font-size: 0.95rem; font-weight: 600; color: #71717a; }
 .tier-step__value { display: grid; gap: 2px; }
 .tier-step__value b {
   font-size: 1.7rem;
@@ -73,7 +96,44 @@
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
-.tier-step__value small { font-size: 0.78rem; color: #71717a; }
+.tier-step__value small { font-size: 0.9rem; color: #71717a; }
+/* Alipay steps: "Exchange rate" and "Commission", each a labelled row */
+.tier-step__value:has(.tier-pair) { gap: 10px; text-align: start; }
+.tier-pair { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.tier-pair__label { font-size: 0.95rem; font-weight: 600; color: #52525b; white-space: nowrap; }
+.tier-pair__value { display: inline-flex; align-items: baseline; gap: 6px; white-space: nowrap; }
+.tier-pair--fee { padding-top: 10px; border-top: 1px dashed #e4e4e7; }
+.tier-pair--fee strong { font-size: 1.15rem; font-weight: 800; color: #18181b; font-variant-numeric: tabular-nums; }
+.tier-step:has(.tier-pair) { flex-direction: column; align-items: stretch; }
+
+/* Stacked ladder (Alipay): one column, smallest amount first. When the ladder itself is wide
+   enough (its own width, not the screen's: the calculator shares the screen), each step is one
+   row, read like a table: the range, then the exchange rate, then the commission. */
+.tier-ladder.tier-ladder--stacked { grid-template-columns: 1fr; container-type: inline-size; }
+@container (min-width: 680px) {
+  .tier-ladder--stacked .tier-step:has(.tier-pair) {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    align-items: center;
+    gap: 16px;
+  }
+  .tier-ladder--stacked .tier-step__range { min-width: 8.5rem; font-size: 1.05rem; font-weight: 700; color: #3f3f46; white-space: nowrap; }
+  .tier-ladder--stacked .tier-step__value:has(.tier-pair) { grid-template-columns: 1fr 1fr; gap: 0; }
+  .tier-ladder--stacked .tier-pair { justify-content: flex-start; gap: 14px; padding: 2px 16px; border-inline-start: 1px dashed #d4d4d8; }
+  .tier-ladder--stacked .tier-pair--fee { border-top: 0; padding-top: 2px; }
+}
+/* Purchase and SWIFT steps hold one value (the commission), so a row fits a narrower ladder */
+@container (min-width: 440px) {
+  .tier-ladder--stacked .tier-step:has(.tier-pair):not(:has(.tier-pair--fee)) {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    align-items: center;
+    gap: 16px;
+  }
+  .tier-ladder--stacked .tier-step:not(:has(.tier-pair--fee)) .tier-step__range { min-width: 8.5rem; font-size: 1.05rem; font-weight: 700; color: #3f3f46; white-space: nowrap; }
+  .tier-ladder--stacked .tier-step:not(:has(.tier-pair--fee)) .tier-pair { justify-content: flex-start; gap: 14px; padding: 2px 16px; border-inline-start: 1px dashed #d4d4d8; }
+}
+
 .tier-step.is-active {
   border-color: #15803d;
   background: #f0fdf4;
@@ -83,12 +143,12 @@
 .tier-step__here {
   position: absolute;
   top: -10px;
-  left: 12px;
+  inset-inline-end: 12px;
   padding: 2px 9px;
   border-radius: 999px;
   background: #15803d;
   color: #fff;
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 700;
 }
 @media (max-width: 639px) {
@@ -97,10 +157,112 @@
   .tier-step__value b { font-size: 1.4rem; text-align: left; }
 }
 
-.route-card { min-height: 100%; }
+/* Under the prices, inside the card: when they changed, then the route's own notes */
+.route-card__foot {
+  display: grid;
+  gap: 10px;
+  margin: 0 20px;
+  padding: 12px 0 16px;
+  border-top: 1px dashed #e4e4e7;
+}
+.card-note__clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Flags: a hairline edge so white flag parts read against a white card */
+.flag { border-radius: 3px; box-shadow: 0 0 0 1px rgba(24, 24, 27, 0.12); }
+.flag-frame { display: inline-flex; padding: 3px; border-radius: 7px; background: #f4f4f5; }
+
+/* "Updated 3 days ago"; a green dot while it is under a week old */
+.updated {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #71717a;
+  white-space: nowrap;
+}
+.updated.is-fresh::after {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #16a34a;
+}
+
+/* The calculator's chosen route or container, picked from the cards */
+.calc-route {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #f4f4f5;
+}
+
+/* Mobile dock: slides up once the service tabs leave the screen */
+.prices-dock {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 40;
+  padding: 0 12px calc(12px + env(safe-area-inset-bottom));
+  transform: translateY(120%);
+  visibility: hidden;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.3s;
+  pointer-events: none;
+}
+.prices-dock.is-visible {
+  transform: none;
+  visibility: visible;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.prices-dock__bar {
+  display: flex;
+  gap: 4px;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 5px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 0 0 1px rgba(24, 24, 27, 0.08), 0 12px 30px -10px rgba(24, 24, 27, 0.35);
+  backdrop-filter: blur(8px);
+  pointer-events: auto;
+}
+.prices-dock__item,
+.prices-dock__calc {
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 8px;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.prices-dock__item span { overflow: hidden; text-overflow: ellipsis; }
+/* Scoped under the bar: Tailwind's reset gives [type='button'] a transparent background at the same specificity */
+.prices-dock__bar .prices-dock__item { color: #52525b; }
+.prices-dock__bar .prices-dock__item.is-active { background: #f0fdf4; color: #166534; }
+.prices-dock__bar .prices-dock__calc { background: #15803d; color: #fff; }
+.prices-dock__bar .prices-dock__calc.is-active { background: #166534; }
+.prices-dock__item:focus-visible,
+.prices-dock__calc:focus-visible { outline: 2px solid #15803d; outline-offset: 2px; }
 
 .prices-tabs { scrollbar-width: none; }
 .prices-tabs::-webkit-scrollbar { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .prices-dock, .prices-dock.is-visible { transition: none; }
+}
 
 @media (prefers-reduced-motion: no-preference) {
   .ticket:not(.ticket--empty) { animation: ticket-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }

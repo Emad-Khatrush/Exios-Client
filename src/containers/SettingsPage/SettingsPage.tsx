@@ -1,170 +1,169 @@
-import { Alert, AlertColor, Snackbar } from '@mui/material';
 import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { AiOutlineCheckCircle, AiOutlineClockCircle, AiOutlineCloseCircle, AiOutlineCloudUpload } from 'react-icons/ai';
-import { updateUser } from '../../actions/session';
-import Card from '../../components/Card/Card';
+import { useSelector } from 'react-redux';
+import {
+  BadgeCheck, Building2, Check, Clock3, Copy, KeyRound, LogOut, Mail, MapPin, Phone, ShieldAlert, ShieldCheck, Upload, User as UserIcon,
+} from 'lucide-react';
+import { TbBrandWhatsapp } from 'react-icons/tb';
+import api from '../../api';
 import { libyanCities } from '../../constants/info';
+import { officeFor, whatsappLink } from '../../constants/contact';
 import { User } from '../../models';
+import { useCopy } from '../../utils/useCopy';
+import './settings.css';
+
+type PassportState = 'missing' | 'verified' | 'rejected' | 'review';
+
+const passportState = (u?: User): PassportState => {
+  const p = u?.passportVerification;
+  if (!p?.imageUrl) return 'missing';
+  if (p.status === 'verified') return 'verified';
+  if (p.status === 'rejected') return 'rejected';
+  return 'review';
+};
+
+const PASSPORT: Record<PassportState, { title: string, text: string, icon: typeof ShieldCheck }> = {
+  verified: { title: 'تم توثيق جواز سفرك', text: 'حسابك موثّق، ويمكنك الشحن والاستلام بدون أي إجراء إضافي.', icon: ShieldCheck },
+  review: { title: 'جواز سفرك قيد المراجعة', text: 'استلمنا الصورة ويراجعها المكتب. ستصلك النتيجة هنا عند الانتهاء.', icon: Clock3 },
+  rejected: { title: 'تم رفض صورة جواز السفر', text: 'أعد رفع صورة واضحة لصفحة البيانات من النافذة التي تظهر لك في التطبيق.', icon: ShieldAlert },
+  missing: { title: 'لم ترفع صورة جواز السفر بعد', text: 'ارفع صورة صفحة البيانات من النافذة التي تظهر لك في التطبيق، لتوثيق حسابك.', icon: Upload },
+};
 
 const SettingsPage = () => {
   const account: User = useSelector((state: any) => state.session.account);
-  const session: any = useSelector((state: any) => state.session);
+  const { copied, copy } = useCopy();
+  const [reset, setReset] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentUser, setCurrentUser] = useState<User>(account)
-  const [alert, setAlert] = useState({
-    tint: 'success',
-    message: ''
-  });
+  const name = [account?.firstName, account?.lastName].filter(Boolean).join(' ');
+  const initials = [account?.firstName, account?.lastName].filter(Boolean).map((n) => n.trim()[0]).join('');
+  const email = account?.username || '';
+  const cityLabel = libyanCities.find((c) => c.value === account?.city)?.label || '—';
+  const office = officeFor(account?.city);
+  const passport = passportState(account);
+  const P = PASSPORT[passport];
+  const rejection = account?.passportVerification?.rejectionReason;
 
-  const dispatch = useDispatch();
+  const editRequest = whatsappLink(
+    office.whatsapp,
+    `مرحباً، أنا ${name || 'عميل إكسيوس'} - كود العميل ${account?.customerId || ''}.\nأريد تعديل بياناتي في الحساب:\n`,
+  );
 
-  const updateFormState = (name: string, value: any) => {
-    setCurrentUser((prevState: any) => ({
-      ...prevState,
-      [name]: value
-    }))
-  }
-
-  const updateUserData = async (event: any) => {
-    event.preventDefault();
+  const sendReset = async () => {
+    if (!email || reset === 'sending') return;
+    setReset('sending');
     try {
-      setIsLoading(true);
-      await updateUser(currentUser, session, dispatch);
-      setAlert({
-        message: 'تم تحديث معلومات بنجاح',
-        tint: 'success'
-      });
-    } catch (error) {
-      console.log(error);
-      setAlert({
-        message: 'حدث خطا اثناء انشاء العملية',
-        tint: 'error'
-      });
+      await api.getPasswordToken({ email });
+      setReset('sent');
+    } catch {
+      setReset('error');
     }
-    setIsLoading(false);
-  }
+  };
+
+  const logout = () => {
+    localStorage.removeItem('user');
+    localStorage.removeItem('authToken');
+    window.location.replace('/login');
+  };
+
+  const rows = [
+    { icon: UserIcon, label: 'الاسم', value: name || '—' },
+    { icon: Mail, label: 'البريد الإلكتروني', value: email || '—', ltr: true },
+    { icon: Phone, label: 'رقم الهاتف', value: account?.phone ? String(account.phone) : '—', ltr: true },
+    { icon: MapPin, label: 'المدينة', value: cityLabel },
+    { icon: Building2, label: 'مكتبك', value: office.name },
+  ];
 
   return (
-    <div className="container mx-auto py-10 h-64 xl:w-11/12 px-3">
-      <Card>
-        <div className="mt-10 sm:mt-0 text-start" style={{ direction: 'rtl' }}>
-          <div className="md:grid md:grid-cols-3 md:gap-6">
-            <div className="md:col-span-1">
-              <div className="px-4 sm:px-0">
-                <h3 className="text-lg font-medium leading-6 text-gray-900">معلومات الشخصية</h3>
-                <p className="mt-1 text-sm text-gray-600">هذه المعلومات التي سيتم التواصل معه لاجراءات الاستلام</p>
-              </div>
-            </div>
-            <div className="mt-5 md:col-span-2 md:mt-0">
-              <form onSubmit={updateUserData}>
-                <div className="overflow-hidden shadow sm:rounded-md">
-                  <div className="bg-white px-4 py-5 sm:p-6">
-                    <div className="grid grid-cols-6 gap-6">
-                      <div className="col-span-6 sm:col-span-3">
-                        <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">اسم الاول</label>
-                        <input required onChange={({ target }) => updateFormState(target.name, target.value)} type="text" value={currentUser.firstName} disabled name="firstName" id="firstName" autoComplete="given-name" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm disabled:bg-slate-200 hover:cursor-not-allowed" />
-                      </div>
+    <div dir="rtl" lang="ar" className="st-page w-full px-4 pb-16 pt-6 sm:px-6 lg:px-8 lg:pt-8">
+      <div className="mx-auto max-w-3xl">
+        <h1 className="text-2xl font-extrabold text-zinc-900 sm:text-3xl">الإعدادات</h1>
 
-                      <div className="col-span-6 sm:col-span-3">
-                        <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">اسم الثاني</label>
-                        <input required onChange={({ target }) => updateFormState(target.name, target.value)} type="text" value={currentUser.lastName} disabled name="lastName" id="last-name" autoComplete="family-name" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm disabled:bg-slate-200 hover:cursor-not-allowed" />
-                      </div>
-
-                      <div className="col-span-6 sm:col-span-4">
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">البريد الاكتروني</label>
-                        <input required onChange={({ target }) => updateFormState(target.name, target.value)} type="email" value={currentUser.username} disabled name="email" id="email" autoComplete="email" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm disabled:bg-slate-200 hover:cursor-not-allowed" />
-                      </div>
-
-                      <div className="col-span-6 sm:col-span-2">
-                        <label htmlFor="city" className="block text-sm font-medium text-gray-700">مدينة</label>
-                        <select
-                          name="city"
-                          id="city"
-                          className="mb-3 disabled:bg-slate-200 hover:cursor-not-allowed"
-                          value={currentUser.city}
-                          onChange={({ target }) => updateFormState(target.name, target.value)}
-                          required
-                          disabled
-                        >
-                          {libyanCities.map((city) => (
-                            <option key={city.code} value={city.value} className='mr-96'>{city.label}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="col-span-6 sm:col-span-3">
-                        <label htmlFor="phone" className="block text-sm font-medium text-gray-700">رقم الهاتف</label>
-                        <input disabled required onChange={({ target }) => updateFormState(target.name, target.value)} type="number" value={currentUser.phone} name="phone" id="phone" autoComplete="phone" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm disabled:bg-slate-200 hover:cursor-not-allowed" />
-                      </div>
-
-                      {/* Profile Pic Soon */}
-                      {/* <div className="col-span-6">
-                        <label className="block text-sm font-medium text-gray-700 mr-1 mb-3">صورة شخصية</label>
-                        <div className="mt-1 flex">
-                          <span className="inline-block h-12 w-12 overflow-hidden rounded-full bg-gray-100">
-                            <svg className="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-                            </svg>
-                          </span>
-                          <button className="mr-5 rounded-md border border-gray-300 bg-white py-2 px-3 text-sm font-medium leading-4 text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">تغيير</button>
-                        </div>
-                      </div> */}
-
-                      <div className="col-span-6">
-                        <label className="block text-sm font-medium text-gray-700 mr-1 mb-2">حالة توثيق جواز السفر</label>
-                        <div className="flex items-center gap-3 flex-wrap">
-                          {!currentUser.passportVerification?.imageUrl ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 text-blue-700 px-3 py-1 text-sm font-medium">
-                              <AiOutlineCloudUpload /> لم يتم رفع الصورة بعد، يرجى اكمال الرفع من النافذة الظاهرة
-                            </span>
-                          ) : currentUser.passportVerification?.status === 'verified' ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-green-100 text-green-700 px-3 py-1 text-sm font-medium">
-                              <AiOutlineCheckCircle /> تم التحقق من جواز سفرك
-                            </span>
-                          ) : currentUser.passportVerification?.status === 'rejected' ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-red-100 text-red-700 px-3 py-1 text-sm font-medium">
-                              <AiOutlineCloseCircle /> تم رفض جواز السفر، يرجى اكمال اعادة الرفع من النافذة الظاهرة
-                            </span>
-                          ) : currentUser.passportVerification?.wasRejected ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 text-yellow-700 px-3 py-1 text-sm font-medium">
-                              <AiOutlineClockCircle /> قيد المراجعة بعد اعادة الرفع
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 text-yellow-700 px-3 py-1 text-sm font-medium">
-                              <AiOutlineClockCircle /> قيد المراجعة
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="bg-gray-50 px-4 py-3 text-right sm:px-6">
-                    <button disabled={isLoading} type="submit" className="inline-flex justify-center rounded-md border border-transparent bg-green-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">حفظ</button>
-                  </div>
-                </div>
-              </form>
-            </div>
+        {/* Who */}
+        <section className="st-profile">
+          <span className="st-avatar" aria-hidden>{initials || <UserIcon size={26} />}</span>
+          <div className="st-profile__text">
+            <h2>{name || 'حسابي'}</h2>
+            <p>
+              {passport === 'verified'
+                ? <span className="st-verified"><BadgeCheck size={16} aria-hidden /> حساب موثّق</span>
+                : <span className="st-unverified">غير موثّق بعد</span>}
+              <span className="st-dot" aria-hidden>·</span>
+              {cityLabel}
+            </p>
           </div>
-        </div>
-      </Card>
+          <div className="st-code">
+            <span>كود الشحن</span>
+            <bdi dir="ltr">{account?.customerId}</bdi>
+            <button type="button" className={copied === 'code' ? 'is-done' : ''} onClick={() => copy('code', account?.customerId || '')} aria-label="نسخ كود الشحن">
+              {copied === 'code' ? <Check size={15} aria-hidden /> : <Copy size={15} aria-hidden />}
+            </button>
+          </div>
+        </section>
 
-      <Snackbar
-        open={!!alert.message}
-        autoHideDuration={1500}
-        onClose={() => setAlert({ tint: 'success', message: ''})}
-      >
-        <Alert
-          severity={alert.tint as AlertColor}
-          onClose={() => setAlert({ tint: 'success', message: ''})}
-          style={{ fontSize: '1.3rem', display: 'flex', alignItems: 'center', gap: '10px' }}
-        >
-          {alert.message}
-        </Alert>
-      </Snackbar>
+        {/* Personal details: shown here, changed by the office */}
+        <section className="st-card" aria-labelledby="st-info">
+          <div className="st-card__head">
+            <h2 id="st-info">معلوماتك</h2>
+            <p>هذه البيانات التي نتواصل بها معك ونسلّمك بها شحناتك.</p>
+          </div>
+          <dl className="st-rows">
+            {rows.map(({ icon: Icon, label, value, ltr }) => (
+              <div key={label} className="st-row">
+                <dt><Icon size={18} aria-hidden /> {label}</dt>
+                <dd>{ltr ? <bdi dir="ltr">{value}</bdi> : value}</dd>
+              </div>
+            ))}
+          </dl>
+          <div className="st-note">
+            <p>لحماية حسابك، يتم تعديل بياناتك عن طريق المكتب. أرسل لنا ما تريد تغييره.</p>
+            <a className="st-btn st-btn--wa" href={editRequest} target="_blank" rel="noreferrer">
+              <TbBrandWhatsapp size={19} aria-hidden /> طلب تعديل بياناتي
+            </a>
+          </div>
+        </section>
+
+        {/* Passport */}
+        <section className={`st-card st-passport is-${passport}`} aria-labelledby="st-passport">
+          <span className="st-passport__icon" aria-hidden><P.icon size={24} /></span>
+          <div>
+            <h2 id="st-passport">{P.title}</h2>
+            <p>{P.text}</p>
+            {passport === 'rejected' && rejection && <p className="st-passport__reason">سبب الرفض: {rejection}</p>}
+          </div>
+        </section>
+
+        {/* Security */}
+        <section className="st-card" aria-labelledby="st-security">
+          <div className="st-card__head">
+            <h2 id="st-security">الأمان</h2>
+          </div>
+          <div className="st-action">
+            <span className="st-action__icon" aria-hidden><KeyRound size={20} /></span>
+            <div className="st-action__text">
+              <b>تغيير كلمة المرور</b>
+              <small>
+                {reset === 'sent'
+                  ? <>أرسلنا رابط تغيير كلمة المرور إلى <bdi dir="ltr">{email}</bdi>. إذا لم تجده تحقق من مجلد Spam أو Junk.</>
+                  : reset === 'error'
+                    ? 'تعذر إرسال الرابط. تحقق من اتصالك ثم حاول مرة أخرى.'
+                    : <>نرسل لك رابطاً على بريدك <bdi dir="ltr">{email}</bdi> لتختار كلمة مرور جديدة.</>}
+              </small>
+            </div>
+            <button type="button" className="st-btn st-btn--outline" onClick={sendReset} disabled={!email || reset === 'sending' || reset === 'sent'}>
+              {reset === 'sending' ? 'جارٍ الإرسال…' : reset === 'sent' ? <><Check size={16} aria-hidden /> أُرسل الرابط</> : 'إرسال الرابط'}
+            </button>
+          </div>
+          <div className="st-action">
+            <span className="st-action__icon is-danger" aria-hidden><LogOut size={20} /></span>
+            <div className="st-action__text">
+              <b>تسجيل الخروج</b>
+              <small>الخروج من حسابك على هذا الجهاز.</small>
+            </div>
+            <button type="button" className="st-btn st-btn--danger" onClick={logout}>تسجيل الخروج</button>
+          </div>
+        </section>
+      </div>
     </div>
-  )
-}
+  );
+};
 
 export default SettingsPage;

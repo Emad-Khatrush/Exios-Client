@@ -1,0 +1,22 @@
+/* Phone with country: the country button sits inside the field, before the number */
+.pf { position: relative; }
+.pf-country { flex: 0 0 auto; height: 100%; }
+.pf-country .pk-trigger {
+  gap: 7px;
+  height: 100%;
+  padding: 0 10px 0 12px;
+  border: 0;
+  border-inline-end: 1.5px solid #d9e1dc;
+  border-radius: 13px 0 0 13px;
+  background: transparent;
+  box-shadow: none;
+}
+.pf-country .pk-trigger:hover:not(:disabled) { background: #f1f5f2; }
+.pf-country .pk-trigger:focus-visible, .pf-country.is-open .pk-trigger { box-shadow: none; background: #eef5f0; border-color: #d9e1dc; }
+.pf-country .pk-trigger__chev { width: 15px; height: 15px; }
+.pf-dial { font-size: 0.98rem; font-weight: 700; color: #3f4a44; }
+/* the list opens from the field's start, wide enough to read country names */
+.pf-country .pk-pop { left: 0; right: auto; width: 320px; max-width: calc(100vw - 32px); }
+@media (max-width: 640px) {
+  .pf-country .pk-pop { left: 0; right: 0; width: auto; max-width: none; }
+}

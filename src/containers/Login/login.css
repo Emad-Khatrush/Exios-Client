@@ -1,0 +1,378 @@
+/* Sign in. The form on one side, on wide screens a photo of our warehouse with what the account
+   gives the customer on the other. Brand green, the app's paper background, Cairo throughout. */
+.lg {
+  --lg-brand: #15803d;
+  --lg-brand-dark: #166534;
+  --lg-deep: #0c3b22;
+  --lg-ink: #18211c;
+  --lg-muted: #5f6b64;
+  --lg-line: #d9e1dc;
+  --lg-paper: #f2f5f3;
+  --lg-red: #b42318;
+  display: grid;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--lg-paper);
+  color: var(--lg-ink);
+}
+@media (min-width: 960px) {
+  .lg { grid-template-columns: minmax(440px, 1fr) minmax(0, 1.05fr); }
+}
+
+/* ---------- Form side ---------- */
+.lg-side { display: flex; flex-direction: column; padding: 18px 16px 32px; }
+@media (min-width: 640px) { .lg-side { padding: 24px 40px 40px; } }
+.lg-top { display: flex; justify-content: flex-start; }
+.lg-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--lg-muted);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.lg-back:hover { background: #e6ece8; color: var(--lg-ink); }
+
+.lg-box {
+  width: 100%;
+  max-width: 420px;
+  margin: auto;
+  padding: 28px 22px;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(16, 40, 26, 0.05), 0 24px 48px -32px rgba(12, 59, 34, 0.45);
+}
+@media (min-width: 640px) { .lg-box { padding: 36px 34px; } }
+@media (prefers-reduced-motion: no-preference) {
+  .lg-box { animation: lg-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+}
+@keyframes lg-in { from { opacity: 0; transform: translateY(14px); } }
+
+.lg-logo { display: block; width: 132px; height: auto; margin: 0 auto 20px; }
+.lg-box h1 { font-size: 1.75rem; font-weight: 800; line-height: 1.3; text-align: center; }
+.lg-lead { max-width: 34ch; margin: 6px auto 0; font-size: 0.98rem; line-height: 1.7; text-align: center; color: var(--lg-muted); }
+
+/* Email or phone: a two-way switch with a sliding thumb */
+.lg-switch {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 24px 0 20px;
+  padding: 4px;
+  border-radius: 14px;
+  background: #eef2ef;
+}
+.lg-switch button {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 42px;
+  border-radius: 11px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--lg-muted);
+  transition: color 0.2s ease;
+}
+.lg-switch button.is-on { color: var(--lg-ink); }
+.lg-switch button:focus-visible { outline: 2px solid var(--lg-brand); outline-offset: 1px; }
+.lg-switch__thumb {
+  position: absolute;
+  inset-block: 4px;
+  inset-inline-start: 4px;
+  width: calc(50% - 4px);
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(16, 40, 26, 0.12);
+  transition: transform 0.28s cubic-bezier(0.3, 0.9, 0.3, 1);
+}
+/* RTL: the second option sits to the left */
+.lg-switch button:nth-child(2).is-on ~ .lg-switch__thumb { transform: translateX(-100%); }
+[dir='ltr'] .lg-switch button:nth-child(2).is-on ~ .lg-switch__thumb { transform: translateX(100%); }
+
+/* Fields */
+.lg-form { display: grid; gap: 16px; }
+.lg-form.is-shake { animation: lg-shake 0.4s ease; }
+@media (prefers-reduced-motion: reduce) { .lg-form.is-shake { animation: none; } }
+@keyframes lg-shake {
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+.lg-field { display: grid; gap: 7px; }
+.lg-field label { font-size: 0.9rem; font-weight: 800; }
+.lg-field__row { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.lg-link { font-size: 0.86rem; font-weight: 700; color: var(--lg-brand); }
+.lg-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+.lg-input {
+  display: flex;
+  align-items: center;
+  height: 52px;
+  border: 1.5px solid var(--lg-line);
+  border-radius: 14px;
+  background: #fbfcfb;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.lg-input:focus-within {
+  border-color: var(--lg-brand);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(21, 128, 61, 0.12);
+}
+.lg-input.is-invalid { border-color: var(--lg-red); box-shadow: 0 0 0 4px rgba(180, 35, 24, 0.1); }
+.lg-input__icon { flex: 0 0 auto; margin-inline: 14px 0; color: #8a978f; }
+.lg-input:focus-within .lg-input__icon { color: var(--lg-brand); }
+/* plain inputs: the global form styles must not add their own border, padding or ring */
+.lg .lg-input > input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  box-shadow: none;
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: var(--lg-ink);
+  outline: none;
+}
+.lg .lg-input > input::placeholder { color: #a3aea7; font-weight: 500; }
+.lg .lg-input > input[dir='ltr'] { text-align: left; }
+.lg-input input:disabled { opacity: 0.7; }
+
+/* phone: +218 with the flag, read left to right */
+.lg-prefix {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 100%;
+  padding: 0 12px;
+  border-inline-end: 1.5px solid var(--lg-line);
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--lg-muted);
+}
+.lg-prefix .flag-frame { display: inline-flex; padding: 2px; border-radius: 5px; background: #eef2ef; }
+
+.lg-eye {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  margin-inline-end: 4px;
+  border-radius: 11px;
+  color: #7b8880;
+}
+.lg-eye:hover { background: #eef2ef; color: var(--lg-ink); }
+.lg-eye:focus-visible { outline: 2px solid var(--lg-brand); }
+.lg-caps { font-size: 0.82rem; font-weight: 700; color: #b45309; }
+
+.lg-problem {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 11px 13px;
+  border-radius: 13px;
+  background: #fdf0ee;
+  color: #7a271a;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+.lg-problem svg { flex: 0 0 auto; margin-top: 3px; color: var(--lg-red); }
+.lg-problem a { display: inline-flex; align-items: center; gap: 5px; margin-top: 4px; font-weight: 800; color: var(--lg-brand); }
+
+.lg-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 52px;
+  margin-top: 4px;
+  border-radius: 14px;
+  background: var(--lg-brand);
+  color: #fff;
+  font-size: 1.02rem;
+  font-weight: 800;
+  box-shadow: 0 10px 22px -14px rgba(21, 128, 61, 0.9);
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+.lg-submit:hover:not(:disabled) { background: var(--lg-brand-dark); }
+.lg-submit:active:not(:disabled) { transform: translateY(1px); }
+.lg-submit:focus-visible { outline: 3px solid rgba(21, 128, 61, 0.35); outline-offset: 2px; }
+.lg-submit:disabled { cursor: progress; opacity: 0.85; }
+.lg-spin { animation: lg-spin 0.8s linear infinite; }
+@keyframes lg-spin { to { transform: rotate(360deg); } }
+
+.lg-or { display: flex; align-items: center; gap: 12px; margin: 24px 0 14px; font-size: 0.86rem; color: var(--lg-muted); }
+.lg-or::before, .lg-or::after { content: ''; flex: 1; height: 1px; background: #e5ebe7; }
+.lg-signup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 50px;
+  border: 1.5px solid var(--lg-line);
+  border-radius: 14px;
+  font-weight: 800;
+  color: var(--lg-ink);
+  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+}
+.lg-signup:hover { border-color: var(--lg-brand); background: #f3faf5; color: var(--lg-brand); }
+.lg-help { margin-top: 18px; font-size: 0.86rem; text-align: center; color: var(--lg-muted); }
+.lg-help a { font-weight: 800; color: var(--lg-brand); }
+.lg-help a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---------- Visual side (wide screens only, so phones never download the photo) ---------- */
+.lg-visual { display: none; }
+@media (min-width: 960px) {
+  .lg-visual {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    margin: 14px;
+    margin-inline-start: 0;
+    padding: 48px;
+    overflow: hidden;
+    border-radius: 28px;
+    background:
+      linear-gradient(180deg, rgba(12, 59, 34, 0.15) 0%, rgba(12, 59, 34, 0.55) 45%, rgba(8, 36, 21, 0.94) 100%),
+      url('../../../public/images/landing/warehouse.jpg') center / cover no-repeat,
+      var(--lg-deep);
+    color: #fff;
+  }
+}
+.lg-visual__inner { max-width: 470px; }
+.lg-visual__kicker { font-size: 0.9rem; font-weight: 700; color: #bbf7d0; }
+.lg-visual h2 { margin-top: 8px; font-size: 2rem; font-weight: 800; line-height: 1.4; }
+.lg-visual ul { display: grid; gap: 14px; margin: 26px 0 0; padding: 0; list-style: none; }
+.lg-visual li { display: flex; align-items: flex-start; gap: 12px; }
+.lg-visual li > span {
+  display: grid;
+  place-items: center;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(6px);
+}
+.lg-visual li div { display: grid; line-height: 1.55; }
+.lg-visual li b { font-size: 1rem; font-weight: 800; }
+.lg-visual li small { font-size: 0.88rem; color: #d1e7d9; }
+@media (prefers-reduced-motion: no-preference) {
+  .lg-visual__inner > * { animation: lg-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+  .lg-visual__inner > :nth-child(2) { animation-delay: 0.08s; }
+  .lg-visual__inner > :nth-child(3) { animation-delay: 0.16s; }
+}
+
+/* ---------- Guards against the app's global form styles (index.css) ----------
+   - every disabled button is painted grey there: buttons here keep their own look while disabled
+   - inputs are forced right-to-left there: email, password and phone are typed left to right */
+.lg button:disabled { background-color: transparent; }
+.lg .lg-submit:disabled { background-color: var(--lg-brand); }
+.lg .lg-prev:disabled, .lg .rg-prev:disabled { background-color: #fff; opacity: 0.6; }
+.lg .lg-input > input[dir='ltr'], .lg .lg-input[dir='ltr'] > input { direction: ltr; text-align: left; }
+.lg .lg-input > input[dir='ltr']::placeholder, .lg .lg-input[dir='ltr'] > input::placeholder { text-align: left; }
+
+/* ---------- Fit the screen ----------
+   The whole page is one screen: the form side is exactly the window's height and the card is
+   compact enough to fit in it. Only a very short window (a small laptop at high zoom, a phone in
+   landscape) scrolls, and then only the form side, never the photo. */
+.lg { height: 100vh; height: 100dvh; min-height: 0; overflow: hidden; }
+.lg-side { position: relative; min-height: 0; padding: 12px 16px; overflow-y: auto; scrollbar-width: thin; }
+@media (min-width: 640px) { .lg-side { padding: 14px 32px; } }
+/* the back link floats in the corner instead of taking a row of its own */
+.lg-top { position: absolute; top: 12px; inset-inline-start: 12px; z-index: 2; }
+.lg-box { padding: 22px 20px; border-radius: 22px; }
+@media (min-width: 640px) { .lg-box { padding: 26px 30px; } }
+.lg-logo { width: 104px; margin-bottom: 12px; }
+.lg-box h1 { font-size: 1.5rem; }
+.lg-lead { margin-top: 2px; font-size: 0.9rem; line-height: 1.6; }
+.lg-switch { margin: 16px 0 14px; }
+.lg-switch button { min-height: 38px; font-size: 0.88rem; }
+.lg-form { gap: 12px; }
+.lg-field { gap: 5px; }
+.lg-field label { font-size: 0.86rem; }
+.lg-input { height: 48px; }
+.lg-submit { height: 48px; margin-top: 2px; }
+.lg-or { margin: 16px 0 10px; }
+.lg-signup { height: 46px; }
+.lg-help { margin-top: 12px; }
+@media (min-width: 960px) {
+  .lg-visual { margin: 12px; margin-inline-start: 0; padding: 40px; }
+  .lg-visual h2 { font-size: 1.75rem; }
+}
+/* a phone: no card around the form, it is the page */
+@media (max-width: 479px) {
+  .lg-side { padding: 52px 16px 16px; background: #fff; }
+  .lg-top { top: 8px; inset-inline-start: 8px; }
+  .lg-box { padding: 0; border-radius: 0; box-shadow: none; }
+}
+/* short windows: tighter still */
+@media (max-height: 720px) {
+  .lg-logo { width: 88px; margin-bottom: 8px; }
+  .lg-box h1 { font-size: 1.35rem; }
+  .lg-lead { display: none; }
+  .lg-switch { margin: 12px 0 10px; }
+  .lg-input, .lg-submit { height: 46px; }
+  .lg-or { margin: 12px 0 8px; }
+}
+
+/* ---------- Width fix ----------
+   Without an explicit column the page's grid grows to its widest content (two name fields, the phone
+   field), wider than a phone, and the overflow is cut off. One column that never exceeds the
+   screen, and every level allowed to shrink. */
+.lg { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 960px) { .lg { grid-template-columns: minmax(440px, 1fr) minmax(0, 1.05fr); } }
+.lg-side, .lg-box, .lg-form, .lg-field, .lg-input, .rg-panel, .rg-two > * { min-width: 0; }
+.lg .lg-input > input { width: 100%; }
+
+/* ---------- Background ----------
+   A soft brand-green wash with two blurred lights, instead of a flat grey. */
+.lg-side {
+  background:
+    radial-gradient(60% 40% at 85% 0%, rgba(34, 197, 94, 0.16), transparent 70%),
+    radial-gradient(50% 35% at 0% 100%, rgba(21, 128, 61, 0.1), transparent 70%),
+    linear-gradient(180deg, #eef6f1 0%, #f5f8f6 55%, #f2f5f3 100%);
+}
+.lg-box { border: 1px solid rgba(21, 128, 61, 0.08); }
+
+/* a phone: the card stays a card, with a little room around it */
+@media (max-width: 479px) {
+  .lg-side {
+    padding: 52px 12px 16px;
+    background:
+      radial-gradient(90% 30% at 100% 0%, rgba(34, 197, 94, 0.2), transparent 70%),
+      radial-gradient(70% 25% at 0% 100%, rgba(21, 128, 61, 0.12), transparent 70%),
+      linear-gradient(180deg, #e9f4ed 0%, #f4f8f5 60%);
+  }
+  .lg-box {
+    padding: 22px 16px;
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(16, 40, 26, 0.05), 0 20px 40px -30px rgba(12, 59, 34, 0.5);
+  }
+}
+
+/* ---------- Right to left ----------
+   index.css aligns all text left on #root, and "left" is inherited as-is, so Arabic lines here
+   (labels, hints, errors) sat on the wrong side. Everything follows the page's direction: right in
+   Arabic; the email, password and phone fields keep their own left-to-right. */
+.lg { text-align: start; }
+.lg .rg-err, .lg .rg-hint, .lg .lg-problem, .lg .lg-field label { text-align: start; unicode-bidi: plaintext; }
+/* Arabic text fields (the names) right to left; email, phone and password always left to right,
+   numbers and addresses included, whatever sets the direction around them */
+.lg .lg-input:not([dir='ltr']) > input:not([dir='ltr']):not([type='email']):not([type='tel']):not([type='password']) { direction: rtl; text-align: right; }
+.lg .lg-input > input[type='email'], .lg .lg-input > input[type='tel'], .lg .lg-input > input[type='password'],
+.lg .lg-input > input[dir='ltr'], .lg .lg-input[dir='ltr'] > input { direction: ltr; text-align: left; unicode-bidi: plaintext; }
+.lg .lg-input > input[type='email']::placeholder, .lg .lg-input > input[type='tel']::placeholder,
+.lg .lg-input > input[type='password']::placeholder, .lg .lg-input[dir='ltr'] > input::placeholder { direction: ltr; text-align: left; }
+.lg .rg-err a { margin-inline-start: 4px; font-weight: 800; color: var(--lg-brand); text-decoration: underline; text-underline-offset: 3px; }

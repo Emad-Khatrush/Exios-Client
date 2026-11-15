@@ -1,0 +1,84 @@
+/* The office's announcements: a mint band with a solid green megaphone, lighter than the green
+   hero of the home page so the two never stack as one dark block. One announcement at a time. */
+
+.ann-bar {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding: 16px 18px;
+  border-radius: 20px;
+  background:
+    radial-gradient(120% 160% at 100% 0%, #d1fae5, transparent 60%),
+    #f0fdf4;
+  color: #14532d;
+  text-align: start;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px #86efac, 0 14px 30px -24px rgba(20, 83, 45, 0.6);
+}
+.ann-bar__icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: #15803d;
+  color: #fff;
+  box-shadow: 0 8px 18px -8px rgba(21, 128, 61, 0.8);
+}
+.ann-bar__body { flex: 1; min-width: 0; }
+.ann-bar__label { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 800; color: #15803d; }
+.ann-bar__label::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #16a34a; box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2); }
+.ann-bar__text { margin-top: 2px; font-size: 1.05rem; font-weight: 700; line-height: 1.8; color: #14532d; }
+.ann-bar__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 5px 12px;
+  border-radius: 10px;
+  background: #15803d;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 800;
+}
+.ann-bar__link:hover { background: #166534; }
+
+.ann-bar__side { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.ann-bar__pager { display: flex; align-items: center; gap: 4px; }
+.ann-bar .ann-bar__pager button,
+.ann-bar .ann-bar__close {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(21, 128, 61, 0.1);
+  color: #166534;
+  transition: background-color 0.2s ease;
+}
+.ann-bar .ann-bar__pager button:hover,
+.ann-bar .ann-bar__close:hover { background: rgba(21, 128, 61, 0.22); }
+.ann-bar button:focus-visible,
+.ann-bar a:focus-visible { outline: 2px solid #15803d; outline-offset: 2px; }
+.ann-bar__dots { display: inline-flex; gap: 4px; padding: 0 4px; }
+.ann-bar__dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(21, 128, 61, 0.3); transition: background-color 0.2s ease, width 0.2s ease; }
+.ann-bar__dots i.is-on { width: 16px; border-radius: 999px; background: #15803d; }
+
+@media (max-width: 560px) {
+  .ann-bar { flex-wrap: wrap; padding: 14px; }
+  .ann-bar__icon { width: 40px; height: 40px; }
+  .ann-bar__body { flex-basis: calc(100% - 54px - 40px); }
+  .ann-bar__side { order: 3; width: 100%; justify-content: space-between; }
+  /* With one announcement only the close button is left: it sits by the text instead */
+  .ann-bar__side:not(:has(.ann-bar__pager)) { order: 0; width: auto; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ann-bar { animation: ann-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .ann-bar__text { animation: ann-text 0.35s ease-out both; }
+}
+@keyframes ann-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+@keyframes ann-text { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }

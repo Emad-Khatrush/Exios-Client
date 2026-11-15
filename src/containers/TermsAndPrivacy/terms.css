@@ -1,0 +1,103 @@
+/* Terms: a plain, readable list. Each clause keeps the PDF's number; search and the group chips
+   only narrow what is shown. */
+
+.tm-page { text-align: start; }
+.tm-page a:focus-visible,
+.tm-page button:focus-visible,
+.tm-page input:focus-visible { outline: 2px solid #15803d; outline-offset: 2px; }
+
+.tm-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.tm-pdf {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: 12px;
+  border: 1px solid #d4d4d8;
+  background: #fff;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #27272a;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.tm-pdf:hover { border-color: #15803d; color: #15803d; }
+
+.tm-agree {
+  margin-top: 18px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: #f0fdf4;
+  box-shadow: inset 0 0 0 1px #bbf7d0;
+  font-weight: 700;
+  color: #14532d;
+}
+
+.tm-tools { display: grid; gap: 12px; margin-top: 18px; }
+.tm-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid #d4d4d8;
+  background: #fff;
+  color: #71717a;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.tm-search:focus-within { border-color: #15803d; box-shadow: 0 0 0 4px rgba(21, 128, 61, 0.12); }
+.tm-search input { flex: 1; min-width: 0; height: 48px; border: 0; background: transparent; font-size: 1rem; color: #18181b; outline: none; }
+.tm-search input::placeholder { color: #a1a1aa; }
+.tm-search button { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 8px; color: #71717a; }
+.tm-search button:hover { background: #f4f4f5; }
+
+.tm-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.tm-chips button {
+  min-height: 38px;
+  padding: 4px 14px;
+  border-radius: 999px;
+  border: 1px solid #e4e4e7;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #3f3f46;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.tm-chips button { background: #fff; }
+.tm-chips button:hover { border-color: #a1a1aa; }
+.tm-chips button.is-active { background: #18181b; border-color: #18181b; color: #fff; }
+
+.tm-list { display: grid; gap: 10px; margin: 20px 0 0; padding: 0; list-style: none; }
+.tm-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(24, 24, 27, 0.05);
+}
+.tm-item__n {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #f0fdf4;
+  color: #15803d;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.tm-item__group { font-size: 0.78rem; font-weight: 800; color: #a1a1aa; }
+.tm-item p { margin-top: 2px; font-size: 1rem; line-height: 1.95; color: #27272a; }
+@media (max-width: 480px) { .tm-item { padding: 14px; gap: 10px; } .tm-item__n { width: 30px; height: 30px; } }
+
+.tm-empty { display: grid; justify-items: center; gap: 8px; margin-top: 20px; padding: 32px 16px; border: 2px dashed #d4d4d8; border-radius: 18px; color: #71717a; text-align: center; }
+.tm-empty button { font-weight: 800; color: #15803d; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .tm-list { animation: tm-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+}
+@keyframes tm-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* The app styles every input with its own border and focus ring: inside the search box only the box draws them */
+.tm-page .tm-search input,
+.tm-page .tm-search input:focus { border: 0; box-shadow: none; padding: 0; outline: none; --tw-ring-shadow: 0 0 #0000; }

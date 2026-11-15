@@ -145,6 +145,9 @@ export default {
 
   createClientAccount: (formData: FormData) => sendMultipart(`account/create`, 'POST', formData),
 
+  // Whether an email or phone already has an account, asked on the first sign-up step
+  checkSignupAvailability: (body: { email: string, phone: string }) => base.post(`account/check`, body),
+
   updateAccount: (formData: User) => base.put(`account/update`, formData),
 
   getMyAccount: () => base.get(`account/me`),

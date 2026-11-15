@@ -1,188 +1,149 @@
-import { Alert, AlertColor, CircularProgress, Snackbar } from "@mui/material";
-import { useState } from "react";
-import api from "../../api";
-import Card from "../../components/Card/Card";
+import { ClipboardEvent, FormEvent, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft, Check, PackageSearch, Plane, Plus, Ship, Trash2 } from 'lucide-react';
+import api from '../../api';
+import { Method } from '../../constants/warehouses';
+import '../AddressPage/address.css';
+import '../StartShipmentPage/startShipment.css';
 
-const defualtValue = [
-  {
-    index: Math.round(Math.random() * 5000),
-    trackingNumber: '',
-    method: ''
-  }
-];
+const METHOD_TEXT: Record<Method, { label: string, hint: string }> = {
+  air: { label: 'شحن جوي', hint: 'الطرد سيُشحن بالطائرة' },
+  sea: { label: 'شحن بحري', hint: 'الطرد سيُشحن في حاوية' },
+};
 
+// Several numbers pasted at once (one per line, or separated by commas or spaces) become several rows
+const splitNumbers = (text: string) => text.split(/[\s,،;]+/).map((t) => t.trim()).filter(Boolean);
+
+/* Add tracking numbers: the seller's courier number, so we know the parcel when it reaches our
+   warehouse even if it arrives without a name. Same form as the tracking step of "start shipping". */
 const AddTrackingNumbers = () => {
-  
-  const [trackingNumbers, setTrackingNumbers] = useState(defualtValue);
-  const [isLoading, setIsLoading] = useState(false);
-  const [alert, setAlert] = useState({
-    tint: 'success',
-    message: ''
-  });
+  const [method, setMethod] = useState<Method | ''>('');
+  const [rows, setRows] = useState<string[]>(['']);
+  const [added, setAdded] = useState<{ number: string, method: Method }[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
 
-  const updateFormState = (value: any, i: number) => {
-    const newNumbers = [
-      ...trackingNumbers
-    ]
-    newNumbers[i].trackingNumber = value;
-    setTrackingNumbers(newNumbers);
-  }
+  const setRow = (i: number, value: string) => setRows(rows.map((r, j) => (j === i ? value : r)));
 
-  const updateMethodFormState = (value: any, i: number) => {
-    const newNumbers = [
-      ...trackingNumbers
-    ]
-    newNumbers[i].method = value;
-    setTrackingNumbers(newNumbers);
-  }
+  const onPaste = (i: number) => (e: ClipboardEvent<HTMLInputElement>) => {
+    const parts = splitNumbers(e.clipboardData.getData('text'));
+    if (parts.length < 2) return;
+    e.preventDefault();
+    const next = [...rows];
+    next.splice(i, 1, ...parts);
+    setRows(next);
+  };
 
-  const addNewInput = () => {
-    const newNumbers = [
-      ...trackingNumbers
-    ]
-    newNumbers.push({
-      index: Math.round(Math.random() * 5000),
-      trackingNumber: '',
-      method: ''
-    });
-    setTrackingNumbers(newNumbers);
-  }
-
-  const deleteInput = (i: number) => {
-    const newNumbers = trackingNumbers.filter((data => {
-      return data.index !== i;
-    }));
-    setTrackingNumbers(newNumbers);
-  }
-
-  const onSubmit = async (event: any) => {
-    event.preventDefault();
-
-    let hasTrackingNumbers = true;
-    for (let i = 0; i < trackingNumbers.length; i++) {
-      const hasData = !!trackingNumbers[i].trackingNumber;      
-      if (!hasData) {
-        hasTrackingNumbers = false;
-        break;
-      }
-    }
-    
-    if (!hasTrackingNumbers) {
-      setAlert({
-        message: 'يرجى تعبية ارقام التتبع',
-        tint: 'error'
-      });
-      return;
-    }
-
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    const numbers = Array.from(new Set(rows.map((r) => r.trim()).filter(Boolean)));
+    if (!method) { setError('اختر طريقة الشحن أولاً: جوي أم بحري.'); return; }
+    if (!numbers.length) { setError('اكتب رقم التتبع أولاً.'); return; }
+    setBusy(true);
+    setError('');
     try {
-      setIsLoading(true);
-      await api.createTrackingNumbers(trackingNumbers);
-      setAlert({
-        message: 'تم انشاء ارقام التتبع وارسالة للشركة لتتبعها، يمكن تتبع ارقام تتبعك عن طريق صفحة طلبياتي',
-        tint: 'success'
-      });
-      setTrackingNumbers([
-        {
-          index: Math.round(Math.random() * 5000),
-          trackingNumber: '',
-          method: ''
-        }
-      ]);
-    } catch (error) {
-      console.log(error);
-      setAlert({
-        message: 'حدث خطا اثناء انشاء العملية',
-        tint: 'error'
-      });
+      await api.createTrackingNumbers(numbers.map((trackingNumber) => ({ trackingNumber, method })));
+      setAdded((prev) => [...numbers.map((number) => ({ number, method })), ...prev]);
+      setRows(['']);
+    } catch {
+      setError('تعذر حفظ رقم التتبع. تحقق من اتصالك ثم حاول مرة أخرى.');
+    } finally {
+      setBusy(false);
     }
-    setIsLoading(false);
-  }  
+  };
+
+  const count = rows.filter((r) => r.trim()).length;
 
   return (
-    <div className="container mx-auto py-10 h-64 xl:w-11/12 px-3">
-      <Card>
-        <form className="text-end" onSubmit={onSubmit}>
-          <div className="mb-8 mt-4">
-            <p className="text-base font-bold">
-              يرجى تعبية هذه الخانة في حالة قد ارسلت بضائعك الى مخزننا وقد ارسل لك التاجر او الموقع رقم التتبع الخاص بالشركة الشحن الداخلي
-            </p>
-            <p className="text-base font-bold">
-              هذه تساعد الشركة على تتبع شحنتك ومنعها من الفقدان، في حالة قد اتت شحنتك مجهولة
-            </p>
-          </div>
+    <div dir="rtl" lang="ar" className="ad-page ss-page page-enter w-full px-4 pb-16 pt-6 sm:px-6 lg:px-8 lg:pt-8">
+      <div className="mx-auto max-w-4xl">
+        <header>
+          <h1 className="text-2xl font-extrabold text-zinc-900 sm:text-3xl">إضافة رقم تتبع</h1>
+          <p className="mt-1 max-w-[62ch] text-base leading-relaxed text-zinc-600 sm:text-lg">
+            عندما يشحن البائع طردك إلى مخزننا، يعطيك رقم تتبع من شركة الشحن. أضفه هنا لنتعرّف على طردك عند وصوله، حتى لو وصل بدون اسم.
+          </p>
+        </header>
 
-          <div className="overflow-hidden shadow sm:rounded-md">
-            <div className="bg-white px-4 py-5 sm:p-6">
-              <div className="grid grid-cols-6 gap-6">
-                {trackingNumbers.map((data, i) => (
-                  <div key={data.index} className="col-span-6">
-                    <label htmlFor="firstName" className="block text-sm font-medium text-gray-700"> رقم التتبع </label>
-                    <div className="flex">
-                      {trackingNumbers.length !== 1 &&
-                        <button onClick={() => deleteInput(data.index)} className="inline-flex w-28 justify-center rounded-md border border-transparent bg-red-500 items-center text-sm font-bold text-white shadow-sm hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2">حذف الخانة</button>
-                      }
-
-                      <select
-                        required
-                        name="method" 
-                        id="method"
-                        value={data.method}
-                        onChange={(e: any) => {
-                          updateMethodFormState(e.target.value, i);
-                        }}
-                      >
-                        <option value="" disabled className='mr-96'>اختر طريقة شحن هذه البضاعة</option>
-                        <option key={'air'} value={'air'} className='mr-96'>شحن جوي</option>
-                        <option key={'sea'} value={'sea'} className='mr-96'>شحن بحري</option>
-                      </select>
-
-                      <input 
-                        required
-                        onChange={({ target }) => updateFormState(target.value, i)} 
-                        type="text" 
-                        name="trackingNumber" 
-                        id="trackingNumber" 
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
-                      />
-                    </div>
-                  </div>
-                ))}
+        <section className="ss-panel">
+          <form onSubmit={submit} noValidate>
+            <div className="ss-q">
+              <h3>طريقة شحن هذه الطرود</h3>
+              <div className="ss-methods" role="radiogroup" aria-label="طريقة الشحن">
+                {(['air', 'sea'] as Method[]).map((m) => {
+                  const Icon = m === 'air' ? Plane : Ship;
+                  return (
+                    <button
+                      key={m}
+                      type="button"
+                      role="radio"
+                      aria-checked={method === m}
+                      className={`ss-method ${method === m ? 'is-active' : ''}`}
+                      onClick={() => { setMethod(m); setError(''); }}
+                    >
+                      <span className="ss-method__icon" aria-hidden><Icon size={24} /></span>
+                      <span className="ss-method__text">
+                        <b>{METHOD_TEXT[m].label}</b>
+                        <small>{METHOD_TEXT[m].hint}</small>
+                      </span>
+                      {method === m && <span className="ss-method__tick" aria-hidden><Check size={16} /></span>}
+                    </button>
+                  );
+                })}
               </div>
-
-              <button onClick={addNewInput} className="inline-flex my-5 justify-center rounded-md border border-transparent bg-blue-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">اضافة رقم تتبع جديد</button>
-
             </div>
-            <div className="bg-gray-50 px-4 py-3 text-right sm:px-6">
-              <button disabled={isLoading} type="submit" className="inline-flex justify-center rounded-md border border-transparent bg-green-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                {isLoading ?
-                  <CircularProgress size={25} />
-                  :
-                  <>
-                    ارسل
-                  </>
-                }
-              </button>
-            </div>
-          </div>
-        </form>
-      </Card>
 
-      <Snackbar 
-        open={!!alert.message} 
-        autoHideDuration={5000}
-        onClose={() => setAlert({ tint: 'success', message: ''})}
-      >
-        <Alert 
-          severity={alert.tint as AlertColor}
-          onClose={() => setAlert({ tint: 'success', message: ''})}
-          style={{ fontSize: '1.3rem', display: 'flex', alignItems: 'center', gap: '10px' }}
-        >
-          {alert.message}
-        </Alert>
-      </Snackbar>
+            <div className="ss-track">
+              <h3 className="ss-track__title">أرقام التتبع</h3>
+              {rows.map((value, i) => (
+                <div key={i} className="ss-track__row">
+                  <input
+                    value={value}
+                    onChange={(e) => setRow(i, e.target.value)}
+                    onPaste={onPaste(i)}
+                    placeholder="مثال: SF1234567890123"
+                    dir="ltr"
+                    autoComplete="off"
+                    spellCheck={false}
+                    aria-label={`رقم التتبع ${i + 1}`}
+                  />
+                  {rows.length > 1 && (
+                    <button type="button" className="ss-track__remove" aria-label="حذف هذا الرقم" onClick={() => setRows(rows.filter((_, j) => j !== i))}>
+                      <Trash2 size={17} />
+                    </button>
+                  )}
+                </div>
+              ))}
+              <div className="ss-track__bar">
+                <button type="button" className="ss-track__more" onClick={() => setRows([...rows, ''])}><Plus size={16} aria-hidden /> رقم آخر</button>
+                <button type="submit" className="ad-btn ad-btn--primary" disabled={busy}>
+                  {busy ? 'جارٍ الحفظ…' : count > 1 ? `حفظ ${count} أرقام` : 'حفظ رقم التتبع'}
+                </button>
+              </div>
+              {error && <p className="ss-error" role="alert">{error}</p>}
+              <p className="ad-hint">لكل كرتونة أو طرد رقم مختلف؟ أضف كل الأرقام. يمكنك لصق عدة أرقام معاً وستُقسَّم تلقائياً.</p>
+            </div>
+          </form>
+
+          {!!added.length && (
+            <div className="at-done" role="status">
+              <p className="at-done__title"><Check size={18} aria-hidden /> أرسلنا الأرقام للمكتب ليتابعها</p>
+              <ul className="ss-track__added">
+                {added.map((a) => (
+                  <li key={`${a.number}:${a.method}`}>
+                    <Check size={16} aria-hidden /> <bdi dir="ltr">{a.number}</bdi>
+                    <span className="at-done__method">{a.method === 'air' ? 'جوي' : 'بحري'}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link to="/orders?tab=unsure" className="at-done__link">
+                <PackageSearch size={17} aria-hidden /> تابعها في طلبياتي، قسم «أرقام قيد المتابعة» <ArrowLeft size={16} aria-hidden />
+              </Link>
+            </div>
+          )}
+        </section>
+      </div>
     </div>
-  )
-}
+  );
+};
 
 export default AddTrackingNumbers;
