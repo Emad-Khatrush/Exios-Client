@@ -95,3 +95,19 @@
 .pt-terms__section h3 { margin-bottom: 6px; font-weight: 800; color: #14532d; }
 .pt-terms__section p { line-height: 1.8; color: #3f3f46; }
 .pt-terms__section ul { margin: 0; padding: 0 18px 0 0; list-style: disc; color: #3f3f46; line-height: 1.8; }
+
+/* Arriving on the page: one orchestrated entrance. The title, then the balance card rising into
+   place, then the other sections in turn. Sections that arrive with the data run the same way. */
+@media (prefers-reduced-motion: no-preference) {
+  .pt-page > div > * { animation: pt-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .pt-page > div > .pt-balance { animation-name: pt-enter-balance; animation-duration: 0.65s; animation-delay: 0.06s; }
+  .pt-page > div > :nth-child(3) { animation-delay: 0.14s; }
+  .pt-page > div > :nth-child(4) { animation-delay: 0.21s; }
+  .pt-page > div > :nth-child(5) { animation-delay: 0.28s; }
+  .pt-page > div > :nth-child(n + 6) { animation-delay: 0.35s; }
+  /* The coin chip settles in just after its card */
+  .pt-rate-chip { animation: pt-chip 0.5s 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+}
+@keyframes pt-enter { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes pt-enter-balance { from { opacity: 0; transform: translateY(18px) scale(0.97); } to { opacity: 1; transform: none; } }
+@keyframes pt-chip { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }

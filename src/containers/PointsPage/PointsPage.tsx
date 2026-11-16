@@ -72,7 +72,7 @@ const PointsPage = () => {
   const empty = !!data && data.points <= 0 && !pending.length && !rows.length;
 
   return (
-    <div dir="rtl" lang="ar" className="pt-page page-enter w-full px-4 pb-16 pt-6 sm:px-6 lg:px-8 lg:pt-8">
+    <div dir="rtl" lang="ar" className="pt-page w-full px-4 pb-16 pt-6 sm:px-6 lg:px-8 lg:pt-8">
       <div className="mx-auto max-w-3xl">
         <header className="pt-head">
           <h1>نقاطي</h1>
