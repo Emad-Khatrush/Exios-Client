@@ -3,9 +3,9 @@ import { ArrowLeft, Box, Plane, Rocket, Ship, ShoppingBag, PackageSearch } from 
 import Flag from '../PricesPage/Flag';
 import { Package, PackageDetails } from '../../models';
 import { getOrderStatusLabels } from '../../utils/methods';
+import { countryKey } from '../ClientOrders/orderUtils';
 
 const MAX_PACKAGES = 2;
-const COUNTRY_KEY: Record<string, string> = { china: 'china', uae: 'uae', turkey: 'turkey', usa: 'usa', uk: 'uk' };
 
 // Where one package is, in the customer's words, and how many of the three stops it has passed
 const packageStage = (p: PackageDetails) => {
@@ -62,7 +62,7 @@ const RecentShipments = ({ orders, total }: { orders: Package[] | null, total: n
             const MethodIcon = invoiceOnly ? ShoppingBag : o.shipment?.method === 'sea' ? Ship : o.shipment?.method === 'air' ? Plane : Box;
             const packages = (o.paymentList || []).filter((p) => p?.settings?.visableForClient !== false);
             const more = packages.length - MAX_PACKAGES;
-            const country = COUNTRY_KEY[o.shipment?.fromWhere];
+            const country = countryKey(o.shipment?.fromWhere);
             return (
               <li key={o._id} className={`hm-ship ${isReady(o) ? 'is-ready' : ''}`}>
                 <Link to={`/order/${o._id}`} className="hm-ship__head">

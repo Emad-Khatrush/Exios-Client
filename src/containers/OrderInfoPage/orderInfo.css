@@ -905,3 +905,18 @@
 .oi-elsewhere__text b { font-size: 0.95rem; font-weight: 800; }
 .oi-elsewhere__text small { font-size: 0.82rem; opacity: 0.85; }
 .oi-elsewhere__wa { flex: 0 0 auto; color: #128c4a; }
+
+/* Benghazi sea orders: a quiet note under the details, not a warning */
+.oi-domestic {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--or-tint);
+  color: var(--or-deep);
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+.oi-domestic svg { flex: 0 0 auto; margin-top: 3px; }

@@ -6,7 +6,8 @@ import {
 } from 'lucide-react';
 import api from '../../api';
 import Flag from '../PricesPage/Flag';
-import { money, Pricing, ShippingRoute } from '../PricesPage/pricingMath';
+import { money, ShippingRoute } from '../PricesPage/pricingMath';
+import { cachedPricing, fetchPricing } from '../PricesPage/pricingCache';
 import { COUNTRIES, CountryKey } from '../AddressPage/AddressPage';
 import { BuyAndShip, ChinaAddress, ShippingMark, UaeAddress } from '../AddressPage/parts';
 import { libyanCities } from '../../constants/info';
@@ -56,11 +57,11 @@ const StartShipmentPage = () => {
   const [used, setUsed] = useState<StepKey[]>(saved.used || []);
   const [tracking, setTracking] = useState<TrackingChoice>(saved.tracking || '');
   const [added, setAdded] = useState<string[]>(saved.added || []);
-  const [routes, setRoutes] = useState<ShippingRoute[]>([]);
+  const [routes, setRoutes] = useState<ShippingRoute[]>(() => cachedPricing()?.shipping?.routes || []);
   const top = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    api.getPricing().then((res: any) => setRoutes(((res?.data as Pricing)?.shipping?.routes) || [])).catch(() => setRoutes([]));
+    fetchPricing(['shipping', 'fcl']).then((data) => setRoutes(data.shipping?.routes || [])).catch(() => undefined);
   }, []);
 
   useEffect(() => {

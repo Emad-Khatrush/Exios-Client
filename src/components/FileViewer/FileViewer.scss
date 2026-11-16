@@ -20,9 +20,7 @@
     height: min(88vh, 900px);
     box-shadow: 0 30px 80px rgba(6, 10, 14, 0.45);
   }
-  @media (max-width: 640px) {
-    &.MuiPaper-root { margin: 12px; width: calc(100% - 24px); max-height: calc(100% - 24px); height: calc(100dvh - 24px); }
-  }
+  &.MuiDialog-paperFullScreen { border-radius: 0; height: 100%; max-height: none; box-shadow: none; background: #000; }
 }
 
 .fv__shell { display: grid; grid-template-rows: auto 1fr auto; height: 100%; min-height: 0; }
@@ -30,6 +28,9 @@
 .fv__bar {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 12px 14px 12px 10px; border-bottom: 1px solid var(--fv-line);
+  @media (max-width: 640px) {
+    padding: calc(8px + env(safe-area-inset-top)) 12px 8px 6px; border-bottom: 0; background: #000;
+  }
 }
 .fv__title { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .fv__badge {
@@ -40,7 +41,13 @@
 .fv__name { font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 52vw; }
 .fv__sub { font-size: 12.5px; color: var(--fv-muted); margin-top: 2px; }
 .fv__tools { display: flex; align-items: center; gap: 2px; flex: none; }
-@media (max-width: 520px) { .fv .fv__name { max-width: 34vw; } .fv .fv__icon { width: 36px; height: 36px; } }
+.fv__sub-count { display: none; }
+@media (max-width: 640px) {
+  .fv .fv__badge, .fv .fv__name, .fv .fv__count { display: none; }
+  .fv .fv__sub { margin: 0; font-size: 15px; font-weight: 700; color: var(--fv-text); white-space: nowrap; }
+  .fv .fv__sub-count { display: inline; }
+  .fv .fv__icon { width: 42px; height: 42px; }
+}
 .fv__count {
   font-size: 12.5px; font-variant-numeric: tabular-nums; color: var(--fv-text);
   background: var(--fv-raise); border-radius: 10px; padding: 5px 10px; margin-inline-end: 6px;
@@ -52,17 +59,28 @@
   &:hover { color: var(--fv-text); background: rgba(255, 255, 255, 0.06); }
   &:active { transform: scale(0.96); }
 }
+// Close stands apart from the tools: it is the one every phone user looks for
+.fv__close { color: var(--fv-text); background: var(--fv-raise); margin-inline-start: 4px; }
 
 .fv__stage { position: relative; min-height: 0; background: var(--fv-stage); overflow: hidden; }
+// Fingers belong to the viewer here: no page scroll, browser zoom or pull-to-refresh under them
+.fv__stage.has-gestures { touch-action: none; overscroll-behavior: none; user-select: none; -webkit-user-select: none; }
+.fv.MuiDialog-paperFullScreen .fv__stage { background: #000; }
 // The slide has a fixed size (the stage minus its margins): what is inside is measured against it,
 // so an image can never be taller than what is shown and get cut off
 .fv__slide {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 28px 76px;
   animation: fv-in 0.32s var(--fv-ease) both;
   > * { min-width: 0; min-height: 0; }
-  @media (max-width: 640px) { padding: 12px 8px; }
+  &.is-from-next { animation-name: fv-from-left; }
+  &.is-from-prev { animation-name: fv-from-right; }
+  @media (max-width: 640px) { padding: 0; }
 }
+// Let go of a drag that did not change the file: the slide settles back
+.fv__stage:not(.is-gesturing) .fv__slide { transition: transform 0.3s var(--fv-ease), opacity 0.3s var(--fv-ease); }
 @keyframes fv-in { from { opacity: 0; transform: scale(0.985); } to { opacity: 1; transform: none; } }
+@keyframes fv-from-left { from { opacity: 0.4; transform: translateX(-36px); } to { opacity: 1; transform: none; } }
+@keyframes fv-from-right { from { opacity: 0.4; transform: translateX(36px); } to { opacity: 1; transform: none; } }
 
 .fv__nav {
   position: absolute; top: 50%; translate: 0 -50%; z-index: 1;
@@ -77,6 +95,8 @@
   &--next { left: 12px; }
   @media (max-width: 640px) { width: 38px; height: 38px; &--prev { right: 6px; } &--next { left: 6px; } }
 }
+// On a touch screen a swipe moves between photos; the arrows would only cover them
+@media (pointer: coarse) { .fv__stage.has-gestures .fv__nav { display: none; } }
 
 // Image. "fit": the whole image inside the slide (turned or not). "width": the image fills the width
 // and the slide scrolls down over the rest. The slide is a size container: 100cqw/100cqh are its width
@@ -92,7 +112,12 @@
 
   &.is-fit {
     .fv-box { display: contents; }
-    img { max-width: 100cqw; max-height: 100cqh; object-fit: contain; transform: rotate(var(--fv-turn, 0deg)); }
+    img {
+      max-width: 100cqw; max-height: 100cqh; object-fit: contain; will-change: transform;
+      transform: translate(var(--fv-x, 0px), var(--fv-y, 0px)) scale(var(--fv-s, 1)) rotate(var(--fv-turn, 0deg));
+      @media (max-width: 640px) { border-radius: 0; }
+    }
+    &.is-zoomed { cursor: grab; }
     &.is-sideways img { max-width: 100cqh; max-height: 100cqw; }
   }
 
@@ -126,6 +151,8 @@
   animation: fv-shimmer 1.4s linear infinite;
   &--page { inset: 0; }
 }
+// While a finger moves the image, it follows the finger with no delay
+.fv__stage.is-gesturing .fv-image img { transition: opacity 0.35s var(--fv-ease); }
 @keyframes fv-shimmer { to { background-position: -150% 0; } }
 
 // A file that cannot be shown in place
@@ -164,7 +191,12 @@
 
 .fv__strip {
   display: flex; gap: 8px; padding: 10px 14px; overflow-x: auto; border-top: 1px solid var(--fv-line);
-  scrollbar-width: thin;
+  scrollbar-width: thin; scroll-snap-type: x proximity;
+  @media (max-width: 640px) {
+    justify-content: safe center; padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    border-top: 0; background: #000; scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+  }
 }
 .fv__thumb {
   flex: none; width: 64px; height: 48px; padding: 0; border-radius: 10px; overflow: hidden; cursor: pointer;
@@ -174,6 +206,8 @@
   &:hover { opacity: 0.9; }
   &.is-active { opacity: 1; border-color: var(--fv-accent); }
   &:active { transform: scale(0.97); }
+  scroll-snap-align: center;
+  @media (max-width: 640px) { width: 52px; height: 52px; }
 }
 .fv__thumb-icon {
   display: grid; place-items: center; height: 100%; gap: 0;
@@ -181,7 +215,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .fv__slide { animation: none; }
+  .fv__slide { animation: none; transition: none !important; }
+  .fv-image.is-fit img { transition: opacity 0.2s linear; }
   .fv-skeleton { animation: none; }
   .fv-image img, .fv-frame iframe { transition: none; }
 }

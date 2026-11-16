@@ -5,7 +5,7 @@ import { Package } from '../../models';
 import { getOrderTheme } from '../../constants/orderThemes';
 import {
   METHOD_SHORT, shipMethod, shippingCost,
-  COUNTRY_KEYS, SHIPMENT_STAGES, dateText, goodsName, isBlocked, packageStage, packagesText, placeName, relativeDay,
+  SHIPMENT_STAGES, countryKey, dateText, goodsName, isBlocked, packageStage, packagesText, placeName, relativeDay,
   shipmentStage, stageKey, stageLabel, usd, visiblePackages,
 } from './orderUtils';
 
@@ -43,7 +43,7 @@ export const ShipmentCard = ({ order, copied, copy }: { order: Package } & CopyP
   const key = blocked ? 'blocked' : order.unsureOrder ? 'unsure' : stageKey(order);
   const packages = visiblePackages(order);
   const tracking = packages.map((p) => p.deliveredPackages?.trackingNumber).filter(Boolean) as string[];
-  const country = COUNTRY_KEYS.includes(order.shipment?.fromWhere) ? order.shipment.fromWhere : '';
+  const country = countryKey(order.shipment?.fromWhere);
   const from = placeName(order.shipment?.fromWhere);
   const method = shipMethod(order);
   const MethodIcon = blocked ? OctagonX : order.unsureOrder ? ScanSearch : method === 'sea' ? Ship : method === 'air' ? Plane : Box;
@@ -67,8 +67,12 @@ export const ShipmentCard = ({ order, copied, copy }: { order: Package } & CopyP
         <div className="or-card__title">
           <h3>{goodsName(order)}</h3>
           <p className="or-card__route">
-            {country && <span className="flag-frame"><Flag country={country} size={15} /></span>}
-            {from ? <span>من {from}</span> : method !== 'unknown' && <span>{METHOD_SHORT[method]}</span>}
+            {from ? (
+              <span className="or-origin" title={`الشحن من ${from}`}>
+                <Flag country={country} size={16} />
+                <span><span className="sr-only">من </span>{from}</span>
+              </span>
+            ) : method !== 'unknown' && <span>{METHOD_SHORT[method]}</span>}
             {(from || method !== 'unknown') && <span className="or-dot" aria-hidden />}
             <span>{relativeDay(order.createdAt)}</span>
           </p>

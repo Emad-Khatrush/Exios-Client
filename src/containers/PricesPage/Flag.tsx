@@ -55,6 +55,80 @@ const FLAGS: Record<string, JSX.Element> = {
       <path d="M15,0 V20 M0,10 H30" stroke="#C8102E" strokeWidth="3.6" />
     </>
   ),
+  saudi: (
+    <>
+      <rect width="30" height="20" fill="#006C35" />
+      <rect x="8" y="7.2" width="14" height="1.6" rx="0.8" fill="#fff" opacity="0.9" />
+      <rect x="9" y="9.6" width="12" height="1.2" rx="0.6" fill="#fff" opacity="0.9" />
+      <path d="M8 14 H21 L22.5 13.2" stroke="#fff" strokeWidth="0.9" fill="none" />
+    </>
+  ),
+  kuwait: (
+    <>
+      <rect width="30" height="20" fill="#fff" />
+      <rect width="30" height="6.67" fill="#007A3D" />
+      <rect y="13.33" width="30" height="6.67" fill="#CE1126" />
+      <polygon points="0,0 7.5,6.67 7.5,13.33 0,20" fill="#000" />
+    </>
+  ),
+  qatar: (
+    <>
+      <rect width="30" height="20" fill="#8A1538" />
+      <polygon
+        points={['0,0', ...Array.from({ length: 9 }, (_, i) => `${i % 2 ? 8 : 11},${(i * 20) / 9 + 20 / 18}`), '8,20', '0,20'].join(' ')}
+        fill="#fff"
+      />
+    </>
+  ),
+  jordan: (
+    <>
+      <rect width="30" height="20" fill="#fff" />
+      <rect width="30" height="6.67" fill="#000" />
+      <rect y="13.33" width="30" height="6.67" fill="#007A3D" />
+      <polygon points="0,0 14,10 0,20" fill="#CE1126" />
+      <polygon points={star(4.6, 10, 1.4)} fill="#fff" />
+    </>
+  ),
+  egypt: (
+    <>
+      <rect width="30" height="20" fill="#fff" />
+      <rect width="30" height="6.67" fill="#CE1126" />
+      <rect y="13.33" width="30" height="6.67" fill="#000" />
+      <circle cx="15" cy="10" r="1.9" fill="#C09300" />
+    </>
+  ),
+  tunisia: (
+    <>
+      <rect width="30" height="20" fill="#E70013" />
+      <circle cx="15" cy="10" r="5" fill="#fff" />
+      <circle cx="15" cy="10" r="3.7" fill="#E70013" />
+      <circle cx="16" cy="10" r="3" fill="#fff" />
+      <polygon points={star(16.6, 10, 1.9, -90)} fill="#E70013" />
+    </>
+  ),
+  india: (
+    <>
+      <rect width="30" height="20" fill="#fff" />
+      <rect width="30" height="6.67" fill="#FF9933" />
+      <rect y="13.33" width="30" height="6.67" fill="#138808" />
+      <circle cx="15" cy="10" r="2.6" fill="none" stroke="#000080" strokeWidth="0.7" />
+      <circle cx="15" cy="10" r="0.6" fill="#000080" />
+    </>
+  ),
+  germany: (
+    <>
+      <rect width="30" height="6.67" fill="#000" />
+      <rect y="6.67" width="30" height="6.67" fill="#DD0000" />
+      <rect y="13.33" width="30" height="6.67" fill="#FFCE00" />
+    </>
+  ),
+  italy: (
+    <>
+      <rect width="10" height="20" fill="#009246" />
+      <rect x="10" width="10" height="20" fill="#fff" />
+      <rect x="20" width="10" height="20" fill="#CE2B37" />
+    </>
+  ),
   libya: (
     <>
       <rect width="30" height="20" fill="#000" />

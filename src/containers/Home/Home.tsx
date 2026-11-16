@@ -12,6 +12,7 @@ import LatestPosts from './LatestPosts';
 import RecentShipments from './RecentShipments';
 import Flag from '../PricesPage/Flag';
 import { money, Pricing, updatedLabel } from '../PricesPage/pricingMath';
+import { cachedPricing, fetchPricing } from '../PricesPage/pricingCache';
 import { Announcement, Package } from '../../models';
 import { officeFor, whatsappLink } from '../../constants/contact';
 import { useCopy } from '../../utils/useCopy';
@@ -41,7 +42,7 @@ const Home = () => {
   const [counts, setCounts] = useState<Counts | null>(null);
   const [orders, setOrders] = useState<Package[] | null>(null);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
-  const [pricing, setPricing] = useState<Pricing | null>(null);
+  const [pricing, setPricing] = useState<Pricing | null>(() => cachedPricing() as Pricing | null);
   const [unreadReplies, setUnreadReplies] = useState(0);
 
   // Each block loads on its own: a slow or failed one never holds the others back
@@ -54,7 +55,7 @@ const Home = () => {
       'paymentList._id': 1, 'paymentList.status': 1, 'paymentList.settings': 1,
       'paymentList.deliveredPackages.trackingNumber': 1, 'paymentList.deliveredPackages.weight': 1,
     }).then((res: any) => setOrders(res.data?.results?.orders || [])).catch(() => setOrders([]));
-    api.getPricing().then((res: any) => setPricing(res?.data || null)).catch(() => undefined);
+    fetchPricing(['shipping', 'fcl']).then((data) => setPricing({ ...data } as Pricing)).catch(() => undefined);
     api.get('client/feedback')
       .then((res: any) => setUnreadReplies(Array.isArray(res?.data) ? res.data.filter((f: any) => f.unread).length : 0))
       .catch(() => undefined);
@@ -71,10 +72,10 @@ const Home = () => {
   const pricesUpdated = updatedLabel(pricing?.shipping?.updatedAt);
 
   const stats = [
-    { key: 'active', label: 'طلبيات نشطة', value: counts?.activeOrders, icon: PackageOpen, to: '/orders' },
-    { key: 'ready', label: 'جاهزة للاستلام', value: counts?.readyForReceivement, icon: PackageCheck, to: '/orders', hot: ready > 0 },
-    { key: 'done', label: 'تم تسليمها', value: counts?.receivedOrders, icon: CircleCheckBig, to: '/orders' },
-    { key: 'invoices', label: 'إجمالي الفواتير', value: counts ? money(counts.totalPaidInvoices || 0) : undefined, icon: Receipt, to: '/orders', ltr: true },
+    { key: 'active', label: 'طلبيات نشطة', value: counts?.activeOrders, icon: PackageOpen, to: '/orders?tab=active' },
+    { key: 'ready', label: 'جاهزة للاستلام', value: counts?.readyForReceivement, icon: PackageCheck, to: '/orders?tab=readyForPickup', hot: ready > 0 },
+    { key: 'done', label: 'تم تسليمها', value: counts?.receivedOrders, icon: CircleCheckBig, to: '/orders?tab=finished' },
+    { key: 'invoices', label: 'إجمالي الفواتير', value: counts ? money(counts.totalPaidInvoices || 0) : undefined, icon: Receipt, to: '/orders?view=purchases', ltr: true },
   ];
 
   return (
@@ -84,14 +85,22 @@ const Home = () => {
         <header className="hm-hero">
           <div className="hm-hero__text">
             <p className="hm-hero__hello">{greeting()}{firstName ? `، ${firstName}` : ''}</p>
-            <h1>{ready > 0
-              ? (ready === 1 ? 'عندك طلبية جاهزة للاستلام' : `عندك ${ready} طلبيات جاهزة للاستلام`)
-              : 'من أين نشحن لك اليوم؟'}
-            </h1>
+            {/* Until the counts arrive we don't know which message is true, so neither is shown:
+                a placeholder of the same size holds the place and nothing flips a second later */}
+            {counts === null ? (
+              <h1 aria-busy="true"><span className="hm-sk hm-sk--hero" /><span className="sr-only">جاري التحميل</span></h1>
+            ) : (
+              <h1 className="hm-reveal">{ready > 0
+                ? (ready === 1 ? 'عندك طلبية جاهزة للاستلام' : `عندك ${ready} طلبيات جاهزة للاستلام`)
+                : 'من أين نشحن لك اليوم؟'}
+              </h1>
+            )}
             <div className="hm-hero__actions">
-              {ready > 0
-                ? <Link className="hm-btn hm-btn--light" to="/orders">عرض طلبياتي <ArrowLeft size={18} aria-hidden /></Link>
-                : <Link className="hm-btn hm-btn--light" to="/start-shipment"><Rocket size={18} aria-hidden /> ابدأ الشحن</Link>}
+              {counts === null
+                ? <span className="hm-sk hm-sk--btn" aria-hidden />
+                : ready > 0
+                ? <Link className="hm-btn hm-btn--light hm-reveal" to="/orders?tab=readyForPickup">عرض طلبياتي <ArrowLeft size={18} aria-hidden /></Link>
+                : <Link className="hm-btn hm-btn--light hm-reveal" to="/start-shipment"><Rocket size={18} aria-hidden /> ابدأ الشحن</Link>}
               <Link className="hm-btn hm-btn--ghost" to="/address">عناويننا</Link>
             </div>
           </div>

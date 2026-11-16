@@ -19,14 +19,14 @@ import OrderNoteCustomizer from '../../components/OrderNoteCustomizer/OrderNoteC
 import PackageCard from './PackageCard';
 import FileViewer, { KIND_ICONS, toViewerFile } from '../../components/FileViewer/FileViewer';
 import {
-  COUNTRY_KEYS, METHOD_LABEL, PACKAGE_STAGES, SHIPMENT_STAGES, dateText, goodsName, isBlocked, isPurchaseInvoice, shipMethod, nextStepText,
-  packageStage, placeName, shippingCost, relativeDay, shipmentStage, stageKey, stageLabel, timeText, usd, visiblePackages,
+  METHOD_LABEL, countryKey, PACKAGE_STAGES, SHIPMENT_STAGES, dateText, goodsName, isBlocked, isPurchaseInvoice, shipMethod, nextStepText,
+  packageStage, placeName, tripArrival, tripName, shippingCost, relativeDay, shipmentStage, stageKey, stageLabel, timeText, usd, visiblePackages,
 } from '../ClientOrders/orderUtils';
 import '../ClientOrders/orders.css';
 import './orderInfo.css';
 
 const ORDER_FIELDS = {
-  orderId: 1, createdAt: 1, updatedAt: 1, orderStatus: 1, isPayment: 1, isShipment: 1, isFinished: 1, isCanceled: 1,
+  orderId: 1, placedAt: 1, createdAt: 1, updatedAt: 1, orderStatus: 1, isPayment: 1, isShipment: 1, isFinished: 1, isCanceled: 1,
   unsureOrder: 1, productName: 1, customerInfo: 1, totalInvoice: 1, images: 1, activity: 1,
   'customization.note': 1, 'customization.theme': 1,
   shippingBlocked: 1, shippingBlockReason: 1, shippingBlockedAt: 1,
@@ -396,7 +396,7 @@ const OrderInfoPage = () => {
   const stage = shipmentStage(order);
   const blocked = isBlocked(order);
   const key = blocked ? 'blocked' : order.unsureOrder ? 'unsure' : stageKey(order);
-  const country = COUNTRY_KEYS.includes(order.shipment?.fromWhere) ? order.shipment.fromWhere : '';
+  const country = countryKey(order.shipment?.fromWhere);
   const from = placeName(order.shipment?.fromWhere);
   const to = placeName(order.shipment?.toWhere);
   // The order's destination when it is not the office's own city (sent on from there)
@@ -424,6 +424,25 @@ const OrderInfoPage = () => {
   const totalsText = Object.entries(totals).map(([u, v]) => `${v} ${u}`).join(' · ');
   const cost = shippingCost(packages);
 
+  // When the trips carrying this order reach Libya: one line per trip, or one date when they all share it
+  // Expected until every package on that trip has actually reached Libya
+  const tripMap = new Map<string, { date: string, label: string }>();
+  packages.forEach((p) => {
+    const a = tripArrival(p);
+    if (!a || !p.trip?.voyage) return;
+    const seen = tripMap.get(p.trip.voyage);
+    tripMap.set(p.trip.voyage, seen && seen.label !== a.label ? { ...a, label: 'الوصول المتوقع' } : a);
+  });
+  const trips = Array.from(tripMap.entries());
+  const arrivalRows = trips.length && trips.every(([, a]) => a.date === trips[0][1].date && a.label === trips[0][1].label)
+    ? [{ k: trips[0][1].label, v: trips[0][1].date }]
+    : trips.map(([voyage, a]) => ({ k: `${a.label}: ${tripName(voyage)}`, v: a.date }));
+
+  // Sea freight lands in Tripoli: an order collected in Benghazi travels on by road, and that leg is charged with the shipping
+  const seaOrder = method === 'sea' || packages.some((p) => p.deliveredPackages?.shipmentMethod === 'sea');
+  const toBenghazi = order.placedAt === 'benghazi' || toCity?.value === 'benghazi' || /بنغازي|benghazi/i.test(to);
+  const showDomesticNote = seaOrder && toBenghazi && !order.isCanceled && !isPurchaseInvoice(order);
+
   const filtered = pkgFilter === 'all' ? packages : packages.filter((p) => packageStage(p) === pkgFilter);
   const stagesPresent = Object.keys(stageCounts).map(Number).sort();
 
@@ -434,7 +453,8 @@ const OrderInfoPage = () => {
     to && { k: 'إلى', v: to },
     { k: 'طريقة الشحن', v: METHOD_LABEL[method] },
     { k: 'تاريخ الإنشاء', v: dateText(order.createdAt) },
-    order.shipment?.estimatedDelivery && !delivered && { k: 'الوصول المتوقع', v: dateText(order.shipment.estimatedDelivery) },
+    order.shipment?.estimatedDelivery && !delivered && !arrivalRows.length && { k: 'الوصول المتوقع', v: dateText(order.shipment.estimatedDelivery) },
+    ...arrivalRows,
     order.isPayment && Number(order.totalInvoice) > 0 && { k: 'قيمة المشتريات', v: <bdi dir="ltr">{usd(order.totalInvoice)}</bdi> },
     cleanText(order.customerInfo?.fullName) && { k: 'المستلم', v: order.customerInfo.fullName },
     cleanText(order.customerInfo?.phone) && { k: 'الهاتف', v: <bdi dir="ltr">{String(order.customerInfo.phone)}</bdi> },
@@ -650,6 +670,12 @@ const OrderInfoPage = () => {
                   <div key={d.k}><dt>{d.k}</dt><dd>{d.v}</dd></div>
                 ))}
               </dl>
+              {showDomesticNote && (
+                <p className="oi-domestic">
+                  <Truck size={17} aria-hidden />
+                  <span>الشحن البحري يصل طرابلس، ثم ننقله برّاً إلى بنغازي. تكلفة النقل الداخلي تُدفع مع قيمة الشحن.</span>
+                </p>
+              )}
             </section>
 
             <div id="oi-note-anchor">

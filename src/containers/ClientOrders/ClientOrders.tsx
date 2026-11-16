@@ -14,7 +14,7 @@ import { CardSkeleton, PurchaseCard, ShipmentCard } from './OrderCards';
 import { ORDER_THEMES } from '../../constants/orderThemes';
 import Flag from '../PricesPage/Flag';
 import {
-  COUNTRY_KEYS, COUNTRY_LABEL, DEFAULT_FILTERS, OrderFilters, activeFilterCount, applyFilters, isPurchaseInvoice, shipMethod, usd,
+  COUNTRY_LABEL, DEFAULT_FILTERS, OrderFilters, activeFilterCount, applyFilters, isPurchaseInvoice, originOf, shipMethod, usd,
 } from './orderUtils';
 import './orders.css';
 
@@ -82,7 +82,7 @@ const ClientOrders = () => {
   // Advanced filters, also kept in the address (short keys)
   const filters: OrderFilters = {
     method: (['air', 'sea', 'unknown'].includes(params.get('m') || '') ? params.get('m') : 'all') as OrderFilters['method'],
-    country: COUNTRY_KEYS.includes(params.get('c') || '') ? params.get('c')! : 'all',
+    country: params.get('c') || 'all',
     note: params.get('n') || 'all',
     period: (['30', '90', '365'].includes(params.get('p') || '') ? params.get('p') : 'all') as OrderFilters['period'],
     sort: params.get('s') === 'old' ? 'old' : 'new',
@@ -96,9 +96,14 @@ const ClientOrders = () => {
 
   const listKey = view === 'purchases' ? 'invoiceOrders' : tab;
   const cache = useRef<Record<string, Package[]>>({});
-  const [orders, setOrders] = useState<Package[] | null>(cache.current[listKey] || null);
+  // Each answer is kept with the list it belongs to, and the list shown is picked by the tab on screen.
+  // So on a tab change the old tab's orders are never shown under the new tab, not even for one frame
+  // (the effect that loads the new tab only runs after the screen is painted).
+  const [loaded, setLoaded] = useState<{ key: string, list: Package[] } | null>(null);
+  const orders = loaded?.key === listKey ? loaded.list : cache.current[listKey] || null;
   const [counts, setCounts] = useState<Counts | null>(null);
-  const [failed, setFailed] = useState(false);
+  const [failedKey, setFailedKey] = useState<string | null>(null);
+  const failed = failedKey === listKey;
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
 
   const [query, setQuery] = useState('');
@@ -107,20 +112,25 @@ const ClientOrders = () => {
   const searchId = useRef(0);
 
   // A list loads once, then shows instantly from memory while it refreshes in the background.
-  // A slow answer for a tab the customer has already left never replaces the tab they are on.
-  const listKeyRef = useRef(listKey);
-  listKeyRef.current = listKey;
+  // Switching fast (active → ready → active) sends several requests that can come back in any order:
+  // only the newest request for a list may fill it, and only the newest answer may set the counts.
+  const requestSeq = useRef(0);
+  const latestFor = useRef<Record<string, number>>({});
+  const countsFrom = useRef(0);
   const load = useCallback((key: string) => {
-    setFailed(false);
-    setOrders(cache.current[key] || null);
+    const id = ++requestSeq.current;
+    latestFor.current[key] = id;
+    setFailedKey((k) => (k === key ? null : k));
     api.getOrdersForUser(key as OrderStatusType, LIST_FIELDS)
       .then((res: any) => {
+        const countList = res.data?.results?.countList;
+        if (countList && id > countsFrom.current) { countsFrom.current = id; setCounts(countList); }
+        if (latestFor.current[key] !== id) return;
         const list: Package[] = res.data?.results?.orders || [];
         cache.current[key] = list;
-        if (res.data?.results?.countList) setCounts(res.data.results.countList);
-        if (key === listKeyRef.current) setOrders(list);
+        setLoaded({ key, list });
       })
-      .catch(() => { if (key === listKeyRef.current && !cache.current[key]) setFailed(true); });
+      .catch(() => { if (latestFor.current[key] === id && !cache.current[key]) setFailedKey(key); });
   }, []);
 
   useEffect(() => { load(listKey); }, [listKey, load]);
@@ -185,11 +195,17 @@ const ClientOrders = () => {
     const list = base || [];
     return {
       unknownMethod: list.some((o) => !isPurchaseInvoice(o) && shipMethod(o) === 'unknown'),
-      countries: COUNTRY_KEYS.filter((c) => list.some((o) => o.shipment?.fromWhere === c)),
-      colors: ORDER_THEMES.filter((t) => list.some((o) => o.customization?.note && (o.customization?.theme || 'emerald') === t.id)),
+      // The countries this customer ships from, most orders first; a country the office typed itself keeps its own name
+      countries: (() => {
+        const n = new Map<string, number>();
+        list.forEach((o) => { if (!isPurchaseInvoice(o)) { const c = originOf(o); if (c) n.set(c, (n.get(c) || 0) + 1); } });
+        return Array.from(n.entries()).sort((a, b) => b[1] - a[1]).map(([c, count]) => ({ c, count }));
+      })(),
+      // The chosen colour stays on offer after a tab change, so it can still be turned off
+      colors: ORDER_THEMES.filter((t) => t.id === filters.note || list.some((o) => o.customization?.note && (o.customization?.theme || 'emerald') === t.id)),
       hasNotes: list.some((o) => !!o.customization?.note),
     };
-  }, [base]);
+  }, [base, filters.note]);
   // Method and origin mean nothing for purchase invoices
   const forShipments = view === 'shipments' || isSearch;
   const currentTab = SHIPMENT_TABS.find((t) => t.value === tab)!;
@@ -313,14 +329,16 @@ const ClientOrders = () => {
                 </div>
               )}
 
-              {forShipments && options.countries.length > 1 && (
+              {forShipments && (options.countries.length > 0 || filters.country !== 'all') && (
                 <div className="or-fgroup" role="group" aria-label="الشحن من">
                   <span className="or-fgroup__label" aria-hidden>الشحن من</span>
                   <div>
                     <button type="button" aria-pressed={filters.country === 'all'} className={`or-fchip ${filters.country === 'all' ? 'is-on' : ''}`} onClick={() => setFilter('country', 'all')}>الكل</button>
-                    {options.countries.map((c) => (
-                      <button key={c} type="button" aria-pressed={filters.country === c} className={`or-fchip ${filters.country === c ? 'is-on' : ''}`} onClick={() => setFilter('country', c)}>
-                        <span className="flag-frame"><Flag country={c} size={14} /></span> {COUNTRY_LABEL[c]}
+                    {options.countries.map(({ c, count }) => (
+                      <button key={c} type="button" aria-pressed={filters.country === c} className={`or-fchip or-fchip--country ${filters.country === c ? 'is-on' : ''}`} onClick={() => setFilter('country', c)}>
+                        <Flag country={c} size={18} />
+                        <span>{COUNTRY_LABEL[c] || c}</span>
+                        <span className="or-fchip__n">{count}</span>
                       </button>
                     ))}
                   </div>

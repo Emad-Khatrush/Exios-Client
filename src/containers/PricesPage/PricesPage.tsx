@@ -3,8 +3,8 @@ import { useSelector } from 'react-redux';
 import {
   ArrowLeft, Banknote, Calculator, Check, Clock, Container as ContainerIcon, History, Info, Landmark, Plane, RefreshCw, Ship, ShoppingCart,
 } from 'lucide-react';
-import api from '../../api';
 import QuoteTicket from './QuoteTicket';
+import { PricingPart, cachedPricing, fetchPricing, hasParts } from './pricingCache';
 import Flag, { countryOfPort } from './Flag';
 import {
   Container, Pricing, Quote, ShippingRoute, Tier, alipayQuote, carrierName, fclQuote, ltr, money, plain, purchaseQuote, shippingQuote, swiftQuote, tierFor, toNumber, updatedLabel,
@@ -13,6 +13,13 @@ import './pricesPage.css';
 
 type Service = 'shipping' | 'fcl' | 'purchase' | 'alipay' | 'swift';
 export type PriceGroup = 'shipping' | 'purchase' | 'transfers';
+
+// The price sections each page needs: only these are loaded when the page opens
+const GROUP_PARTS: Record<PriceGroup, PricingPart[]> = {
+  shipping: ['shipping', 'fcl'],
+  purchase: ['purchase'],
+  transfers: ['alipay', 'swift'],
+};
 
 // One page per kind of service, each its own entry in the sidebar
 const GROUPS: Record<PriceGroup, { title: string, sub: string, services: { key: Service, label: string, icon: ReactNode }[] }> = {
@@ -206,8 +213,11 @@ const SectionHead = ({ title, sub, updatedAt }: { title: string, sub: string, up
 
 const PricesPage = ({ group = 'shipping' }: { group?: PriceGroup }) => {
   const account = useSelector((state: any) => state.session.account);
-  const [pricing, setPricing] = useState<Pricing | null>(null);
+  // Starts from what this visit already loaded, so a page seen before opens at once
+  const [pricing, setPricing] = useState<Pricing | null>(() => cachedPricing() as Pricing | null);
   const [error, setError] = useState(false);
+  const parts = GROUP_PARTS[group] || GROUP_PARTS.shipping;
+  const ready = hasParts(pricing, parts);
   const [service, setService] = useState<Service | null>(null);
 
   const [routeKey, setRouteKey] = useState('');
@@ -229,22 +239,27 @@ const PricesPage = ({ group = 'shipping' }: { group?: PriceGroup }) => {
   const [showDock, setShowDock] = useState(false);
   const [calcInView, setCalcInView] = useState(false);
 
-  const load = async () => {
+  // Loads (or refreshes) this page's sections. Only the page on screen may show an error, and only
+  // when it has nothing to show: with prices already loaded a failed refresh stays quiet.
+  const groupRef = useRef(group);
+  groupRef.current = group;
+  const load = () => {
+    const forGroup = group;
     setError(false);
-    try {
-      const res = await api.getPricing();
-      const data: Pricing = res.data;
-      setPricing(data);
-      setRouteKey((k) => k || data.shipping?.routes[0]?.key || '');
-      setSiteKey((k) => k || data.purchase?.sites[0]?.key || '');
-      // Start on the cheapest container offer
-      setContainerKey((k) => k || [...(data.fcl?.containers || [])].sort((a, b) => a.price - b.price)[0]?.key || '');
-    } catch (e) {
-      setError(true);
-    }
+    fetchPricing(parts)
+      .then((loaded) => {
+        const data = loaded as Pricing;
+        setPricing({ ...data });
+        setRouteKey((k) => k || data.shipping?.routes[0]?.key || '');
+        setSiteKey((k) => k || data.purchase?.sites[0]?.key || '');
+        // Start on the cheapest container offer
+        setContainerKey((k) => k || [...(data.fcl?.containers || [])].sort((a, b) => a.price - b.price)[0]?.key || '');
+      })
+      .catch(() => {
+        if (groupRef.current === forGroup && !hasParts(cachedPricing(), GROUP_PARTS[forGroup] || GROUP_PARTS.shipping)) setError(true);
+      });
   };
-  useEffect(() => { void load(); }, []);
-  useEffect(() => { setService(null); }, [group]);
+  useEffect(() => { setService(null); load(); }, [group]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!pricing || typeof IntersectionObserver === 'undefined') return undefined;
@@ -256,7 +271,7 @@ const PricesPage = ({ group = 'shipping' }: { group?: PriceGroup }) => {
     if (tabsRef.current) tabs.observe(tabsRef.current);
     if (calcRef.current) calc.observe(calcRef.current);
     return () => { tabs.disconnect(); calc.disconnect(); };
-  }, [pricing]);
+  }, [pricing, ready]);
 
   const page = GROUPS[group] || GROUPS.shipping;
   const available = useMemo(() => page.services.filter((s) => pricing?.[s.key]), [pricing, page]);
@@ -326,7 +341,7 @@ const PricesPage = ({ group = 'shipping' }: { group?: PriceGroup }) => {
     );
   }
 
-  if (!pricing) {
+  if (!pricing || !ready) {
     return (
       <div dir="rtl" className="w-full px-4 py-8 sm:px-6 lg:px-8" aria-busy="true" aria-label="جارٍ تحميل الأسعار">
         <div className="h-8 w-40 animate-pulse rounded-lg bg-zinc-300/60" />

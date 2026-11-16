@@ -194,7 +194,7 @@ export default {
   getExchangeRate: () => base.get(`exchangeRate`),
 
   // Everything the Prices page shows (admin: Settings > Customer prices)
-  getPricing: () => base.get(`pricing`),
+  getPricing: (parts?: string[]) => base.get(`pricing`, parts?.length ? { parts: parts.join(',') } : undefined),
 
   getActivePopupAds: () => base.get(`popupAds/active`),
 

@@ -3,7 +3,8 @@
 // bought the goods (isPayment); everything here turns that into one shared list of stages.
 import { Package, PackageDetails } from '../../models';
 
-export const COUNTRY_KEYS = ['china', 'uae', 'turkey', 'usa', 'uk'];
+// The countries the office ships from, in the order the filter lists them
+export const COUNTRY_KEYS = ['china', 'uae', 'turkey', 'saudi', 'kuwait', 'qatar', 'jordan', 'egypt', 'tunisia', 'india', 'usa', 'uk', 'germany', 'italy'];
 
 export const isPurchaseInvoice = (o: Package) => !!o.isPayment && !o.isShipment;
 
@@ -13,8 +14,28 @@ export const isBlocked = (o: Package) => !!o.shippingBlocked && !o.isFinished &&
 export const METHOD_LABEL: Record<string, string> = { air: 'شحن جوي', sea: 'شحن بحري', unknown: 'طريقة الشحن غير محددة' };
 
 export const COUNTRY_LABEL: Record<string, string> = {
-  china: 'الصين', uae: 'الإمارات', turkey: 'تركيا', usa: 'أمريكا', uk: 'بريطانيا',
+  china: 'الصين', uae: 'الإمارات', turkey: 'تركيا', saudi: 'السعودية', kuwait: 'الكويت', qatar: 'قطر', jordan: 'الأردن',
+  egypt: 'مصر', tunisia: 'تونس', india: 'الهند', usa: 'أمريكا', uk: 'بريطانيا', germany: 'ألمانيا', italy: 'إيطاليا',
 };
+
+// The admin saves the origin as Arabic text (الصين, الامارات…), older orders as a key (china). Both
+// spellings, with or without hamza, map to one key so flags and the filter work for every order.
+const COUNTRY_ALIASES: [RegExp, string][] = [
+  [/^(china|الصين)$/i, 'china'],
+  [/^(uae|dubai|ال[اإ]مارات|دبي)$/i, 'uae'],
+  [/^(turkey|تركيا)$/i, 'turkey'],
+  [/^(saudi|ksa|السعودية)$/i, 'saudi'],
+  [/^(kuwait|الكويت)$/i, 'kuwait'],
+  [/^(qatar|قطر)$/i, 'qatar'],
+  [/^(jordan|ال[اأ]ردن)$/i, 'jordan'],
+  [/^(egypt|مصر)$/i, 'egypt'],
+  [/^(tunisia|تونس)$/i, 'tunisia'],
+  [/^(india|الهند)$/i, 'india'],
+  [/^(usa|us|[اأ]مريكا)$/i, 'usa'],
+  [/^(uk|بريطانيا)$/i, 'uk'],
+  [/^(germany|[اأ]لمانيا)$/i, 'germany'],
+  [/^(italy|[اإ]يطاليا)$/i, 'italy'],
+];
 
 // "-", "." or empty: the office left it unnamed
 const named = (v?: string) => {
@@ -37,10 +58,19 @@ export const goodsName = (o: Package) => {
   return m === 'sea' ? 'شحنة بحرية' : m === 'air' ? 'شحنة جوية' : 'شحنة';
 };
 
+// The key of the country an order ships from, or '' when the office left it empty or wrote one we have no flag for
+export const countryKey = (v?: string) => {
+  const t = named(v);
+  return COUNTRY_ALIASES.find(([re]) => re.test(t))?.[1] || '';
+};
+
 export const placeName = (v?: string) => {
   const t = named(v);
-  return COUNTRY_LABEL[t] || t;
+  return COUNTRY_LABEL[countryKey(t)] || t;
 };
+
+// What the origin filter compares: the country's key, or the name the office wrote for any other country
+export const originOf = (o: Package) => countryKey(o.shipment?.fromWhere) || named(o.shipment?.fromWhere);
 
 /* Shipment stages: one list for every shipment, so the progress bar looks the same everywhere. */
 export const SHIPMENT_STAGES = [
@@ -101,6 +131,20 @@ export const packageStage = (p: PackageDetails): number => {
   if (p.status?.arrivedLibya) return 3;
   if (p.status?.arrived) return p.trip?.voyage ? 2 : 1;
   return 0;
+};
+
+// A trip's name as a phrase: the office often names it "رحلة بحرية 08-2026" already, so don't add "رحلة" twice
+export const tripName = (voyage: string) => {
+  const v = voyage.trim();
+  return /^رحل[ةه]/.test(v) ? v : `رحلة ${v}`;
+};
+
+// The date a package's trip reaches Libya, labelled as expected until the package has actually arrived:
+// the office sets it ahead of time and ships run late
+export const tripArrival = (p: PackageDetails) => {
+  const date = dateText(p.trip?.arrivalDate);
+  if (!date) return null;
+  return { date, label: packageStage(p) >= 3 ? 'وصلت ليبيا' : 'الوصول المتوقع' };
 };
 
 export const visiblePackages = (o: Package) => (o.paymentList || []).filter((p) => p?.settings?.visableForClient !== false);
@@ -177,7 +221,7 @@ export type Period = 'all' | '30' | '90' | '365';
 
 export type OrderFilters = {
   method: 'all' | 'air' | 'sea' | 'unknown'
-  country: string // 'all' or a COUNTRY_KEYS value
+  country: string // 'all', a COUNTRY_KEYS value, or a country name the office typed itself
   note: string // 'all' | 'with' | 'without' | a theme id
   period: Period
   sort: 'new' | 'old'
@@ -192,7 +236,7 @@ export const applyFilters = (list: Package[], f: OrderFilters) => {
   const since = f.period === 'all' ? 0 : Date.now() - Number(f.period) * 86_400_000;
   const out = list.filter((o) => {
     if (f.method !== 'all' && shipMethod(o) !== f.method) return false;
-    if (f.country !== 'all' && o.shipment?.fromWhere !== f.country) return false;
+    if (f.country !== 'all' && originOf(o) !== f.country) return false;
     const note = !!o.customization?.note;
     if (f.note === 'with' && !note) return false;
     if (f.note === 'without' && note) return false;

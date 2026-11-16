@@ -276,6 +276,21 @@
 .or-fchip:hover:not(:disabled) { border-color: #b9cdbf; background: #fff; }
 .or-fchip.is-on { border-color: var(--or-brand); background: var(--or-tint); color: var(--or-deep); font-weight: 800; }
 .or-fchip:disabled { opacity: 0.45; cursor: not-allowed; }
+/* Origin chips: the flag leads, the count says how many orders came from there */
+.or-fchip--country { padding-inline: 9px 11px; }
+.or-fchip--country .flag { border-radius: 3px; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.08); }
+.or-fchip__n {
+  min-width: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.06);
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 20px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.or-fchip.is-on .or-fchip__n { background: var(--or-brand); color: #fff; }
 .or-fswatch {
   width: 30px;
   height: 30px;
@@ -480,6 +495,9 @@
   font-size: 0.84rem;
   color: var(--or-muted);
 }
+/* Where the order ships from: the flag carries it, the name stays small beside it */
+.or-origin { display: inline-flex; align-items: center; gap: 5px; font-weight: 700; color: #3d4a43; }
+.or-origin .flag { border-radius: 3px; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.08); }
 .or-dot { width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: 0.6; }
 
 .or-pill {
@@ -764,3 +782,5 @@
 @media (prefers-reduced-motion: reduce) {
   .or-page * { transition: none !important; }
 }
+
+.flag-frame { display: inline-flex; padding: 3px; border-radius: 7px; background: #f4f4f5; }

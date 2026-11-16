@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { AlertTriangle, Box, Check, ChevronDown, Copy, Images } from 'lucide-react';
 import { PackageDetails } from '../../models';
 import { KIND_ICONS, toViewerFile } from '../../components/FileViewer/FileViewer';
-import { PACKAGE_STAGES, dateText, packageCost, packageStage, unitText, usd, weightText } from '../ClientOrders/orderUtils';
+import { PACKAGE_STAGES, dateText, packageCost, packageStage, tripArrival, tripName, unitText, usd, weightText } from '../ClientOrders/orderUtils';
 
 type Props = {
   pkg: PackageDetails
@@ -36,19 +36,29 @@ const PackageCard = ({ pkg, index, copied, copy, onPhotos }: Props) => {
   // The stops this package passes, with a date where the office recorded one
   const stops = [
     { label: 'وصل مخزننا الخارجي', date: d.arrivedAt },
-    { label: pkg.trip?.voyage ? `شُحن إلى ليبيا ضمن رحلة ${pkg.trip.voyage}` : 'شُحن إلى ليبيا' },
+    { label: pkg.trip?.voyage ? <>شُحن إلى ليبيا ضمن <bdi>{tripName(pkg.trip.voyage)}</bdi></> : 'شُحن إلى ليبيا' },
     { label: 'وصل ليبيا وجاهز للاستلام' },
     { label: 'تم الاستلام', date: d.deliveredInfo?.deliveredDate },
   ];
 
+  const arrival = tripArrival(pkg);
+  const unit = unitText(pkg);
+
+  // Numbers sit in their own isolated runs so the Arabic unit around them keeps its place
   const facts = [
     weight && { k: 'الوزن / الحجم', v: weight },
     d.shipmentMethod && METHOD[d.shipmentMethod] && { k: 'الشحن', v: METHOD[d.shipmentMethod] },
-    d.exiosPrice ? { k: 'السعر', v: `$${d.exiosPrice} / ${unitText(pkg)}`, ltr: true } : null,
-    cost !== null && { k: 'الإجمالي', v: usd(cost), ltr: true, total: true, hint: `${d.weight.total} ${unitText(pkg)} × $${d.exiosPrice}` },
+    d.exiosPrice ? { k: 'السعر', v: <><bdi dir="ltr">{usd(d.exiosPrice)}</bdi> لكل {unit}</> } : null,
+    cost !== null && {
+      k: 'الإجمالي',
+      v: <bdi dir="ltr">{usd(cost)}</bdi>,
+      total: true,
+      hint: <><bdi dir="ltr">{d.weight.total}</bdi> {unit} × <bdi dir="ltr">{usd(d.exiosPrice)}</bdi></>,
+    },
     d.boxesCount && Number(d.boxesCount) > 0 && { k: 'عدد الكراتين', v: d.boxesCount },
     pkg.trip?.voyage && { k: 'الرحلة', v: pkg.trip.voyage, bidi: true },
-  ].filter(Boolean) as { k: string, v: string, ltr?: boolean, bidi?: boolean, total?: boolean, hint?: string }[];
+    arrival && { k: arrival.label, v: arrival.date },
+  ].filter(Boolean) as { k: string, v: React.ReactNode, bidi?: boolean, total?: boolean, hint?: React.ReactNode }[];
 
   return (
     <li className={`oi-pkg is-${stage} ${methodMissing ? 'is-nomethod' : ''}`}>
@@ -104,7 +114,7 @@ const PackageCard = ({ pkg, index, copied, copy, onPhotos }: Props) => {
               // Stop i is passed once the package reaches stage i + 1; the first one not passed is next
               const state = stage >= i + 1 ? 'is-done' : stage === i ? 'is-next' : '';
               return (
-                <li key={s.label} className={state}>
+                <li key={i} className={state}>
                   <span className="oi-stops__dot" aria-hidden>{state === 'is-done' && <Check size={11} strokeWidth={3} />}</span>
                   <span className="oi-stops__label">{s.label}</span>
                   {state === 'is-done' && s.date && <span className="oi-stops__date">{dateText(s.date)}</span>}
@@ -118,8 +128,8 @@ const PackageCard = ({ pkg, index, copied, copy, onPhotos }: Props) => {
               {facts.map((f) => (
                 <div key={f.k} className={f.total ? 'is-total' : undefined}>
                   <dt>{f.k}</dt>
-                  <dd>{f.ltr ? <bdi dir="ltr">{f.v}</bdi> : f.bidi ? <span className="bidi-text" dir="auto">{f.v}</span> : f.v}</dd>
-                  {f.hint && <small><bdi dir="ltr">{f.hint}</bdi></small>}
+                  <dd>{f.bidi ? <span className="bidi-text" dir="auto">{f.v}</span> : f.v}</dd>
+                  {f.hint && <small>{f.hint}</small>}
                 </div>
               ))}
             </dl>

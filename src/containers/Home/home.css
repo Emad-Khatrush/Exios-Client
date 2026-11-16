@@ -233,6 +233,16 @@
 .hm-sk { display: block; border-radius: 10px; background: #ececee; }
 .hm-sk--num { width: 56px; height: 26px; }
 .hm-sk--row { height: 76px; border-radius: 16px; }
+/* On the green hero: the headline's line and the button's place, so the hero keeps its height */
+.hm-hero .hm-sk { background: rgb(255 255 255 / 0.16); }
+/* Exactly one headline line tall (line-height 1.35), so the text takes its place without a jump */
+.hm-sk--hero { width: min(380px, 85%); height: 0.9em; margin-block: 0.225em; border-radius: 12px; }
+/* The headline and its button settle in softly when the counts arrive, instead of popping in */
+@media (prefers-reduced-motion: no-preference) {
+  .hm-reveal { animation: hm-reveal 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+}
+@keyframes hm-reveal { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.hm-sk--btn { width: 150px; height: 46px; border-radius: 14px; }
 
 @media (prefers-reduced-motion: no-preference) {
   .hm-sk { animation: hm-pulse 1.4s ease-in-out infinite; }

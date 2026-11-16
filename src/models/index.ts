@@ -128,6 +128,7 @@ export type PackageDetails = {
   // The trip (رحلة) the package is loaded on; only present when it is linked to one
   trip?: {
     voyage: string
+    arrivalDate?: string // the day the trip reached (or is due to reach) Libya, when the office set it
   }
   status: {
     arrived: boolean
