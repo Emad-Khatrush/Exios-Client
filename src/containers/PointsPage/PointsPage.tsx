@@ -1,22 +1,42 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronDown, Clock, Coins, Gift, Rocket, TriangleAlert } from 'lucide-react';
+import { ChevronDown, CircleMinus, Clock, Coins, Gift, LucideIcon, Plus, Rocket, ShoppingBag, TriangleAlert, Undo2 } from 'lucide-react';
 import api from '../../api';
-import { dateText } from '../ClientOrders/orderUtils';
+import { dateText, relativeDay } from '../ClientOrders/orderUtils';
 import { LoyaltyHistoryRow, LoyaltyKind, LoyaltyResponse } from './loyaltyTypes';
 import { pointsTerms } from './pointsTerms';
 import { pointsText, usdText } from './pointsFormat';
 import './points.css';
 
-const KIND_LABEL: Record<LoyaltyKind, string> = {
-  earn: 'كسب',
-  add: 'إضافة من المكتب',
-  restore: 'إرجاع نقاط',
-  redeem: 'استعمال',
-  deduct: 'خصم من المكتب',
-  expire: 'انتهاء صلاحية',
-  revoke: 'سحب نقاط',
+// Each movement in the history: its icon, its tone and its title (with the order number when it has one)
+const KIND: Record<LoyaltyKind, { icon: LucideIcon, tone: 'gain' | 'spend' | 'loss', title: string, withOrder?: boolean }> = {
+  earn: { icon: Plus, tone: 'gain', title: 'كسب من طلبية', withOrder: true },
+  add: { icon: Gift, tone: 'gain', title: 'إضافة من المكتب' },
+  restore: { icon: Undo2, tone: 'gain', title: 'إرجاع نقاط طلبية ملغاة' },
+  redeem: { icon: ShoppingBag, tone: 'spend', title: 'استعمال على طلبية', withOrder: true },
+  deduct: { icon: CircleMinus, tone: 'spend', title: 'خصم من المكتب' },
+  expire: { icon: Clock, tone: 'loss', title: 'انتهت صلاحية النقاط' },
+  revoke: { icon: CircleMinus, tone: 'loss', title: 'سحب نقاط طلبية ملغاة' },
 };
+
+// "اليوم", "أمس", else the date
+const dayLabel = (d: string) => {
+  const rel = relativeDay(d);
+  return rel === 'اليوم' || rel === 'أمس' ? rel : dateText(d);
+};
+
+// The history in days, newest first (rows already come newest first)
+const byDay = (rows: LoyaltyHistoryRow[]) => {
+  const days: { label: string, rows: LoyaltyHistoryRow[] }[] = [];
+  rows.forEach((r) => {
+    const label = dayLabel(r.createdAt);
+    const last = days[days.length - 1];
+    if (last && last.label === label) last.rows.push(r);
+    else days.push({ label, rows: [r] });
+  });
+  return days;
+};
+
 const GAINS: LoyaltyKind[] = ['earn', 'add', 'restore'];
 
 const RATES = [
@@ -95,8 +115,11 @@ const PointsPage = () => {
           <>
             <section className="pt-balance" aria-label="رصيدك">
               <span className="pt-balance__label"><Gift size={18} aria-hidden /> رصيدك الآن</span>
-              <bdi dir="ltr" className="pt-balance__value"><b>{pointsText(data.points)}</b> نقطة</bdi>
-              <bdi dir="ltr" className="pt-balance__usd">= {usdText(data.points)}</bdi>
+              <p className="pt-balance__value">
+                <bdi dir="ltr"><b>{pointsText(data.points)}</b></bdi>
+                <span>نقطة</span>
+                <bdi dir="ltr" className="pt-balance__usd">= {usdText(data.points)}</bdi>
+              </p>
               {/* What a point is worth, said once where the balance is read */}
               <p className="pt-rate-chip">
                 <Coins size={16} aria-hidden />
@@ -148,22 +171,44 @@ const PointsPage = () => {
               <section className="pt-card" aria-labelledby="pt-history">
                 <h2 id="pt-history">السجل</h2>
                 {!rows.length ? <p className="pt-muted">لا توجد حركات بعد.</p> : (
-                  <ul className="pt-list">
-                    {rows.map((r, i) => {
-                      const gain = GAINS.includes(r.kind);
-                      return (
-                        <li key={`${r.createdAt}-${i}`} className="pt-row">
-                          <span className="pt-row__main">
-                            <b>{KIND_LABEL[r.kind] || r.kind}</b>
-                            {r.reason && <small>{r.reason}</small>}
-                            {r.orderId && <Link to={`/order/${r.orderId}`} className="pt-link">طلبية <bdi dir="ltr">{r.orderNumber}</bdi></Link>}
-                            <small>{dateText(r.createdAt)}{r.expiresAt && gain ? ` · تنتهي ${dateText(r.expiresAt)}` : ''}</small>
-                          </span>
-                          <bdi dir="ltr" className={`pt-pts ${gain ? 'is-gain' : 'is-loss'}`}>{gain ? '+' : '−'}{pointsText(Math.abs(r.points))}</bdi>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                  <div className="pt-days">
+                    {byDay(rows).map((day) => (
+                      <section key={day.label} className="pt-day" aria-label={day.label}>
+                        <h3 className="pt-day__head">{day.label}</h3>
+                        <ul className="pt-moves">
+                          {day.rows.map((r, i) => {
+                            const kind = KIND[r.kind] || { icon: Plus, tone: 'gain', title: r.kind };
+                            const Icon = kind.icon;
+                            const gain = GAINS.includes(r.kind);
+                            const order = r.orderId && r.orderNumber
+                              ? <Link to={`/order/${r.orderId}`} className="pt-link">طلبية <bdi dir="ltr">{r.orderNumber}</bdi></Link>
+                              : null;
+                            const details = [r.reason, r.expiresAt && gain ? `تنتهي ${dateText(r.expiresAt)}` : ''].filter(Boolean).join(' · ');
+                            return (
+                              <li key={`${r.createdAt}-${i}`} className="pt-move">
+                                <span className={`pt-move__icon is-${kind.tone}`} aria-hidden><Icon size={17} strokeWidth={2.4} /></span>
+                                <span className="pt-move__main">
+                                  <b className="pt-move__title">
+                                    {kind.withOrder && order
+                                      ? <>{kind.title} <Link to={`/order/${r.orderId}`} className="pt-link"><bdi dir="ltr">{r.orderNumber}</bdi></Link></>
+                                      : kind.title}
+                                  </b>
+                                  {!kind.withOrder && order && <small>{order}</small>}
+                                  {details && <small className="bidi-text" dir="auto">{details}</small>}
+                                </span>
+                                <span className="pt-move__end">
+                                  <bdi dir="ltr" className={`pt-pts ${gain ? 'is-gain' : 'is-loss'}`}>{gain ? '+' : '−'}{pointsText(Math.abs(r.points))}</bdi>
+                                  {typeof r.balanceAfter === 'number' && (
+                                    <small>الرصيد: <bdi dir="ltr">{pointsText(r.balanceAfter)}</bdi></small>
+                                  )}
+                                </span>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </section>
+                    ))}
+                  </div>
                 )}
                 {rows.length < total && (
                   <div className="pt-more">

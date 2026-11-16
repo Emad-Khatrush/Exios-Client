@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
-import { AlertTriangle, ArrowLeft, Box, Check, Copy, OctagonX, Plane, ScanSearch, Ship, StickyNote } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Box, Check, CircleCheck, Copy, Gift, OctagonX, Plane, ScanSearch, Ship, StickyNote } from 'lucide-react';
 import Flag from '../PricesPage/Flag';
 import { Package } from '../../models';
+import { OrderPoints } from '../PointsPage/loyaltyTypes';
+import { pointsText } from '../PointsPage/pointsFormat';
 import { getOrderTheme } from '../../constants/orderThemes';
 import {
   METHOD_SHORT, shipMethod, shippingCost,
@@ -36,8 +38,32 @@ const Note = ({ order }: { order: Package }) => {
   );
 };
 
+// The order's loyalty points, small in the card's corner: earned (green) or on the way (muted)
+const PointsBadge = ({ points, purchase }: { points?: OrderPoints, purchase?: boolean }) => {
+  const earned = points?.earned || 0;
+  const pending = points?.pending || 0;
+  if (earned <= 0 && pending <= 0) return null;
+  const after = purchase ? 'بعد الدفع' : 'بعد الاستلام';
+  if (earned > 0) {
+    const more = pending > 0 ? `وتكسب ${pointsText(pending)} نقطة أخرى ${after}` : '';
+    return (
+      <span className="or-points is-earned" title={`كسبت ${pointsText(earned)} نقطة من هذه الطلبية${more ? ` ${more}` : ''}`}>
+        <CircleCheck size={13} strokeWidth={2.6} aria-hidden />
+        <span><bdi dir="ltr">{pointsText(earned)}</bdi> نقطة</span>
+        {more && <span className="sr-only">{more}</span>}
+      </span>
+    );
+  }
+  return (
+    <span className="or-points" title={`تكسب ${pointsText(pending)} نقطة ${after}`}>
+      <Gift size={13} strokeWidth={2.4} aria-hidden />
+      <span><bdi dir="ltr">+{pointsText(pending)}</bdi> {after}</span>
+    </span>
+  );
+};
+
 /* One shipment: what it is, where it comes from, and how far along it is */
-export const ShipmentCard = ({ order, copied, copy }: { order: Package } & CopyProps) => {
+export const ShipmentCard = ({ order, copied, copy, points }: { order: Package, points?: OrderPoints } & CopyProps) => {
   const stage = shipmentStage(order);
   const blocked = isBlocked(order);
   const key = blocked ? 'blocked' : order.unsureOrder ? 'unsure' : stageKey(order);
@@ -77,7 +103,10 @@ export const ShipmentCard = ({ order, copied, copy }: { order: Package } & CopyP
             <span>{relativeDay(order.createdAt)}</span>
           </p>
         </div>
-        <span className={`or-pill is-${key}`}>{stageLabel(order)}</span>
+        <span className="or-card__side">
+          <span className={`or-pill is-${key}`}>{stageLabel(order)}</span>
+          <PointsBadge points={points} />
+        </span>
       </header>
 
       {methodMissing && !blocked && (
@@ -140,7 +169,7 @@ export const ShipmentCard = ({ order, copied, copy }: { order: Package } & CopyP
 };
 
 /* One purchase invoice, drawn as a receipt: the amount first, then whether we have paid the seller */
-export const PurchaseCard = ({ order, copied, copy }: { order: Package } & CopyProps) => {
+export const PurchaseCard = ({ order, copied, copy, points }: { order: Package, points?: OrderPoints } & CopyProps) => {
   const paid = Number(order.orderStatus) >= 1;
   const name = goodsName(order);
 
@@ -150,7 +179,10 @@ export const PurchaseCard = ({ order, copied, copy }: { order: Package } & CopyP
 
       <div className="or-receipt__top">
         <span className="or-receipt__kind">فاتورة شراء</span>
-        <span className="or-stamp">{order.isCanceled ? 'ملغاة' : paid ? 'تم الشراء' : 'قيد الشراء'}</span>
+        <span className="or-receipt__side">
+          <PointsBadge points={points} purchase />
+          <span className="or-stamp">{order.isCanceled ? 'ملغاة' : paid ? 'تم الشراء' : 'قيد الشراء'}</span>
+        </span>
       </div>
 
       <p className="or-receipt__amount"><bdi dir="ltr">{usd(order.totalInvoice)}</bdi></p>

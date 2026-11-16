@@ -21,9 +21,13 @@
   color: #fff;
 }
 .pt-balance__label { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; color: #bbf7d0; }
-.pt-balance__value { font-size: 1.1rem; font-weight: 700; }
+/* The balance on one line: the big number, "نقطة", then its dollar value in a lighter weight */
+.pt-balance__value {
+  display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 8px; row-gap: 0;
+  font-size: 1.1rem; font-weight: 700;
+}
 .pt-balance__value b { font-size: clamp(2rem, 8vw, 2.8rem); font-weight: 800; line-height: 1.2; }
-.pt-balance__usd { font-size: 1.1rem; font-weight: 700; color: #dcfce7; }
+.pt-balance__usd { margin-inline-start: 4px; font-size: 1.05rem; font-weight: 600; color: #bbf7d0; white-space: nowrap; }
 /* The exchange rate of points, as a small coin chip under the dollar value */
 .pt-rate-chip {
   display: inline-flex;
@@ -71,6 +75,31 @@
 .pt-pts.is-gain { color: #15803d; }
 .pt-pts.is-loss { color: #b91c1c; }
 .pt-rate { flex: none; padding: 4px 10px; border-radius: 999px; background: #dcfce7; color: #14532d; font-size: 0.85rem; font-weight: 800; }
+
+/* History: movements grouped by day, each with a round icon, a one-line title and the balance after it */
+.pt-days { display: grid; gap: 16px; }
+.pt-day__head { margin: 0 0 6px; font-size: 0.82rem; font-weight: 800; color: #71717a; }
+.pt-moves { display: grid; margin: 0; padding: 0; list-style: none; border-radius: 14px; background: #fafafa; }
+.pt-move { display: flex; align-items: center; gap: 12px; padding: 12px 14px; }
+.pt-move + .pt-move { border-top: 1px solid #ececee; }
+.pt-move__icon {
+  display: grid; place-items: center; flex: none;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: #f4f4f5; color: #52525b;
+}
+.pt-move__icon.is-gain { background: #dcfce7; color: #15803d; }
+.pt-move__icon.is-loss { background: #fef3c7; color: #b45309; }
+.pt-move__main { display: grid; gap: 2px; flex: 1 1 auto; min-width: 0; }
+.pt-move__title { font-weight: 800; color: #18181b; line-height: 1.5; }
+.pt-move__main small { color: #71717a; font-size: 0.82rem; line-height: 1.5; overflow-wrap: anywhere; }
+.pt-move__end { display: grid; justify-items: end; gap: 1px; flex: none; text-align: end; }
+.pt-move__end .pt-pts { font-size: 1.02rem; line-height: 1.3; }
+.pt-move__end .pt-pts.is-loss { color: #3f3f46; }
+.pt-move__end small { color: #a1a1aa; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+@media (max-width: 400px) {
+  .pt-move { gap: 10px; padding: 11px 12px; }
+  .pt-move__icon { width: 30px; height: 30px; }
+}
 
 .pt-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;

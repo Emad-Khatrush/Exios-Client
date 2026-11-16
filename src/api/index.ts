@@ -193,6 +193,9 @@ export default {
 
   getOrderLoyalty: (id: string) => base.get(`client/order/${id}/loyalty`),
 
+  // { [orderId]: { earned, pending } } for the orders list badges
+  getLoyaltyOrders: () => base.get(`client/loyalty/orders`),
+
   // Settings Endpoints
   getAnnouncements: () => base.get(`announcements`),
 
