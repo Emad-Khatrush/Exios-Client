@@ -322,7 +322,8 @@ const PointsPage = () => {
               <p className="pt-balance__value">
                 <bdi dir="ltr"><b>{pointsText(data.points)}</b></bdi>
                 <span>نقطة</span>
-                <bdi dir="ltr" className="pt-balance__usd">= {usdText(data.points)}</bdi>
+                {/* "=" stays in the Arabic run, beside "نقطة"; only the amount is left-to-right */}
+                <span className="pt-balance__usd">= <bdi dir="ltr">{usdText(data.points)}</bdi></span>
               </p>
               {/* What a point is worth, said once where the balance is read */}
               <p className="pt-rate-chip">

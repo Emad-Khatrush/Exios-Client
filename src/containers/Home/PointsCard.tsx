@@ -28,7 +28,7 @@ const PointsCard = () => {
         <small>نقاطي</small>
         <span className="hm-points__balance">
           <bdi dir="ltr"><b>{pointsText(data.points)}</b> نقطة</bdi>
-          <bdi dir="ltr" className="hm-points__usd">= {usdText(data.points)}</bdi>
+          <span className="hm-points__usd">= <bdi dir="ltr">{usdText(data.points)}</bdi></span>
         </span>
         {data.expiringSoon && data.expiringSoon.points > 0 && (
           <span className="hm-points__soon">تنتهي {pointsText(data.expiringSoon.points)} نقطة في {dateText(data.expiringSoon.at)}</span>
