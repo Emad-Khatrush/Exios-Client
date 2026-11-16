@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronDown, Clock, Gift, Rocket, TriangleAlert } from 'lucide-react';
+import { ChevronDown, Clock, Coins, Gift, Rocket, TriangleAlert } from 'lucide-react';
 import api from '../../api';
 import { dateText } from '../ClientOrders/orderUtils';
 import { LoyaltyHistoryRow, LoyaltyKind, LoyaltyResponse } from './loyaltyTypes';
@@ -97,6 +97,11 @@ const PointsPage = () => {
               <span className="pt-balance__label"><Gift size={18} aria-hidden /> رصيدك الآن</span>
               <bdi dir="ltr" className="pt-balance__value"><b>{pointsText(data.points)}</b> نقطة</bdi>
               <bdi dir="ltr" className="pt-balance__usd">= {usdText(data.points)}</bdi>
+              {/* What a point is worth, said once where the balance is read */}
+              <p className="pt-rate-chip">
+                <Coins size={16} aria-hidden />
+                <span>كل <bdi dir="ltr"><b>100</b></bdi> نقطة تساوي <bdi dir="ltr"><b>$1</b></bdi></span>
+              </p>
               {data.expiringSoon && data.expiringSoon.points > 0 && (
                 <p className="pt-balance__soon"><Clock size={16} aria-hidden /> تنتهي {pointsText(data.expiringSoon.points)} نقطة في {dateText(data.expiringSoon.at)}</p>
               )}

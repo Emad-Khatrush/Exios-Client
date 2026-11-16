@@ -24,6 +24,22 @@
 .pt-balance__value { font-size: 1.1rem; font-weight: 700; }
 .pt-balance__value b { font-size: clamp(2rem, 8vw, 2.8rem); font-weight: 800; line-height: 1.2; }
 .pt-balance__usd { font-size: 1.1rem; font-weight: 700; color: #dcfce7; }
+/* The exchange rate of points, as a small coin chip under the dollar value */
+.pt-rate-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
+  padding: 5px 12px 5px 14px;
+  border: 1px solid rgb(255 255 255 / 0.18);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.1);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #dcfce7;
+}
+.pt-rate-chip svg { flex: 0 0 auto; color: #fde68a; }
+.pt-rate-chip b { font-weight: 800; color: #fff; }
 .pt-balance__soon {
   display: flex; align-items: center; gap: 6px;
   margin-top: 10px; padding: 8px 12px; border-radius: 12px;
