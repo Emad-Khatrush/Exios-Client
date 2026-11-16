@@ -12,6 +12,11 @@ const PUBLIC_PAGES: Record<string, string> = {
   '/login': 'تسجيل الدخول | اكسيوس',
 };
 
+// Logged-in pages with their own title; they stay noindex
+const APP_TITLES: Record<string, string> = {
+  '/points': 'نقاطي | اكسيوس',
+};
+
 const setMeta = (selector: string, create: () => HTMLElement, attr: string, value: string) => {
   let el = document.head.querySelector(selector) as HTMLElement | null;
   if (!el) {
@@ -28,7 +33,7 @@ const SeoManager = () => {
 
   useEffect(() => {
     const publicTitle = PUBLIC_PAGES[pathname];
-    document.title = publicTitle || 'اكسيوس';
+    document.title = publicTitle || APP_TITLES[pathname] || 'اكسيوس';
 
     setMeta(
       'link[rel="canonical"]',

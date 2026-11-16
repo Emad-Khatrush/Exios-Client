@@ -186,6 +186,13 @@ export default {
 
   updateOrderCustomization: (orderId: string, body: { note?: string, theme?: string }) => base.put(`client/order/${orderId}/customization`, body),
 
+  // Loyalty points (read-only: staff are the only ones who redeem)
+  getLoyalty: () => base.get(`client/loyalty`),
+
+  getLoyaltyHistory: (page: number) => base.get(`client/loyalty/history`, { page }),
+
+  getOrderLoyalty: (id: string) => base.get(`client/order/${id}/loyalty`),
+
   // Settings Endpoints
   getAnnouncements: () => base.get(`announcements`),
 

@@ -352,3 +352,26 @@
 .hm-pkgs__more:hover { background: rgba(21, 128, 61, 0.05); }
 .hm-sk--ship { height: 150px; border-radius: 18px; }
 @media (max-width: 420px) { .hm-pkg__state { font-size: 0.7rem; padding: 2px 7px; } }
+
+/* Points card, under the numbers */
+.hm-points {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 20px;
+  padding: 16px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid transparent;
+  color: #15803d;
+  transition: border-color 0.2s ease, transform 0.15s ease;
+}
+.hm-points:hover { border-color: #86efac; transform: translateY(-1px); }
+.hm-points:focus-visible { outline: 2px solid #15803d; outline-offset: 2px; }
+.hm-points__icon { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 14px; background: #dcfce7; color: #15803d; }
+.hm-points__body { display: grid; flex: 1; min-width: 0; gap: 2px; }
+.hm-points__body small { font-size: 0.85rem; font-weight: 700; color: #71717a; }
+.hm-points__balance { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; color: #18181b; font-weight: 700; }
+.hm-points__balance b { font-size: 1.4rem; font-weight: 800; }
+.hm-points__usd { color: #52525b; font-size: 0.95rem; }
+.hm-points__soon { font-size: 0.85rem; font-weight: 700; color: #b45309; }

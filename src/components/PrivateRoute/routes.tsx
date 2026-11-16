@@ -1,5 +1,5 @@
 import {
-  ArrowLeftRight, Ban, FileText, Headset, House, LucideIcon, Megaphone, MessageSquareText, Package, Plane, Rocket,
+  ArrowLeftRight, Ban, FileText, Gift, Headset, House, LucideIcon, Megaphone, MessageSquareText, Package, Plane, Rocket,
   ShoppingBag, Warehouse,
 } from 'lucide-react';
 
@@ -23,6 +23,7 @@ export const routeGroups: RouteGroup[] = [
       { label: 'طلبياتي', value: 'myOrders', icon: Package, path: '/orders' },
       { label: 'ابدأ الشحن', value: 'startShip', icon: Rocket, path: '/start-shipment' },
       { label: 'عناويننا', value: 'address', icon: Warehouse, path: '/address' },
+      { label: 'نقاطي', value: 'points', icon: Gift, path: '/points' },
     ],
   },
   {

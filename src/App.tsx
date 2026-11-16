@@ -28,6 +28,7 @@ const SettingsPage = lazy(() => import('./containers/SettingsPage/SettingsPage')
 const AddTrackingNumbers = lazy(() => import('./containers/AddTrackingNumbers/AddTrackingNumbers'));
 const SuggestionsPage = lazy(() => import('./containers/SuggestionsPage/SuggestionsPage'));
 const ProhibitedItemsPage = lazy(() => import('./containers/ProhibitedItemsPage/ProhibitedItemsPage'));
+const PointsPage = lazy(() => import('./containers/PointsPage/PointsPage'));
 const Announcements = lazy(() => import('./containers/Announcements/Announcements'));
 
 declare const process: {
@@ -74,6 +75,7 @@ const App = () => {
               <Route path='/prices/shipping' element={<PricesPage group='shipping' />} />
               <Route path='/prices/purchase' element={<PricesPage group='purchase' />} />
               <Route path='/prices/transfers' element={<PricesPage group='transfers' />} />
+              <Route path='/points' element={<PointsPage />} />
               <Route path='/announcements' element={<Announcements />} />
               <Route path='/settings' element={<SettingsPage />} />
               <Route path='/contact-us' element={<ContactUs />} />

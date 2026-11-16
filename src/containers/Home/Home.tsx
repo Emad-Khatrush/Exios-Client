@@ -9,6 +9,7 @@ import { TbBrandWhatsapp } from 'react-icons/tb';
 import api from '../../api';
 import AnnouncementBar from '../../components/AnnouncementBar/AnnouncementBar';
 import LatestPosts from './LatestPosts';
+import PointsCard from './PointsCard';
 import RecentShipments from './RecentShipments';
 import Flag from '../PricesPage/Flag';
 import { money, Pricing, updatedLabel } from '../PricesPage/pricingMath';
@@ -139,6 +140,8 @@ const Home = () => {
             </li>
           ))}
         </ul>
+
+        <PointsCard />
 
         <LatestPosts />
 
