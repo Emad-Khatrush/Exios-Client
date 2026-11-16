@@ -25,7 +25,7 @@ const RATES = [
   { what: 'علي باي', rate: '5 نقاط لكل 20$', example: 'حوالة بـ 30$ = 7 نقاط' },
 ];
 
-const WAITING = { payment: 'بانتظار الدفع', delivery: 'بانتظار التسليم' };
+const WAITING = { payment: 'بانتظار الدفع', delivery: 'بانتظار التسليم', processing: 'تُضاف خلال ساعة' };
 
 const PointsPage = () => {
   const [data, setData] = useState<LoyaltyResponse | null>(null);

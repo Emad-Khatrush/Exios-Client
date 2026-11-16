@@ -677,7 +677,7 @@ const OrderInfoPage = () => {
                   <span>الشحن البحري يصل طرابلس، ثم ننقله برّاً إلى بنغازي. تكلفة النقل الداخلي تُدفع مع قيمة الشحن.</span>
                 </p>
               )}
-              {!order.unsureOrder && orderId && <OrderPoints orderId={orderId} />}
+              {!order.unsureOrder && orderId && <OrderPoints orderId={orderId} isPurchase={!!order.isPayment && !order.isShipment} />}
             </section>
 
             <div id="oi-note-anchor">

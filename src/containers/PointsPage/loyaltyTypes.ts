@@ -1,5 +1,5 @@
 export type LoyaltyKind = 'earn' | 'add' | 'restore' | 'redeem' | 'deduct' | 'expire' | 'revoke';
-export type LoyaltyPending = { orderId: string, orderNumber: string, arKey: string, points: number, waitingFor: 'payment' | 'delivery' };
+export type LoyaltyPending = { orderId: string, orderNumber: string, arKey: string, points: number, waitingFor: 'payment' | 'delivery' | 'processing' };
 export type LoyaltyHistoryRow = { kind: LoyaltyKind, points: number, orderId?: string, orderNumber?: string, reason?: string, createdAt: string, expiresAt?: string };
 export type LoyaltyHistory = { rows: LoyaltyHistoryRow[], total: number };
 export type LoyaltySummary = {
