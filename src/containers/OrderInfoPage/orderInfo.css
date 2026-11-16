@@ -921,6 +921,20 @@
 }
 .oi-domestic svg { flex: 0 0 auto; margin-top: 3px; }
 
+/* A package's points: a quiet line under its header */
+.oi-pkg__points {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: -4px 14px 10px;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--or-muted);
+  overflow-wrap: anywhere;
+}
+.oi-pkg__points svg { flex: 0 0 auto; margin-top: 3px; color: #d49a06; }
+.oi-pkg__points.is-done { color: #15803d; }
+
 /* Order points (read only) */
 .oi-points {
   margin-top: 12px;

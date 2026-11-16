@@ -11,8 +11,10 @@ export type LoyaltySummary = {
 // GET /client/loyalty
 export type LoyaltyResponse = LoyaltySummary & { history: LoyaltyHistory };
 // GET /client/order/:id/loyalty
+export type PackagePoints = { earned: number, pending: number, waitingFor: 'payment' | 'delivery' | 'processing' | null };
 export type OrderLoyalty = {
   earned: number, pending: number, redeemed: number, noPoints: { reason: string } | null,
+  packages?: Record<string, PackagePoints>,
   quote: { balance: number, maxPoints: number, owedCents: number, billedCents: number, usedOnTarget: number },
 };
 // GET /client/loyalty/orders: the points of each order that earned some or has some on the way

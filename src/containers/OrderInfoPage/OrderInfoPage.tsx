@@ -18,6 +18,7 @@ import OrderRatingWidget from '../../components/OrderRatingWidget/OrderRatingWid
 import OrderNoteCustomizer from '../../components/OrderNoteCustomizer/OrderNoteCustomizer';
 import PackageCard from './PackageCard';
 import OrderPoints from './OrderPoints';
+import { OrderLoyalty } from '../PointsPage/loyaltyTypes';
 import FileViewer, { KIND_ICONS, toViewerFile } from '../../components/FileViewer/FileViewer';
 import {
   METHOD_LABEL, countryKey, PACKAGE_STAGES, SHIPMENT_STAGES, dateText, goodsName, isBlocked, isPurchaseInvoice, shipMethod, nextStepText,
@@ -258,6 +259,7 @@ const OrderInfoPage = () => {
   const [rated, setRated] = useState(true);
   const [failed, setFailed] = useState(false);
   const [photos, setPhotos] = useState<Photos>(null);
+  const [loyalty, setLoyalty] = useState<OrderLoyalty | null>(null);
   const [pkgFilter, setPkgFilter] = useState<number | 'all'>('all');
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -286,6 +288,17 @@ const OrderInfoPage = () => {
       .catch(() => { if (alive) setFailed(true); });
     api.getOrderRating(orderId)
       .then((res: any) => { if (alive) setRated(!!res?.data); })
+      .catch(() => undefined);
+    return () => { alive = false; };
+  }, [orderId]);
+
+  // The order's points: the totals below and each package's own line
+  useEffect(() => {
+    let alive = true;
+    setLoyalty(null);
+    if (!orderId) return undefined;
+    api.getOrderLoyalty(orderId)
+      .then((res: any) => { const d = res?.data; if (alive && d && typeof d.earned === 'number') setLoyalty(d as OrderLoyalty); })
       .catch(() => undefined);
     return () => { alive = false; };
   }, [orderId]);
@@ -647,6 +660,7 @@ const OrderInfoPage = () => {
                       <PackageCard
                         key={p._id || index}
                         pkg={p}
+                        points={p._id ? loyalty?.packages?.[String(p._id)] : undefined}
                         index={index}
                         copied={copied}
                         copy={copy}
@@ -677,7 +691,7 @@ const OrderInfoPage = () => {
                   <span>الشحن البحري يصل طرابلس، ثم ننقله برّاً إلى بنغازي. تكلفة النقل الداخلي تُدفع مع قيمة الشحن.</span>
                 </p>
               )}
-              {!order.unsureOrder && orderId && <OrderPoints orderId={orderId} isPurchase={!!order.isPayment && !order.isShipment} />}
+              {!order.unsureOrder && orderId && <OrderPoints data={loyalty} isPurchase={!!order.isPayment && !order.isShipment} />}
             </section>
 
             <div id="oi-note-anchor">

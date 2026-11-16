@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { AlertTriangle, Box, Check, ChevronDown, Copy, Images } from 'lucide-react';
+import { AlertTriangle, Box, Check, ChevronDown, Coins, Copy, Images } from 'lucide-react';
 import { PackageDetails } from '../../models';
 import { KIND_ICONS, toViewerFile } from '../../components/FileViewer/FileViewer';
+import { PackagePoints } from '../PointsPage/loyaltyTypes';
+import { pointsText } from '../PointsPage/pointsFormat';
 import { PACKAGE_STAGES, dateText, packageCost, packageStage, tripArrival, tripName, unitText, usd, weightText } from '../ClientOrders/orderUtils';
 
 type Props = {
@@ -10,12 +12,13 @@ type Props = {
   copied: string
   copy: (id: string, value: string) => void
   onPhotos: (files: any[], index: number) => void
+  points?: PackagePoints
 }
 
 const METHOD: Record<string, string> = { air: 'جوي', sea: 'بحري', unknown: 'طريقة غير محددة' };
 
 /* One package: its own progress (packages of one order travel separately), its numbers, its photos */
-const PackageCard = ({ pkg, index, copied, copy, onPhotos }: Props) => {
+const PackageCard = ({ pkg, index, copied, copy, onPhotos, points }: Props) => {
   const stage = packageStage(pkg);
   const received = stage === 4;
   // Packages already handed over start folded, so the ones still on their way stand out
@@ -30,6 +33,12 @@ const PackageCard = ({ pkg, index, copied, copy, onPhotos }: Props) => {
   const name = tracking ? (tracking.length === 4 ? `ينتهي بـ ${tracking}` : tracking) : `طرد ${index + 1}`;
   // The office marked this package's method as not set: until it is delivered, the customer must confirm it
   const methodMissing = d.shipmentMethod === 'unknown' && !received;
+  // Points of this package: earned, or on the way (and what they wait for)
+  const pointsLine = points && points.earned > 0
+    ? { done: true, n: points.earned, text: 'حصلت على', tail: 'نقطة' }
+    : points && points.pending > 0
+      ? { done: false, n: points.pending, text: '+', tail: points.waitingFor === 'payment' ? 'نقطة بعد الدفع والاستلام' : points.waitingFor === 'processing' ? 'نقطة تُضاف خلال ساعة' : 'نقطة بعد الاستلام' }
+      : null;
   const copyId = `pkg-${pkg._id || index}`;
   const bodyId = `pkg-body-${pkg._id || index}`;
 
@@ -98,6 +107,13 @@ const PackageCard = ({ pkg, index, copied, copy, onPhotos }: Props) => {
           <ChevronDown size={18} />
         </button>
       </div>
+
+      {pointsLine && (
+        <p className={`oi-pkg__points ${pointsLine.done ? 'is-done' : ''}`}>
+          <Coins size={14} aria-hidden />
+          <span>{pointsLine.text}{pointsLine.done ? ' ' : ''}<bdi dir="ltr">{pointsText(pointsLine.n)}</bdi> {pointsLine.tail}</span>
+        </p>
+      )}
 
       {/* Shown folded or open: this is the one thing the customer has to act on */}
       {methodMissing && (
