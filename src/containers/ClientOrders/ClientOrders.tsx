@@ -11,7 +11,6 @@ import { Announcement, OrderStatusType, Package } from '../../models';
 import { officeFor } from '../../constants/contact';
 import { useCopy } from '../../utils/useCopy';
 import { CardSkeleton, PurchaseCard, ShipmentCard } from './OrderCards';
-import { LoyaltyOrders } from '../PointsPage/loyaltyTypes';
 import { ORDER_THEMES } from '../../constants/orderThemes';
 import Flag from '../PricesPage/Flag';
 import {
@@ -136,14 +135,6 @@ const ClientOrders = () => {
 
   useEffect(() => { load(listKey); }, [listKey, load]);
 
-  // The points of each order, loaded once beside the list; on failure the cards simply show no badge
-  const [orderPoints, setOrderPoints] = useState<LoyaltyOrders>({});
-  useEffect(() => {
-    api.getLoyaltyOrders()
-      .then((res: any) => { const body = res?.data; if (body && typeof body === 'object' && !Array.isArray(body)) setOrderPoints(body); })
-      .catch(() => undefined);
-  }, []);
-
   useEffect(() => {
     api.getAnnouncements().then((res: any) => setAnnouncements(Array.isArray(res?.data) ? res.data : [])).catch(() => undefined);
   }, []);
@@ -220,8 +211,8 @@ const ClientOrders = () => {
   const currentTab = SHIPMENT_TABS.find((t) => t.value === tab)!;
 
   const card = (o: Package) => (isPurchaseInvoice(o)
-    ? <PurchaseCard key={o._id} order={o} copied={copied} copy={copy} points={orderPoints[o._id]} />
-    : <ShipmentCard key={o._id} order={o} copied={copied} copy={copy} points={orderPoints[o._id]} />);
+    ? <PurchaseCard key={o._id} order={o} copied={copied} copy={copy} />
+    : <ShipmentCard key={o._id} order={o} copied={copied} copy={copy} />);
 
   return (
     <div dir="rtl" lang="ar" className="or-page">
