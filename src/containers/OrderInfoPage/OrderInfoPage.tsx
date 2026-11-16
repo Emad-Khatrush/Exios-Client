@@ -17,6 +17,7 @@ import Flag from '../PricesPage/Flag';
 import OrderRatingWidget from '../../components/OrderRatingWidget/OrderRatingWidget';
 import OrderNoteCustomizer from '../../components/OrderNoteCustomizer/OrderNoteCustomizer';
 import PackageCard from './PackageCard';
+import OrderPoints from './OrderPoints';
 import FileViewer, { KIND_ICONS, toViewerFile } from '../../components/FileViewer/FileViewer';
 import {
   METHOD_LABEL, countryKey, PACKAGE_STAGES, SHIPMENT_STAGES, dateText, goodsName, isBlocked, isPurchaseInvoice, shipMethod, nextStepText,
@@ -676,6 +677,7 @@ const OrderInfoPage = () => {
                   <span>الشحن البحري يصل طرابلس، ثم ننقله برّاً إلى بنغازي. تكلفة النقل الداخلي تُدفع مع قيمة الشحن.</span>
                 </p>
               )}
+              {!order.unsureOrder && orderId && <OrderPoints orderId={orderId} />}
             </section>
 
             <div id="oi-note-anchor">

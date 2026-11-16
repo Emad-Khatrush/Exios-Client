@@ -920,3 +920,26 @@
   line-height: 1.7;
 }
 .oi-domestic svg { flex: 0 0 auto; margin-top: 3px; }
+
+/* Order points (read only) */
+.oi-points {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--or-tint);
+  color: var(--or-deep);
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+.oi-points__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 4px;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+.oi-points__line, .oi-points__hint, .oi-points__note { margin: 0; }
+.oi-points__hint { opacity: 0.8; font-size: 0.8rem; }
+.oi-points__note { margin-top: 6px; }
+.oi-points__note a { font-weight: 700; color: inherit; text-decoration: underline; }
