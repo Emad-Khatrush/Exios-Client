@@ -189,7 +189,7 @@ export default {
   // Loyalty points (read-only: staff are the only ones who redeem)
   getLoyalty: () => base.get(`client/loyalty`),
 
-  getLoyaltyHistory: (page: number) => base.get(`client/loyalty/history`, { page }),
+  getLoyaltyHistory: (page: number, type: string = 'all') => base.get(`client/loyalty/history`, { page, type }),
 
   getOrderLoyalty: (id: string) => base.get(`client/order/${id}/loyalty`),
 

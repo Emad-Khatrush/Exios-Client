@@ -1,7 +1,11 @@
 export type LoyaltyKind = 'earn' | 'add' | 'restore' | 'redeem' | 'deduct' | 'expire' | 'revoke';
 export type LoyaltyPending = { orderId: string, orderNumber: string, arKey: string, points: number, waitingFor: 'payment' | 'delivery' | 'processing' };
-export type LoyaltyHistoryRow = { kind: LoyaltyKind, points: number, orderId?: string, orderNumber?: string, reason?: string, createdAt: string, expiresAt?: string, balanceAfter: number };
-export type LoyaltyHistory = { rows: LoyaltyHistoryRow[], total: number };
+export type LoyaltyHistoryRow = { id?: string, kind: LoyaltyKind, points: number, orderId?: string, orderNumber?: string, reason?: string, createdAt: string, month?: string, expiresAt?: string, balanceAfter: number };
+// What a month gained and spent over all its movements of the selected type ('YYYY-MM')
+export type LoyaltyMonth = { month: string, gained: number, spent: number };
+export type LoyaltyHistory = { rows: LoyaltyHistoryRow[], total: number, months?: LoyaltyMonth[] };
+// The history's filters (GET /client/loyalty/history?type=)
+export type LoyaltyHistoryType = 'all' | 'earn' | 'spend' | 'expire' | 'staff' | 'returned';
 export type LoyaltySummary = {
   points: number, usd: number,
   expiringSoon: { points: number, at: string } | null,
