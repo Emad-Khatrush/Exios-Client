@@ -45,19 +45,6 @@
 .wl-hero__label { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; color: #bbf7d0; transition: color 0.4s ease; }
 .wl-hero.is-owed .wl-hero__label { color: #fecaca; }
 .wl-hero__net { font-size: clamp(2.1rem, 8vw, 2.9rem); font-weight: 800; line-height: 1.15; }
-.wl-hero__parts {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 8px; padding-top: 12px;
-  border-top: 1px solid rgb(255 255 255 / 0.18);
-}
-.wl-hero__parts > div:not(.wl-hero__minus) { display: grid; gap: 1px; }
-.wl-hero__parts dt { font-size: 0.82rem; font-weight: 600; opacity: 0.8; }
-.wl-hero__parts dd { font-size: 1.15rem; font-weight: 800; }
-.wl-hero__minus { font-size: 1.4rem; font-weight: 700; opacity: 0.6; }
-.wl-hero__after {
-  display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px;
-  margin-top: 10px; padding: 10px 12px; border-radius: 14px; background: rgb(255 255 255 / 0.12); font-size: 0.9rem; font-weight: 600;
-}
-.wl-hero__after b { font-size: 1.1rem; font-weight: 800; }
 
 /* ---- Cards and rows ---- */
 .wl-card {

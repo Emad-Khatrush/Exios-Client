@@ -142,23 +142,13 @@ const WalletPage = () => {
 
         {summary && cur && (
           <>
-            {/* The net: what is left once what is owed is paid from the wallet */}
+            {/* One number: the wallet's balance, the same as the last balance of the statement. Debts
+                are entries in the statement, so this balance already counts them: no sum to read. */}
             {/* The block stays (its colour eases from green to red); what is inside fades to the other currency */}
-            <section className={`wl-hero${cur.net < 0 ? ' is-owed' : ''}`} aria-label="ملخص المحفظة" aria-live="polite">
+            <section className={`wl-hero${cur.net < 0 ? ' is-owed' : ''}`} aria-label="رصيد المحفظة" aria-live="polite">
               <div key={currency} className="wl-hero__body wl-swap">
-              <span className="wl-hero__label"><Wallet size={18} aria-hidden /> {cur.net < 0 ? 'الصافي عليك' : 'الصافي لك'}</span>
+              <span className="wl-hero__label"><Wallet size={18} aria-hidden /> رصيد محفظتك</span>
               <p className="wl-hero__net"><Money value={cur.net} currency={currency} /></p>
-              <dl className="wl-hero__parts">
-                <div><dt>في المحفظة</dt><dd><Money value={cur.wallet} currency={currency} /></dd></div>
-                <div className="wl-hero__minus" aria-hidden>−</div>
-                <div><dt>متبقي عليك</dt><dd><Money value={cur.debts} currency={currency} /></dd></div>
-              </dl>
-              {showUpcoming && upcoming && upcoming.usd > 0 && (
-                <div className="wl-hero__after">
-                  <span>بعد استلام شحناتك القادمة (<Money value={upcoming.usd} currency="USD" />)</span>
-                  <b><Money value={summary.netAfterUpcomingUsd} currency="USD" /></b>
-                </div>
-              )}
               </div>
             </section>
 

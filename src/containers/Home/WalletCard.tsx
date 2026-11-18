@@ -5,10 +5,10 @@ import api from '../../api';
 import { WalletSummary } from '../WalletPage/walletTypes';
 import WalletMoney from '../WalletPage/Money';
 
-/* The wallet on the home page, linking to the wallet page: the net in dollars (what is left once
-   what is owed is paid), what is in the wallet and what is owed, the dinar net when there is any,
-   and a hint when invoices are open or packages on the way will cost something. Nothing is shown
-   while it loads or if it fails, like the points card. */
+/* The wallet on the home page, linking to the wallet page: the balance in dollars (the same as the
+   statement's, which already counts what is owed), the dinar balance when there is any, and a hint
+   when invoices are open or packages are on the way. Nothing is shown while it loads or if it
+   fails, like the points card. */
 const Money = ({ value, usd = true }: { value: number, usd?: boolean }) => (
   <WalletMoney value={value} currency={usd ? 'USD' : 'LYD'} className="hm-wallet__num" />
 );
@@ -41,14 +41,14 @@ const WalletCard = () => {
         <ArrowLeft size={18} aria-hidden className="hm-wallet__go" />
       </span>
       <span className="hm-wallet__net">
-        <span className="hm-wallet__label">{owed ? 'الصافي عليك' : 'الصافي لك'}</span>
+        <span className="hm-wallet__label">رصيد محفظتك</span>
         <b><Money value={usd.net} /></b>
       </span>
-      <span className="hm-wallet__parts">
-        في المحفظة <Money value={usd.wallet} />
-        {usd.debts > 0 && <> · متبقي عليك <Money value={usd.debts} /></>}
-        {showLyd && <> · بالدينار <Money value={lyd.net} usd={false} /></>}
-      </span>
+      {showLyd && (
+        <span className="hm-wallet__parts">
+          بالدينار <Money value={lyd.net} usd={false} />
+        </span>
+      )}
       {(owedCount > 0 || upcoming > 0) && (
         <span className="hm-wallet__hints">
           {owedCount > 0 && (
@@ -56,7 +56,7 @@ const WalletCard = () => {
           )}
           {upcoming > 0 && (
             <span className="hm-wallet__hint">
-              <Ship size={14} aria-hidden /> شحناتك القادمة <Money value={upcoming} />، {data.netAfterUpcomingUsd >= 0 ? 'يبقى لك' : 'تحتاج'} <Money value={Math.abs(data.netAfterUpcomingUsd)} />
+              <Ship size={14} aria-hidden /> شحناتك القادمة <Money value={upcoming} />
             </span>
           )}
         </span>
