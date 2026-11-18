@@ -225,6 +225,9 @@ export default {
 
   acknowledgePopupAd: (id: string) => base.post(`popupAds/${id}/acknowledge`, {}),
 
-  trackVisit: (body: { sessionId: string, path: string, referrer?: string }) => base.post(`analytics/visit`, body),
+  trackVisit: (body: { sessionId: string, path: string, referrer?: string, app?: boolean }) => base.post(`analytics/visit`, body),
+
+  // This device: installed (opened from the home screen) or not, notifications on or not
+  pingAppDevice: (body: { deviceId: string, standalone: boolean, push: boolean, platform: string }) => base.post(`client/app/ping`, body),
 
 }
