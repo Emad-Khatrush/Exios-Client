@@ -4,7 +4,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import api from '../../api';
 import { setAccountData } from '../../actions/session';
 import { addAuthInterceptor } from '../../utils/AuthInterceptor';
-import Sidebar, { MobileTopbar } from '../Sidebar/Sidebar';
+import Sidebar from '../Sidebar/Sidebar';
 import PassportVerificationGate, { getPassportGateMode } from '../PassportVerificationGate/PassportVerificationGate';
 import PopupAdsGate from '../PopupAdsGate/PopupAdsGate';
 import PageLoader from '../PageLoader/PageLoader';
@@ -62,7 +62,6 @@ const PrivateRoute = () => {
       <div className="w-full h-full flex flex-nowrap flex-row-reverse">
         <Sidebar account={session.account} open={show} setOpen={setShow} />
         <div className="app-main w-full min-w-0 overflow-auto">
-          <MobileTopbar account={session.account} />
           {/* While a page's file downloads, the sidebar stays and only the content area waits */}
           <Suspense fallback={<PageLoader />}>
             <Outlet />

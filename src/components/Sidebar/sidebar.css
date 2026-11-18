@@ -301,29 +301,42 @@
   .sb-scrim.is-open { opacity: 1; pointer-events: auto; }
 }
 
-/* Bottom bar (phones), like Facebook's: five tabs within thumb reach, the one you are on marked by a
-   green line along its top edge. "الأسعار" opens a small sheet above the bar; "القائمة" (the
-   customer's photo) opens the menu screen (MobileMenu). */
+/* Bottom bar (phones): a rounded bar floating above the page, slightly blurred, tinted with the app's
+   green. Like Facebook it slides away while the page is scrolled down and comes back on scrolling up
+   (useBarAway). The tab you are on sits on a soft green pill. "الأسعار" opens a small sheet above the
+   bar; "القائمة" (the customer's photo) opens the menu screen (MobileMenu). */
 .bn, .bn-sheet, .bn-veil { display: none; }
 
 @media (max-width: 1023px) {
-  .app-main { padding-bottom: calc(var(--bn-h) + env(safe-area-inset-bottom)); }
+  /* No top bar on phones: the page starts below the phone's status bar and ends above the bar */
+  .app-main { padding-top: env(safe-area-inset-top); padding-bottom: calc(var(--bn-h) + 28px + env(safe-area-inset-bottom)); }
+  .sb-topbar { display: none; }
 
   .bn {
     position: fixed;
-    inset: auto 0 0 0;
+    right: 12px;
+    left: 12px;
+    bottom: calc(10px + env(safe-area-inset-bottom));
     z-index: 60;
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    height: calc(var(--bn-h) + env(safe-area-inset-bottom));
-    padding: 0 4px env(safe-area-inset-bottom);
-    background: #fff;
-    border-top: 1px solid var(--sb-line);
-    box-shadow: 0 -6px 20px -16px rgba(20, 40, 28, 0.3);
+    gap: 2px;
+    height: var(--bn-h);
+    padding: 6px;
+    border-radius: 26px;
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(21, 128, 61, 0.12);
+    box-shadow: 0 14px 34px -14px rgba(20, 83, 45, 0.35), 0 2px 6px rgba(20, 40, 28, 0.06);
+    -webkit-backdrop-filter: blur(16px) saturate(1.6);
+    backdrop-filter: blur(16px) saturate(1.6);
+    transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.25s ease;
   }
+  .bn.is-away { transform: translateY(calc(100% + 24px + env(safe-area-inset-bottom))); opacity: 0; pointer-events: none; }
 
   .bn-tab {
     position: relative;
+    border-radius: 20px;
+    transition: background-color 0.2s ease;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -333,30 +346,19 @@
     color: var(--sb-muted);
     -webkit-tap-highlight-color: transparent;
   }
-  /* The line along the top of the tab you are on */
-  .bn-tab::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    inset-inline: 18%;
-    height: 3px;
-    border-radius: 0 0 4px 4px;
-    background: var(--sb-brand);
-    transform: scaleX(0);
-    transition: transform 0.22s cubic-bezier(0.32, 0.72, 0, 1);
-  }
-  .bn-tab.is-active::before { transform: scaleX(1); }
+  /* The tab you are on: a soft green pill */
+  .bn-tab.is-active { background: rgba(21, 128, 61, 0.1); }
   .bn-tab:focus-visible { outline: 2px solid var(--sb-brand); outline-offset: -4px; border-radius: 12px; }
   .bn-tab__icon {
     position: relative;
     display: grid;
     place-items: center;
-    width: 48px;
-    height: 32px;
+    width: 44px;
+    height: 28px;
     border-radius: 999px;
     transition: transform 0.12s ease, color 0.2s ease;
   }
-  .bn-tab__icon svg { width: 25px; height: 25px; }
+  .bn-tab__icon svg { width: 24px; height: 24px; }
   .bn-tab__label {
     max-width: 100%;
     overflow: hidden;
@@ -409,7 +411,7 @@
     position: fixed;
     right: 12px;
     left: 12px;
-    bottom: calc(var(--bn-h) + env(safe-area-inset-bottom) + 10px);
+    bottom: calc(var(--bn-h) + env(safe-area-inset-bottom) + 20px);
     z-index: 58;
     display: grid;
     gap: 4px;
@@ -447,10 +449,6 @@
   }
   .bn-sheet__link.is-active { background: var(--sb-tint); color: var(--sb-deep); font-weight: 800; }
   .bn-sheet__link.is-active .bn-sheet__icon { background: var(--sb-brand); color: #fff; }
-
-  /* "المزيد" open: the bar slides down under the screen edge and the sidebar takes the full height */
-  .bn { transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1); }
-  .bn.is-hidden { transform: translateY(100%); pointer-events: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

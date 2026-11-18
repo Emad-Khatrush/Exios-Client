@@ -55,13 +55,34 @@ const useBadges = (pathname: string) => {
   return badges;
 };
 
-// Phones: the logo and the customer's code on top; the pages live in the bottom bar
-export const MobileTopbar = ({ account }: { account: User }) => (
-  <header className="sb-topbar" dir="rtl">
-    <img className="sb-topbar__logo" src={logo} alt="إكسيوس" />
-    <bdi className="sb-topbar__code" dir="ltr">{account?.customerId}</bdi>
-  </header>
-);
+// Phones, like Facebook: the bar slides away while the page is scrolled down and comes back as soon
+// as it is scrolled up (or reaches the top). The page scrolls inside .app-main, not the window.
+const useBarAway = (pathname: string, keepShown: boolean) => {
+  const [away, setAway] = useState(false);
+  useEffect(() => {
+    setAway(false);
+    const el = document.querySelector('.app-main');
+    if (!el) return undefined;
+    let last = el.scrollTop;
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = el.scrollTop;
+        const atEnd = y + el.clientHeight >= el.scrollHeight - 4;
+        if (y < 40) setAway(false);
+        else if (y > last + 8 && !atEnd) setAway(true);
+        else if (y < last - 8) setAway(false);
+        last = y;
+        ticking = false;
+      });
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [pathname]);
+  return away && !keepShown;
+};
 
 const PRICE_ROUTES = routes.filter((r) => r.path.startsWith('/prices/'));
 
@@ -80,6 +101,7 @@ const BottomNav = ({ pathname, badges, account }: BottomNavProps) => {
   const onPrices = pathname.startsWith('/prices');
 
   useEffect(() => { setPricesOpen(false); setMenuOpen(false); }, [pathname]);
+  const away = useBarAway(pathname, pricesOpen || menuOpen);
   useEffect(() => {
     if (!pricesOpen) return undefined;
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setPricesOpen(false); };
@@ -105,7 +127,7 @@ const BottomNav = ({ pathname, badges, account }: BottomNavProps) => {
 
       <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} account={account} badges={badges} />
 
-      <nav className="bn" dir="rtl" lang="ar" aria-label="التنقل السريع">
+      <nav className={`bn ${away ? 'is-away' : ''}`} dir="rtl" lang="ar" aria-label="التنقل السريع">
         <NavLink to="/home" className={({ isActive }) => tabClass(isActive)} onClick={() => setMenuOpen(false)}>
           <span className="bn-tab__icon"><House size={22} aria-hidden /></span>
           <span className="bn-tab__label">الرئيسية</span>
