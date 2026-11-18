@@ -159,8 +159,8 @@ const WalletPage = () => {
               <section className="wl-card" aria-labelledby="wl-debts">
                 <header className="wl-card__head">
                   <div>
-                    <h2 id="wl-debts">مبالغ متبقية عليك</h2>
-                    <p className="wl-card__sub">طلبيات دفعت جزءاً من قيمتها، وهذا الباقي منها.</p>
+                    <h2 id="wl-debts">ديون عليك</h2>
+                    <p className="wl-card__sub">فواتير شراء أو شحن لم تُدفع كاملة، وهذا الباقي منها.</p>
                   </div>
                   <span className="wl-card__aside"><Money value={cur.debts} currency={currency} /></span>
                 </header>
@@ -170,7 +170,7 @@ const WalletPage = () => {
                       <span className="wl-row__icon is-owed" aria-hidden><Receipt size={18} /></span>
                       <div className="wl-row__main">
                         <b>
-                          {DEBT_NAMES[debt.type] || 'مبلغ متبقي'}
+                          {DEBT_NAMES[debt.type] || 'دين'}
                           {debt.orderId && <> · <Link to={`/order/${debt.orderId}`} className="wl-link"><bdi dir="ltr">{debt.orderNumber}</bdi></Link></>}
                         </b>
                         <small>

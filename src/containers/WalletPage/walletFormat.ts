@@ -16,13 +16,13 @@ export const KIND_NAMES: Record<MovementKind, string> = {
   compensation: 'تعويض',
   cancellation: 'إلغاء / عكس عملية',
   exchange: 'صرافة داخلية',
-  debt: 'متبقي للدفع',
-  debtPayment: 'سداد المتبقي',
-  writeOff: 'تسوية المتبقي',
+  debt: 'دين',
+  debtPayment: 'سداد دين',
+  writeOff: 'تسوية دين',
 };
 
-// What is left to pay on an order: the part of its value not paid yet
-export const DEBT_NAMES: Record<string, string> = { invoice: 'متبقي من قيمة الشراء', receivedGoods: 'متبقي من قيمة الشحن', general: 'مبلغ متبقي' };
+// A purchase or shipping invoice left on credit: called a debt, plainly (the API names it the same)
+export const DEBT_NAMES: Record<string, string> = { invoice: 'دين فاتورة شراء', receivedGoods: 'دين فاتورة شحن', general: 'دين' };
 
 const MONTHS = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
 export const monthKey = (d: string) => { const date = new Date(d); return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`; };
