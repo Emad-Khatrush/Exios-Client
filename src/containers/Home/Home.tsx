@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import {
-  ArrowLeft, Ban, Check, CircleCheckBig, Copy, FileText, MapPin, MessageSquareText, PackageCheck, PackageOpen, PackagePlus,
+  ArrowLeft, Ban, Bell, Check, CircleCheckBig, Copy, FileText, MapPin, MessageSquareText, PackageCheck, PackageOpen, PackagePlus,
   Phone, Receipt, Rocket, ShoppingBag, Tags, Warehouse,
 } from 'lucide-react';
 import { TbBrandWhatsapp } from 'react-icons/tb';
 import api from '../../api';
 import AnnouncementBar from '../../components/AnnouncementBar/AnnouncementBar';
+import { unreadText, useUnreadNotifications } from '../../utils/unreadNotifications';
 import LatestPosts from './LatestPosts';
 import PointsCard from './PointsCard';
 import WalletCard from './WalletCard';
@@ -43,6 +44,7 @@ const SHORTCUTS = [
 
 const Home = () => {
   const account = useSelector((state: any) => state.session.account);
+  const unread = useUnreadNotifications();
   const { copied, copy } = useCopy();
   const [counts, setCounts] = useState<Counts | null>(null);
   const [orders, setOrders] = useState<Package[] | null>(null);
@@ -91,7 +93,14 @@ const Home = () => {
         {/* Welcome, the customer's code, and the one thing most visits are for */}
         <header className="hm-hero">
           <div className="hm-hero__text">
-            <p className="hm-hero__hello">{greeting()}{firstName ? `، ${firstName}` : ''}</p>
+            <div className="hm-hero__top">
+              <p className="hm-hero__hello">{greeting()}{firstName ? `، ${firstName}` : ''}</p>
+              {/* Notifications: the number not seen yet on the bell */}
+              <Link to="/notifications" className="hm-bell" aria-label={unread > 0 ? `الإشعارات، ${unread} جديدة` : 'الإشعارات'}>
+                <Bell size={20} aria-hidden />
+                {unread > 0 && <span className="hm-bell__count" aria-hidden>{unreadText(unread)}</span>}
+              </Link>
+            </div>
             {/* Until the counts arrive we don't know which message is true, so neither is shown:
                 a placeholder of the same size holds the place and nothing flips a second later */}
             {counts === null ? (

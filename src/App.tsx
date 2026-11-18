@@ -34,6 +34,7 @@ const ProhibitedItemsPage = lazyPage(() => import('./containers/ProhibitedItemsP
 const PointsPage = lazyPage(() => import('./containers/PointsPage/PointsPage'));
 const WalletPage = lazyPage(() => import('./containers/WalletPage/WalletPage'));
 const Announcements = lazyPage(() => import('./containers/Announcements/Announcements'));
+const NotificationsPage = lazyPage(() => import('./containers/Notifications/NotificationsPage'));
 
 declare const process: {
   env: Record<string, string | undefined>;
@@ -84,6 +85,7 @@ const App = () => {
               <Route path='/wallet' element={<WalletPage />} />
               <Route path='/points' element={<PointsPage />} />
               <Route path='/announcements' element={<Announcements />} />
+              <Route path='/notifications' element={<NotificationsPage />} />
               <Route path='/settings' element={<SettingsPage />} />
               <Route path='/contact-us' element={<ContactUs />} />
               <Route path='/terms-privacy' element={<TermsAndPrivacy />} />

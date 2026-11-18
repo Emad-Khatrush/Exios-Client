@@ -1,0 +1,52 @@
+/* Notifications: one white card per message, grouped under its day. A new one carries the brand's
+   soft green and a "جديد" mark; the icon says what it is about (a shipment, points, an announcement). */
+.nt-page { color: #1f2a24; }
+.nt-head { margin-bottom: 18px; }
+.nt-head h1 { margin: 0; font-size: clamp(1.6rem, 3.4vw, 2rem); font-weight: 800; }
+.nt-head p { margin: 4px 0 0; color: #66736b; }
+
+.nt-day { margin-bottom: 18px; }
+.nt-day h2 { margin: 0 4px 8px; font-size: 0.88rem; font-weight: 800; color: #66736b; }
+.nt-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+
+.nt-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #e6ebe8;
+  border-radius: 18px;
+  background: #fff;
+  text-align: start;
+  color: inherit;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+button.nt-item:hover { border-color: #b7d9c3; }
+button.nt-item:active { background: #f4f7f5; }
+button.nt-item:focus-visible { outline: 2px solid #15803d; outline-offset: 2px; }
+.nt-item.is-unread { border-color: #bbe3c9; background: #f0fbf4; }
+.nt-item__icon { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 13px; background: #ecf6ef; color: #15803d; }
+.nt-item.is-unread .nt-item__icon { background: #15803d; color: #fff; }
+.nt-item__text { display: grid; flex: 1; gap: 3px; min-width: 0; }
+.nt-item__text b { font-size: 0.98rem; font-weight: 800; line-height: 1.5; }
+.nt-item__body { font-size: 0.9rem; line-height: 1.65; color: #3f4a44; white-space: pre-line; overflow-wrap: anywhere; }
+.nt-item__text small { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: #8a958f; font-variant-numeric: tabular-nums; }
+.nt-item__new { padding: 0 8px; border-radius: 999px; background: #15803d; color: #fff; font-size: 0.72rem; font-weight: 800; line-height: 1.6; }
+.nt-item__go { flex: none; align-self: center; color: #a3ada7; }
+
+.nt-sk { height: 84px; border-radius: 18px; background: #e9eeeb; animation: nt-pulse 1.4s ease-in-out infinite; }
+@keyframes nt-pulse { 50% { opacity: 0.55; } }
+
+.nt-state { display: grid; justify-items: center; gap: 8px; padding: 36px 16px; border: 1px dashed #d7e1db; border-radius: 20px; background: #fff; text-align: center; }
+.nt-state b { font-size: 1.05rem; font-weight: 800; }
+.nt-state p { max-width: 44ch; margin: 0; color: #66736b; line-height: 1.7; }
+.nt-state__icon { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 18px; background: #ecf6ef; color: #15803d; }
+
+.nt-more { display: flex; justify-content: center; margin-top: 4px; }
+.nt-page .nt-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 18px; border: 1px solid #d7e1db; border-radius: 14px; background: #fff; color: #1f2a24; font-weight: 800; }
+.nt-page .nt-btn:disabled { opacity: 0.7; background: #fff; }
+.nt-spin { animation: nt-spin 0.8s linear infinite; }
+@keyframes nt-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .nt-sk, .nt-spin { animation: none; } .nt-item { transition: none; } }

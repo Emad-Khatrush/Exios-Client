@@ -9,6 +9,7 @@ import { useCopy } from '../../utils/useCopy';
 import { logout } from '../../utils/logout';
 import MobileMenu, { MenuAvatar } from './MobileMenu';
 import { isRestoringScroll } from '../ScrollMemory/ScrollMemory';
+import { unreadText, useUnreadNotifications } from '../../utils/unreadNotifications';
 import './sidebar.css';
 
 type Props = {
@@ -137,7 +138,8 @@ const BottomNav = ({ pathname, badges, account }: BottomNavProps) => {
 
   const tabClass = (active: boolean) => `bn-tab ${active && !menuOpen && !pricesOpen ? 'is-active' : ''}`;
   const ready = badges.myOrders || 0;
-  const moreDot = (badges.suggestions || 0) > 0;
+  // A reply from the office or notifications not seen yet: a dot on the menu tab
+  const moreDot = (badges.suggestions || 0) > 0 || (badges.notifications || 0) > 0;
 
   return (
     <>
@@ -188,7 +190,7 @@ const BottomNav = ({ pathname, badges, account }: BottomNavProps) => {
         >
           <span className="bn-tab__icon">
             <MenuAvatar account={account} size={26} />
-            {moreDot && <span className="bn-dot" aria-label="رد جديد من المكتب" />}
+            {moreDot && <span className="bn-dot" aria-label="جديد في القائمة" />}
           </span>
           <span className="bn-tab__label">القائمة</span>
         </button>
@@ -200,7 +202,9 @@ const BottomNav = ({ pathname, badges, account }: BottomNavProps) => {
 const Sidebar = ({ account, open, setOpen }: Props) => {
   const { pathname } = useLocation();
   const { copied, copy } = useCopy();
-  const badges = useBadges(pathname);
+  const officeBadges = useBadges(pathname);
+  const unread = useUnreadNotifications(pathname);
+  const badges: Record<string, number> = { ...officeBadges, notifications: unread };
   const id = account?.customerId || '';
   const verified = account?.passportVerification?.status === 'verified';
 
@@ -246,9 +250,9 @@ const Sidebar = ({ account, open, setOpen }: Props) => {
                         {count > 0 && (
                           <span
                             className={`sb-badge ${value === 'myOrders' ? 'sb-badge--ready' : ''}`}
-                            aria-label={value === 'myOrders' ? `${count} جاهزة للاستلام` : `${count} ردود جديدة`}
+                            aria-label={value === 'myOrders' ? `${count} جاهزة للاستلام` : value === 'notifications' ? `${count} إشعارات جديدة` : `${count} ردود جديدة`}
                           >
-                            {count}
+                            {unreadText(count)}
                           </span>
                         )}
                       </NavLink>

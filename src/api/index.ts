@@ -211,6 +211,14 @@ export default {
 
   removePushToken: (token: string) => base.delete(`client/push/token`, { token }),
 
+  // The notifications page: a page of messages (older ones with `before`), the unread count, and
+  // "the page was opened" (everything shown is read)
+  getNotifications: (before?: string) => base.get(`client/notifications`, before ? { before } : {}),
+
+  getUnreadNotifications: () => base.get(`client/notifications/unread`),
+
+  markNotificationsSeen: () => base.post(`client/notifications/seen`, {}),
+
   // Settings Endpoints
   getAnnouncements: () => base.get(`announcements`),
 

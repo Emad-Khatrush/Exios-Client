@@ -15,6 +15,7 @@ const PUBLIC_PAGES: Record<string, string> = {
 // Logged-in pages with their own title; they stay noindex
 const APP_TITLES: Record<string, string> = {
   '/wallet': 'محفظتي | اكسيوس',
+  '/notifications': 'الإشعارات | اكسيوس',
   '/points': 'نقاطي | اكسيوس',
 };
 

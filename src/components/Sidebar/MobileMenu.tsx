@@ -21,7 +21,7 @@ type Props = {
 
 // Each tile's colour, so the eye finds a page by colour as well as by its name
 const HUE: Record<string, string> = {
-  myOrders: 'teal', wallet: 'amber', points: 'violet', startShip: 'green', address: 'blue',
+  myOrders: 'teal', wallet: 'amber', points: 'violet', startShip: 'green', address: 'blue', notifications: 'rose',
   shippingPrices: 'green', purchasePrices: 'rose', transferPrices: 'blue',
 };
 
@@ -90,7 +90,7 @@ const MobileMenu = ({ open, onClose, account, badges }: Props) => {
                 <NavLink key={value} to={path} tabIndex={open ? 0 : -1} className={({ isActive }) => `mm-tile hue-${HUE[value] || 'green'} ${isActive ? 'is-active' : ''}`}>
                   <span className="mm-tile__icon" aria-hidden><Icon size={22} /></span>
                   <span className="mm-tile__label">{label}</span>
-                  {count > 0 && <span className="mm-count" aria-label={value === 'myOrders' ? `${count} جاهزة للاستلام` : `${count} جديد`}>{count}</span>}
+                  {count > 0 && <span className="mm-count" aria-label={value === 'myOrders' ? `${count} جاهزة للاستلام` : `${count} جديد`}>{count > 99 ? '99+' : count}</span>}
                 </NavLink>
               );
             })}
