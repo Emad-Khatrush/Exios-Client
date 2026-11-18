@@ -301,8 +301,9 @@
   .sb-scrim.is-open { opacity: 1; pointer-events: auto; }
 }
 
-/* Bottom bar (phones): five tabs within thumb reach. The tab you are on gets a green pill behind its
-   icon; "الأسعار" opens a small sheet above the bar, "المزيد" opens the full sidebar. */
+/* Bottom bar (phones), like Facebook's: five tabs within thumb reach, the one you are on marked by a
+   green line along its top edge. "الأسعار" opens a small sheet above the bar; "القائمة" (the
+   customer's photo) opens the menu screen (MobileMenu). */
 .bn, .bn-sheet, .bn-veil { display: none; }
 
 @media (max-width: 1023px) {
@@ -316,32 +317,46 @@
     grid-template-columns: repeat(5, 1fr);
     height: calc(var(--bn-h) + env(safe-area-inset-bottom));
     padding: 0 4px env(safe-area-inset-bottom);
-    background: rgba(255, 255, 255, 0.94);
+    background: #fff;
     border-top: 1px solid var(--sb-line);
-    box-shadow: 0 -8px 24px -18px rgba(20, 40, 28, 0.35);
-    backdrop-filter: saturate(1.4) blur(12px);
+    box-shadow: 0 -6px 20px -16px rgba(20, 40, 28, 0.3);
   }
 
   .bn-tab {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 3px;
+    gap: 2px;
     min-width: 0;
     color: var(--sb-muted);
     -webkit-tap-highlight-color: transparent;
   }
+  /* The line along the top of the tab you are on */
+  .bn-tab::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    inset-inline: 18%;
+    height: 3px;
+    border-radius: 0 0 4px 4px;
+    background: var(--sb-brand);
+    transform: scaleX(0);
+    transition: transform 0.22s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .bn-tab.is-active::before { transform: scaleX(1); }
   .bn-tab:focus-visible { outline: 2px solid var(--sb-brand); outline-offset: -4px; border-radius: 12px; }
   .bn-tab__icon {
     position: relative;
     display: grid;
     place-items: center;
-    width: 52px;
-    height: 30px;
+    width: 48px;
+    height: 32px;
     border-radius: 999px;
-    transition: background-color 0.2s ease, color 0.2s ease, width 0.2s ease;
+    transition: transform 0.12s ease, color 0.2s ease;
   }
+  .bn-tab__icon svg { width: 25px; height: 25px; }
   .bn-tab__label {
     max-width: 100%;
     overflow: hidden;
@@ -351,15 +366,18 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .bn-tab:active .bn-tab__icon { transform: scale(0.94); }
-  .bn-tab.is-active { color: var(--sb-deep); }
-  .bn-tab.is-active .bn-tab__icon { width: 60px; background: var(--sb-tint); color: var(--sb-brand); }
+  .bn-tab:active .bn-tab__icon { transform: scale(0.88); }
+  .bn-tab.is-active { color: var(--sb-brand); }
+  .bn-tab.is-active .bn-tab__icon svg { stroke-width: 2.4; }
   .bn-tab.is-active .bn-tab__label { font-weight: 800; }
+  /* The menu tab is the customer's photo, ringed in green while the menu is open */
+  .bn-tab--menu .mm-avatar { box-shadow: 0 0 0 1px var(--sb-line); }
+  .bn-tab--menu.is-active .mm-avatar { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--sb-brand); }
 
   .bn-badge {
     position: absolute;
-    top: -4px;
-    left: 6px;
+    top: -7px;
+    left: -2px;
     display: grid;
     place-items: center;
     min-width: 18px;
@@ -367,8 +385,8 @@
     padding: 0 5px;
     border-radius: 999px;
     border: 2px solid #fff;
-    background: var(--sb-ready);
-    color: #3b2300;
+    background: #e11d48;
+    color: #fff;
     font-size: 0.65rem;
     font-weight: 800;
     line-height: 1;
@@ -382,7 +400,7 @@
     height: 9px;
     border-radius: 50%;
     border: 2px solid #fff;
-    background: var(--sb-brand);
+    background: #e11d48;
   }
 
   /* The prices sheet */

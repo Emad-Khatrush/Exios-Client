@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { BadgeCheck, Check, Copy, House, LayoutGrid, LogOut, Package, Settings, Tags, Warehouse } from 'lucide-react';
+import { BadgeCheck, Check, Copy, House, LogOut, Package, Settings, Tags, Warehouse } from 'lucide-react';
 import logo from '../../../public/images/exios-logo.png';
 import api from '../../api';
 import { User } from '../../models';
 import { routeGroups, routes } from '../PrivateRoute/routes';
 import { useCopy } from '../../utils/useCopy';
 import { logout } from '../../utils/logout';
+import MobileMenu, { MenuAvatar } from './MobileMenu';
 import './sidebar.css';
 
 type Props = {
@@ -67,17 +68,18 @@ const PRICE_ROUTES = routes.filter((r) => r.path.startsWith('/prices/'));
 type BottomNavProps = {
   pathname: string
   badges: Record<string, number>
-  drawerOpen: boolean
-  setDrawerOpen: React.Dispatch<React.SetStateAction<boolean>>
+  account: User
 }
 
-// Phones: the pages used most, one thumb-tap away. Prices opens a small sheet with its three pages;
-// "المزيد" opens the full sidebar with every page and the account.
-const BottomNav = ({ pathname, badges, drawerOpen, setDrawerOpen }: BottomNavProps) => {
+// Phones, like Facebook's bar: the pages used most, one thumb-tap away. Prices opens a small sheet
+// with its three pages; "القائمة" (the customer's photo) opens the menu screen with every page and
+// the account. The side panel is for wider screens only.
+const BottomNav = ({ pathname, badges, account }: BottomNavProps) => {
   const [pricesOpen, setPricesOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const onPrices = pathname.startsWith('/prices');
 
-  useEffect(() => { setPricesOpen(false); }, [pathname]);
+  useEffect(() => { setPricesOpen(false); setMenuOpen(false); }, [pathname]);
   useEffect(() => {
     if (!pricesOpen) return undefined;
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setPricesOpen(false); };
@@ -85,7 +87,7 @@ const BottomNav = ({ pathname, badges, drawerOpen, setDrawerOpen }: BottomNavPro
     return () => window.removeEventListener('keydown', onKey);
   }, [pricesOpen]);
 
-  const tabClass = (active: boolean) => `bn-tab ${active && !drawerOpen && !pricesOpen ? 'is-active' : ''}`;
+  const tabClass = (active: boolean) => `bn-tab ${active && !menuOpen && !pricesOpen ? 'is-active' : ''}`;
   const ready = badges.myOrders || 0;
   const moreDot = (badges.suggestions || 0) > 0;
 
@@ -101,13 +103,14 @@ const BottomNav = ({ pathname, badges, drawerOpen, setDrawerOpen }: BottomNavPro
         ))}
       </div>
 
-      {/* While "المزيد" is open the bar slides down out of the way; the sidebar closes from its backdrop */}
-      <nav className={`bn ${drawerOpen ? 'is-hidden' : ''}`} dir="rtl" lang="ar" aria-label="التنقل السريع" aria-hidden={drawerOpen}>
-        <NavLink to="/home" className={({ isActive }) => tabClass(isActive)} onClick={() => setDrawerOpen(false)}>
+      <MobileMenu open={menuOpen} onClose={() => setMenuOpen(false)} account={account} badges={badges} />
+
+      <nav className="bn" dir="rtl" lang="ar" aria-label="التنقل السريع">
+        <NavLink to="/home" className={({ isActive }) => tabClass(isActive)} onClick={() => setMenuOpen(false)}>
           <span className="bn-tab__icon"><House size={22} aria-hidden /></span>
           <span className="bn-tab__label">الرئيسية</span>
         </NavLink>
-        <NavLink to="/orders" className={({ isActive }) => tabClass(isActive)} onClick={() => setDrawerOpen(false)}>
+        <NavLink to="/orders" className={({ isActive }) => tabClass(isActive)} onClick={() => setMenuOpen(false)}>
           <span className="bn-tab__icon">
             <Package size={22} aria-hidden />
             {ready > 0 && <span className="bn-badge" aria-label={`${ready} جاهزة للاستلام`}>{ready}</span>}
@@ -117,29 +120,28 @@ const BottomNav = ({ pathname, badges, drawerOpen, setDrawerOpen }: BottomNavPro
         <button
           type="button"
           className={tabClass(onPrices) + (pricesOpen ? ' is-active' : '')}
-          onClick={() => { setDrawerOpen(false); setPricesOpen((v) => !v); }}
+          onClick={() => { setMenuOpen(false); setPricesOpen((v) => !v); }}
           aria-expanded={pricesOpen}
           aria-controls="bn-prices"
         >
           <span className="bn-tab__icon"><Tags size={22} aria-hidden /></span>
           <span className="bn-tab__label">الأسعار</span>
         </button>
-        <NavLink to="/address" className={({ isActive }) => tabClass(isActive)} onClick={() => setDrawerOpen(false)}>
+        <NavLink to="/address" className={({ isActive }) => tabClass(isActive)} onClick={() => setMenuOpen(false)}>
           <span className="bn-tab__icon"><Warehouse size={22} aria-hidden /></span>
           <span className="bn-tab__label">عناويننا</span>
         </NavLink>
         <button
           type="button"
-          className={`bn-tab ${drawerOpen ? 'is-active' : ''}`}
-          onClick={() => { setPricesOpen(false); setDrawerOpen((v) => !v); }}
-          aria-expanded={drawerOpen}
-          aria-controls="app-sidebar"
+          className={`bn-tab bn-tab--menu ${menuOpen ? 'is-active' : ''}`}
+          onClick={() => { setPricesOpen(false); setMenuOpen((v) => !v); }}
+          aria-expanded={menuOpen}
         >
           <span className="bn-tab__icon">
-            <LayoutGrid size={22} aria-hidden />
+            <MenuAvatar account={account} size={26} />
             {moreDot && <span className="bn-dot" aria-label="رد جديد من المكتب" />}
           </span>
-          <span className="bn-tab__label">المزيد</span>
+          <span className="bn-tab__label">القائمة</span>
         </button>
       </nav>
     </>
@@ -246,7 +248,7 @@ const Sidebar = ({ account, open, setOpen }: Props) => {
         </section>
       </aside>
 
-      <BottomNav pathname={pathname} badges={badges} drawerOpen={open} setDrawerOpen={setOpen} />
+      <BottomNav pathname={pathname} badges={badges} account={account} />
     </>
   );
 };
