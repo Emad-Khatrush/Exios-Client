@@ -54,6 +54,9 @@ const MobileMenu = ({ open, onClose, account, badges }: Props) => {
   const tiles = mainGroup.routes.filter((r) => r.value !== 'home' && !(r.value === 'points' && account?.loyaltyOff));
 
   return (
+    <>
+    {/* Dims the page while the menu rises over it and while it goes back down */}
+    <div className={`mm-scrim ${open ? 'is-open' : ''}`} onClick={onClose} aria-hidden />
     <div className={`mm ${open ? 'is-open' : ''}`} dir="rtl" lang="ar" role="dialog" aria-modal="true" aria-label="القائمة" aria-hidden={!open}>
       <header className="mm-head">
         <h2>القائمة</h2>
@@ -138,6 +141,7 @@ const MobileMenu = ({ open, onClose, account, badges }: Props) => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

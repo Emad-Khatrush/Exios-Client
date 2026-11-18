@@ -55,8 +55,13 @@ const useBadges = (pathname: string) => {
   return badges;
 };
 
-// Phones, like Facebook: the bar slides away while the page is scrolled down and comes back as soon
-// as it is scrolled up (or reaches the top). The page scrolls inside .app-main, not the window.
+// Phones, like Facebook: the bar slides away while the page is scrolled down and comes back when it
+// is scrolled up (or reaches the top). The page scrolls inside .app-main, not the window.
+// The distance moved in one direction is added up, so the bar only moves on a deliberate scroll:
+// a finger's small jitter or a flick's bounce no longer makes it flicker in and out.
+const HIDE_AFTER = 56;
+const SHOW_AFTER = 28;
+
 const useBarAway = (pathname: string, keepShown: boolean) => {
   const [away, setAway] = useState(false);
   useEffect(() => {
@@ -64,18 +69,24 @@ const useBarAway = (pathname: string, keepShown: boolean) => {
     const el = document.querySelector('.app-main');
     if (!el) return undefined;
     let last = el.scrollTop;
+    let run = 0;
     let ticking = false;
     const onScroll = () => {
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
-        const y = el.scrollTop;
-        const atEnd = y + el.clientHeight >= el.scrollHeight - 4;
-        if (y < 40) setAway(false);
-        else if (y > last + 8 && !atEnd) setAway(true);
-        else if (y < last - 8) setAway(false);
-        last = y;
         ticking = false;
+        const y = el.scrollTop;
+        const dy = y - last;
+        last = y;
+        if (y < 60) { run = 0; setAway(false); return; }
+        // The bounce at the bottom of the page is not a scroll up
+        if (y + el.clientHeight >= el.scrollHeight - 4) return;
+        if (dy === 0) return;
+        if ((dy > 0) !== (run > 0)) run = 0;
+        run += dy;
+        if (run > HIDE_AFTER) setAway(true);
+        else if (run < -SHOW_AFTER) setAway(false);
       });
     };
     el.addEventListener('scroll', onScroll, { passive: true });
@@ -115,7 +126,8 @@ const BottomNav = ({ pathname, badges, account }: BottomNavProps) => {
 
   return (
     <>
-      {pricesOpen && <div className="bn-veil" onClick={() => setPricesOpen(false)} aria-hidden />}
+      {/* Always there, so it can fade in and out with the sheet */}
+      <div className={`bn-veil ${pricesOpen ? 'is-open' : ''}`} onClick={() => setPricesOpen(false)} aria-hidden />
       <div className={`bn-sheet ${pricesOpen ? 'is-open' : ''}`} dir="rtl" id="bn-prices" aria-hidden={!pricesOpen}>
         {PRICE_ROUTES.map(({ value, path, label, icon: Icon }) => (
           <NavLink key={value} to={path} tabIndex={pricesOpen ? 0 : -1} className={({ isActive }) => `bn-sheet__link ${isActive ? 'is-active' : ''}`}>

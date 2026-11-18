@@ -1,21 +1,68 @@
 /* "القائمة" on phones: a screen that slides up over the page. Grey ground, white tiles; the account
    card in Exios green is the one bold thing. Each tile's icon has its own colour (HUE in MobileMenu). */
-.mm { display: none; }
+.mm, .mm-scrim { display: none; }
+
+/* Motion: opening starts quick and settles slowly (ease-out), so the screen glides into place;
+   closing is a little shorter and speeds up as it leaves (ease-in), so it gets out of the way.
+   The bottom bar stays above the menu (z-index 60), so the same "القائمة" tab closes it again. */
+:root {
+  --mm-ease-in: cubic-bezier(0.22, 1, 0.36, 1);
+  --mm-ease-out: cubic-bezier(0.55, 0, 0.75, 0.25);
+  --mm-open: 0.52s;
+  --mm-close: 0.36s;
+}
 
 @media (max-width: 1023px) {
+  .mm-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 59;
+    display: block;
+    background: rgba(12, 28, 19, 0.38);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--mm-close) ease, visibility 0s linear var(--mm-close);
+  }
+  .mm-scrim.is-open { opacity: 1; visibility: visible; transition: opacity var(--mm-open) ease, visibility 0s; }
+
   .mm {
     position: fixed;
     inset: 0;
-    z-index: 70;
+    z-index: 59;
     display: flex;
     flex-direction: column;
     background: #f2f5f3;
     color: var(--sb-ink);
-    transform: translateY(100%);
+    border-radius: 28px 28px 0 0;
+    box-shadow: 0 -18px 40px -24px rgba(12, 28, 19, 0.45);
+    transform: translate3d(0, 100%, 0);
     visibility: hidden;
-    transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), visibility 0s linear 0.3s;
+    will-change: transform;
+    transition: transform var(--mm-close) var(--mm-ease-out), border-radius var(--mm-close) ease, visibility 0s linear var(--mm-close);
   }
-  .mm.is-open { transform: none; visibility: visible; transition-delay: 0s; }
+  .mm.is-open {
+    transform: translate3d(0, 0, 0);
+    visibility: visible;
+    border-radius: 0;
+    transition: transform var(--mm-open) var(--mm-ease-in), border-radius 0.3s ease 0.22s, visibility 0s;
+  }
+
+  /* The contents follow the screen up, one after the other; going down they simply fade with it */
+  .mm-head, .mm-body > * {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+    transition: opacity 0.18s ease, transform 0s linear 0.2s;
+  }
+  .mm.is-open :is(.mm-head, .mm-body > *) {
+    opacity: 1;
+    transform: none;
+    transition: opacity 0.4s ease var(--d, 0.1s), transform 0.55s var(--mm-ease-in) var(--d, 0.1s);
+  }
+  .mm-body > :nth-child(1) { --d: 0.14s; }
+  .mm-body > :nth-child(2) { --d: 0.19s; }
+  .mm-body > :nth-child(3) { --d: 0.24s; }
+  .mm-body > :nth-child(4) { --d: 0.29s; }
+  .mm-body > :nth-child(5) { --d: 0.34s; }
 
   .mm a, .mm button { -webkit-tap-highlight-color: transparent; }
   .mm :where(a, button):focus-visible { outline: 2px solid var(--sb-brand); outline-offset: 2px; }
@@ -34,7 +81,8 @@
     flex: 1;
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: 8px 16px calc(24px + env(safe-area-inset-bottom));
+    /* The last rows end above the bottom bar, which stays over the menu */
+    padding: 8px 16px calc(var(--bn-h) + 34px + env(safe-area-inset-bottom));
     display: grid;
     align-content: start;
     gap: 22px;
@@ -152,4 +200,10 @@
   .mm-row--out .mm-row__icon { background: #fdecea; color: #b42318; }
 }
 
-@media (prefers-reduced-motion: reduce) { .mm, .mm-tile { transition: none; } }
+/* Reduced motion: the menu appears and goes with a short fade, nothing slides */
+@media (prefers-reduced-motion: reduce) {
+  .mm, .mm.is-open { transform: none; border-radius: 0; opacity: 0; transition: opacity 0.15s ease, visibility 0s linear 0.15s; }
+  .mm.is-open { opacity: 1; transition: opacity 0.15s ease, visibility 0s; }
+  .mm-head, .mm-body > *, .mm.is-open :is(.mm-head, .mm-body > *) { opacity: 1; transform: none; transition: none; }
+  .mm-tile { transition: none; }
+}
