@@ -62,6 +62,7 @@ const useBadges = (pathname: string) => {
 // a finger's small jitter or a flick's bounce no longer makes it flicker in and out.
 const HIDE_AFTER = 56;
 const SHOW_AFTER = 28;
+const SETTLE_MS = 350;
 
 const useBarAway = (pathname: string, keepShown: boolean) => {
   const [away, setAway] = useState(false);
@@ -80,7 +81,8 @@ const useBarAway = (pathname: string, keepShown: boolean) => {
         const y = el.scrollTop;
         const dy = y - last;
         last = y;
-        if (y < 60) { run = 0; setAway(false); return; }
+        // Near the top it always shows, at once
+        if (y < 60) { run = 0; isAway = false; setAway(false); return; }
         // Going back puts the page where it was left: that is not the customer scrolling
         if (isRestoringScroll()) { run = 0; return; }
         // The bounce at the bottom of the page is not a scroll up
@@ -88,9 +90,19 @@ const useBarAway = (pathname: string, keepShown: boolean) => {
         if (dy === 0) return;
         if ((dy > 0) !== (run > 0)) run = 0;
         run += dy;
-        if (run > HIDE_AFTER) setAway(true);
-        else if (run < -SHOW_AFTER) setAway(false);
+        if (run > HIDE_AFTER) move(true);
+        else if (run < -SHOW_AFTER) move(false);
       });
+    };
+    // Once the bar has started moving it finishes before it may turn back: an uneven scroll report
+    // (iPhone during a flick) can no longer make it go and come back
+    let isAway = false;
+    let changedAt = 0;
+    const move = (next: boolean) => {
+      if (next === isAway || performance.now() - changedAt < SETTLE_MS) return;
+      isAway = next;
+      changedAt = performance.now();
+      setAway(next);
     };
     el.addEventListener('scroll', onScroll, { passive: true });
     return () => el.removeEventListener('scroll', onScroll);
