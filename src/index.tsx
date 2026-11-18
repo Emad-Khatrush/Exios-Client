@@ -7,5 +7,8 @@ import './index.css';
 
 import { Provider } from 'react-redux'
 import store from './config/store';
+import { registerServiceWorker } from './utils/installApp';
 
 ReactDOM.render(<Provider store={store}><App /></Provider>, document.getElementById('root'))
+
+registerServiceWorker();

@@ -11,6 +11,7 @@ import AnnouncementBar from '../../components/AnnouncementBar/AnnouncementBar';
 import LatestPosts from './LatestPosts';
 import PointsCard from './PointsCard';
 import WalletCard from './WalletCard';
+import InstallAppCard from './InstallAppCard';
 import RecentShipments from './RecentShipments';
 import Flag from '../PricesPage/Flag';
 import { money, Pricing, updatedLabel } from '../PricesPage/pricingMath';
@@ -125,6 +126,7 @@ const Home = () => {
               <b>عرض الرد <ArrowLeft size={16} aria-hidden /></b>
             </Link>
           )}
+          <InstallAppCard />
         </div>
 
         {/* Numbers */}

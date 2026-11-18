@@ -1,0 +1,25 @@
+{
+  "id": "/",
+  "name": "اكسيوس - الشحن من الصين إلى ليبيا",
+  "short_name": "اكسيوس",
+  "description": "تابع طلبياتك وشحناتك، محفظتك ونقاطك، وأسعار الشحن من الصين إلى ليبيا.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/home",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#15803d",
+  "categories": ["shopping", "business", "productivity"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "طلبياتي", "url": "/orders", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "محفظتي", "url": "/wallet", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] },
+    { "name": "أسعار الشحن", "url": "/prices/shipping", "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

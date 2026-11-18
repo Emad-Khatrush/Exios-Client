@@ -78,9 +78,12 @@ module.exports = (env) => {
       new Dotenv({
         path: root(env === 'prod' ? '.env.production' : '.env'),
       }),
-      // Files that must be served from the site root as-is (SEO + favicon)
+      // Files that must be served from the site root as-is (SEO, favicon, and the installable app)
       new CopyWebpackPlugin({
-        patterns: ['robots.txt', 'sitemap.xml', 'favicon.ico', 'icon-192.png', 'apple-touch-icon.png', 'og-image.jpg'].map((file) => ({
+        patterns: [
+          'robots.txt', 'sitemap.xml', 'favicon.ico', 'icon-192.png', 'apple-touch-icon.png', 'og-image.jpg',
+          'manifest.webmanifest', 'sw.js', 'icon-512.png', 'icon-maskable-512.png',
+        ].map((file) => ({
           from: root('public', file),
           to: file,
         })),
