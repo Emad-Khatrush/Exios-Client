@@ -23,7 +23,7 @@ import { WalletDebt } from '../WalletPage/walletTypes';
 import { OrderLoyalty } from '../PointsPage/loyaltyTypes';
 import FileViewer, { KIND_ICONS, toViewerFile } from '../../components/FileViewer/FileViewer';
 import {
-  METHOD_LABEL, countryKey, PACKAGE_STAGES, SHIPMENT_STAGES, dateText, goodsName, isBlocked, isPurchaseInvoice, shipMethod, nextStepText,
+  METHOD_LABEL, countryKey, PACKAGE_STAGES, SHIPMENT_STAGES, dateText, orderTitle, isBlocked, isPurchaseInvoice, shipMethod, nextStepText,
   packageStage, placeName, tripArrival, tripName, shippingCost, relativeDay, shipmentStage, stageKey, stageLabel, timeText, usd, visiblePackages,
 } from '../ClientOrders/orderUtils';
 import '../ClientOrders/orders.css';
@@ -153,7 +153,6 @@ const PurchaseView = ({ order, setOrder, onPhotos, office, customerId, customerN
 }) => {
   const { copied, copy } = useCopy();
   const paid = Number(order.orderStatus) >= 1;
-  const name = goodsName(order);
   const stamp = order.isCanceled ? 'ملغاة' : paid ? 'تم الشراء' : 'قيد الشراء';
 
   return (
@@ -187,7 +186,6 @@ const PurchaseView = ({ order, setOrder, onPhotos, office, customerId, customerN
         <dl className="oi-bill__rows">
           <div><dt>رقم الفاتورة</dt><dd><CopyChip value={order.orderId} copied={copied} copy={copy} /></dd></div>
           <div><dt>التاريخ</dt><dd>{dateText(order.createdAt)}</dd></div>
-          {name !== 'فاتورة شراء' && <div><dt>البضاعة</dt><dd>{name}</dd></div>}
           {(cleanText(order.customerInfo?.fullName) || customerName) && <div><dt>العميل</dt><dd>{cleanText(order.customerInfo?.fullName) || customerName}</dd></div>}
           {customerId && <div><dt>كود العميل</dt><dd><bdi dir="ltr">{customerId}</bdi></dd></div>}
           <div><dt>الحالة</dt><dd>{stamp}</dd></div>
@@ -480,7 +478,6 @@ const OrderInfoPage = () => {
 
   const details = [
     { k: 'رقم الطلبية', v: <CopyChip value={order.orderId} copied={copied} copy={copy} /> },
-    { k: 'البضاعة', v: goodsName(order) },
     from && { k: 'من', v: from },
     to && { k: 'إلى', v: to },
     { k: 'طريقة الشحن', v: METHOD_LABEL[method] },
@@ -501,7 +498,7 @@ const OrderInfoPage = () => {
         <header className="oi-head or-anim" style={{ ['--i' as any]: 1 }}>
           <span className={`oi-head__icon is-${key}`} aria-hidden><MethodIcon size={24} /></span>
           <div className="oi-head__text">
-            <h1>{goodsName(order)}</h1>
+            <h1>{orderTitle(order)}</h1>
             <p>
               <CopyChip value={order.orderId} copied={copied} copy={copy} />
               {(from || to) && (

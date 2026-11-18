@@ -3,7 +3,7 @@ import { ArrowLeft, Box, Plane, Rocket, Ship, ShoppingBag, PackageSearch } from 
 import Flag from '../PricesPage/Flag';
 import { Package, PackageDetails } from '../../models';
 import { getOrderStatusLabels } from '../../utils/methods';
-import { countryKey } from '../ClientOrders/orderUtils';
+import { countryKey, orderTitle } from '../ClientOrders/orderUtils';
 
 const MAX_PACKAGES = 2;
 
@@ -24,14 +24,7 @@ const weightText = (p: PackageDetails) => {
 };
 
 const isReady = (o: Package) => (o.isPayment ? o.orderStatus === 4 : o.orderStatus === 3);
-// "-" or empty: the office left the goods unnamed
-const goodsName = (o: Package) => {
-  const name = (o.productName || '').trim();
-  if (name && name !== '-') return name;
-  if (o.isPayment && !o.isShipment) return 'طلبية شراء';
-  if (o.shipment?.method === 'sea') return 'شحن بحري';
-  return o.shipment?.method === 'air' ? 'شحن جوي' : 'شحنة';
-};
+// What the order is (purchase invoice, air or sea shipping), not the goods' name
 
 /* The customer's two newest shipments, each with a short list of its packages */
 const RecentShipments = ({ orders, total }: { orders: Package[] | null, total: number }) => {
@@ -71,7 +64,7 @@ const RecentShipments = ({ orders, total }: { orders: Package[] | null, total: n
                     <bdi dir="ltr">{o.orderId}</bdi>
                     <span className="hm-ship__sub">
                       {country && <Flag country={country} size={16} />}
-                      {goodsName(o)}
+                      {orderTitle(o)}
                       {!!packages.length && <span className="hm-ship__count">· {packages.length === 1 ? 'طرد واحد' : packages.length === 2 ? 'طردان' : `${packages.length} طرود`}</span>}
                     </span>
                   </span>

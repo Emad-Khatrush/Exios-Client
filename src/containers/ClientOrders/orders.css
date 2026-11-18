@@ -700,13 +700,6 @@
   transform: rotate(-4deg);
 }
 .or-receipt__amount { font-size: 2rem; font-weight: 800; line-height: 1.15; letter-spacing: -0.01em; color: var(--or-ink); }
-.or-receipt__name {
-  overflow: hidden;
-  font-size: 0.92rem;
-  color: var(--or-muted);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 .or-receipt__rows {
   display: grid;
   grid-template-columns: auto 1fr;

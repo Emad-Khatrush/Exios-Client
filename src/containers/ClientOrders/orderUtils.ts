@@ -49,13 +49,13 @@ export const shipMethod = (o: Package): 'air' | 'sea' | 'unknown' => (
 );
 export const METHOD_SHORT = { air: 'جوي', sea: 'بحري', unknown: 'غير محددة' } as const;
 
-export const goodsName = (o: Package) => {
-  const name = named(o.productName);
-  if (name) return name;
+// An order's title is what it is, not the goods inside (owner's request 2026-11-19): a purchase
+// invoice, or a shipment by how it travels
+export const orderTitle = (o: Package) => {
   if (isPurchaseInvoice(o)) return 'فاتورة شراء';
   if (o.unsureOrder) return 'أرقام تتبع قيد المتابعة';
   const m = shipMethod(o);
-  return m === 'sea' ? 'شحنة بحرية' : m === 'air' ? 'شحنة جوية' : 'شحنة';
+  return m === 'sea' ? 'شحن بحري' : m === 'air' ? 'شحن جوي' : 'شحن غير محدد';
 };
 
 // The key of the country an order ships from, or '' when the office left it empty or wrote one we have no flag for

@@ -5,7 +5,7 @@ import { Package } from '../../models';
 import { getOrderTheme } from '../../constants/orderThemes';
 import {
   METHOD_SHORT, shipMethod, shippingCost,
-  SHIPMENT_STAGES, countryKey, dateText, goodsName, isBlocked, packageStage, packagesText, placeName, relativeDay,
+  SHIPMENT_STAGES, countryKey, dateText, orderTitle, isBlocked, packageStage, packagesText, placeName, relativeDay,
   shipmentStage, stageKey, stageLabel, usd, visiblePackages,
 } from './orderUtils';
 
@@ -65,7 +65,7 @@ export const ShipmentCard = ({ order, copied, copy }: { order: Package } & CopyP
           {methodMissing && !blocked && <span className="or-card__q">؟</span>}
         </span>
         <div className="or-card__title">
-          <h3>{goodsName(order)}</h3>
+          <h3>{orderTitle(order)}</h3>
           <p className="or-card__route">
             {from ? (
               <span className="or-origin" title={`الشحن من ${from}`}>
@@ -142,7 +142,6 @@ export const ShipmentCard = ({ order, copied, copy }: { order: Package } & CopyP
 /* One purchase invoice, drawn as a receipt: the amount first, then whether we have paid the seller */
 export const PurchaseCard = ({ order, copied, copy }: { order: Package } & CopyProps) => {
   const paid = Number(order.orderStatus) >= 1;
-  const name = goodsName(order);
 
   return (
     <article className={`or-receipt ${paid ? 'is-paid' : 'is-pending'} ${order.isCanceled ? 'is-canceled' : ''}`}>
@@ -154,7 +153,6 @@ export const PurchaseCard = ({ order, copied, copy }: { order: Package } & CopyP
       </div>
 
       <p className="or-receipt__amount"><bdi dir="ltr">{usd(order.totalInvoice)}</bdi></p>
-      {name !== 'فاتورة شراء' && <p className="or-receipt__name">{name}</p>}
 
       <div className="or-receipt__rows">
         <span>رقم الفاتورة</span>
