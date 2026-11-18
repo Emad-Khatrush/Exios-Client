@@ -52,7 +52,7 @@ const WalletCard = () => {
       {(owedCount > 0 || upcoming > 0) && (
         <span className="hm-wallet__hints">
           {owedCount > 0 && (
-            <span className="hm-wallet__hint is-owed"><Receipt size={14} aria-hidden /> {owedCount === 1 ? 'دين على طلبية' : `ديون على ${owedCount} طلبيات`}</span>
+            <span className="hm-wallet__hint is-owed"><Receipt size={14} aria-hidden /> {owedCount === 1 ? 'متبقي على طلبية' : `متبقي على ${owedCount} طلبيات`}</span>
           )}
           {upcoming > 0 && (
             <span className="hm-wallet__hint">

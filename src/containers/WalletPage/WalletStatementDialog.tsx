@@ -165,7 +165,7 @@ const WalletStatementDialog = ({ open, onClose, account, currency, rows }: Props
           <div className={`statement-paper__balance${snap.closing < 0 ? ' is-owed' : ''}`}><span>{snap.closing < 0 ? 'الصافي المستحق عليك' : 'الصافي'} · {currency}</span><strong><bdi>{balanceText(snap.closing)}</bdi></strong></div>
           <div className="statement-paper__table-wrap">
             <table>
-              <caption>حركات المحفظة والديون عليك من طلبياتك، كل المبالغ بعملة {currency}</caption>
+              <caption>حركات المحفظة والمبالغ المتبقية عليك من طلبياتك، كل المبالغ بعملة {currency}</caption>
               <colgroup><col style={{ width: '16%' }} /><col style={{ width: '42%' }} /><col style={{ width: '14%' }} /><col style={{ width: '14%' }} /><col style={{ width: '14%' }} /></colgroup>
               <thead><tr><th>التاريخ</th><th>البيان</th><th>مدين</th><th>دائن</th><th>الرصيد</th></tr></thead>
               <tbody>
@@ -190,7 +190,7 @@ const WalletStatementDialog = ({ open, onClose, account, currency, rows }: Props
               </tfoot>
             </table>
           </div>
-          <footer className="statement-paper__footer"><p>يوضح هذا الكشف حركة محفظتك والديون عليك من طلبياتك خلال الفترة المحددة. الرصيد بالسالب دين عليك.</p><span>إكسيوس · شكراً لتعاملكم معنا</span></footer>
+          <footer className="statement-paper__footer"><p>يوضح هذا الكشف حركة محفظتك والمبالغ المتبقية عليك من طلبياتك خلال الفترة المحددة. الرصيد بالسالب مبلغ متبقٍ عليك.</p><span>إكسيوس · شكراً لتعاملكم معنا</span></footer>
         </div>
       </div>
 
