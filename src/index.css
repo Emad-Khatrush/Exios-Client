@@ -36,6 +36,9 @@
   }
 }
 
+/* Light only, and the browser may not darken it by itself (phones in dark mode): see index.html */
+:root { color-scheme: only light; }
+
 html, body, #root {
   @apply text-left;
   height: 100%;
