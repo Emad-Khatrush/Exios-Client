@@ -3,6 +3,20 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { DefinePlugin } = require('webpack');
+
+// The app's version: the app knows its own, and /version.json (never cached) tells it the newest
+// one deployed (src/utils/appUpdate.ts reloads when they differ)
+class VersionFilePlugin {
+  constructor(version) { this.version = version; }
+  apply(compiler) {
+    compiler.hooks.thisCompilation.tap('VersionFilePlugin', (compilation) => {
+      compilation.hooks.processAssets.tap({ name: 'VersionFilePlugin', stage: compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL }, () => {
+        compilation.emitAsset('version.json', new compiler.webpack.sources.RawSource(JSON.stringify({ version: this.version })));
+      });
+    });
+  }
+}
 
 const root = (...p) => path.resolve(__dirname, '..', ...p);
 
@@ -15,6 +29,8 @@ module.exports = (env, { qa = false } = {}) => {
   // Development injects styles for instant updates; production writes real .css files so the page
   // is styled before the JavaScript runs.
   const styleLoader = isDev ? 'style-loader' : MiniCssExtractPlugin.loader;
+  // One per build; 'dev' turns the update checks off on the dev server
+  const appVersion = isDev ? 'dev' : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 
   return {
     entry: root('src/index.tsx'),
@@ -88,6 +104,8 @@ module.exports = (env, { qa = false } = {}) => {
           to: file,
         })),
       }),
+      new DefinePlugin({ __APP_VERSION__: JSON.stringify(appVersion) }),
+      !isDev && new VersionFilePlugin(appVersion),
       !isDev && new MiniCssExtractPlugin({
         filename: 'assets/css/[name].[contenthash:8].css',
         chunkFilename: 'assets/css/[name].[contenthash:8].chunk.css',

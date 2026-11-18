@@ -8,8 +8,10 @@ import './index.css';
 import { Provider } from 'react-redux'
 import store from './config/store';
 import { lockAppZoom, registerServiceWorker } from './utils/installApp';
+import { startAutoUpdate } from './utils/appUpdate';
 
 ReactDOM.render(<Provider store={store}><App /></Provider>, document.getElementById('root'))
 
 registerServiceWorker();
 lockAppZoom();
+startAutoUpdate();

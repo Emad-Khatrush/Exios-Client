@@ -1,4 +1,5 @@
-import { lazy, Suspense } from 'react';
+import { Suspense } from 'react';
+import { lazyPage } from './utils/appUpdate';
 import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { initializeApp } from 'firebase/app';
@@ -12,25 +13,25 @@ import PageLoader from './components/PageLoader/PageLoader';
 // Visitors to the landing page no longer download the whole app, and each page opens with only
 // what it needs.
 // The signed-in shell (sidebar, passport gate, popup ads) too: landing page visitors never need it
-const PrivateRoute = lazy(() => import('./components/PrivateRoute/PrivateRoute'));
-const Register = lazy(() => import('./containers/Register/Register'));
-const Login = lazy(() => import('./containers/Login/Login'));
-const ResetPasswordPage = lazy(() => import('./containers/ResetPasswordPage/ResetPasswordPage'));
-const Home = lazy(() => import('./containers/Home/Home'));
-const StartShipmentPage = lazy(() => import('./containers/StartShipmentPage/StartShipmentPage'));
-const ClientOrders = lazy(() => import('./containers/ClientOrders/ClientOrders'));
-const OrderInfoPage = lazy(() => import('./containers/OrderInfoPage/OrderInfoPage'));
-const AddressPage = lazy(() => import('./containers/AddressPage/AddressPage'));
-const PricesPage = lazy(() => import('./containers/PricesPage/PricesPage'));
-const TermsAndPrivacy = lazy(() => import('./containers/TermsAndPrivacy/TermsAndPrivacy'));
-const ContactUs = lazy(() => import('./containers/ContactUs/ContactUs'));
-const SettingsPage = lazy(() => import('./containers/SettingsPage/SettingsPage'));
-const AddTrackingNumbers = lazy(() => import('./containers/AddTrackingNumbers/AddTrackingNumbers'));
-const SuggestionsPage = lazy(() => import('./containers/SuggestionsPage/SuggestionsPage'));
-const ProhibitedItemsPage = lazy(() => import('./containers/ProhibitedItemsPage/ProhibitedItemsPage'));
-const PointsPage = lazy(() => import('./containers/PointsPage/PointsPage'));
-const WalletPage = lazy(() => import('./containers/WalletPage/WalletPage'));
-const Announcements = lazy(() => import('./containers/Announcements/Announcements'));
+const PrivateRoute = lazyPage(() => import('./components/PrivateRoute/PrivateRoute'));
+const Register = lazyPage(() => import('./containers/Register/Register'));
+const Login = lazyPage(() => import('./containers/Login/Login'));
+const ResetPasswordPage = lazyPage(() => import('./containers/ResetPasswordPage/ResetPasswordPage'));
+const Home = lazyPage(() => import('./containers/Home/Home'));
+const StartShipmentPage = lazyPage(() => import('./containers/StartShipmentPage/StartShipmentPage'));
+const ClientOrders = lazyPage(() => import('./containers/ClientOrders/ClientOrders'));
+const OrderInfoPage = lazyPage(() => import('./containers/OrderInfoPage/OrderInfoPage'));
+const AddressPage = lazyPage(() => import('./containers/AddressPage/AddressPage'));
+const PricesPage = lazyPage(() => import('./containers/PricesPage/PricesPage'));
+const TermsAndPrivacy = lazyPage(() => import('./containers/TermsAndPrivacy/TermsAndPrivacy'));
+const ContactUs = lazyPage(() => import('./containers/ContactUs/ContactUs'));
+const SettingsPage = lazyPage(() => import('./containers/SettingsPage/SettingsPage'));
+const AddTrackingNumbers = lazyPage(() => import('./containers/AddTrackingNumbers/AddTrackingNumbers'));
+const SuggestionsPage = lazyPage(() => import('./containers/SuggestionsPage/SuggestionsPage'));
+const ProhibitedItemsPage = lazyPage(() => import('./containers/ProhibitedItemsPage/ProhibitedItemsPage'));
+const PointsPage = lazyPage(() => import('./containers/PointsPage/PointsPage'));
+const WalletPage = lazyPage(() => import('./containers/WalletPage/WalletPage'));
+const Announcements = lazyPage(() => import('./containers/Announcements/Announcements'));
 
 declare const process: {
   env: Record<string, string | undefined>;

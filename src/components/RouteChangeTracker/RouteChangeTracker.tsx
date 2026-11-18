@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import api from '../../api';
 import { getVisitorSessionId } from '../../utils/analytics';
 import { isIOS, isStandalone } from '../../utils/installApp';
+import { updateOnPageChange } from '../../utils/appUpdate';
 
 // Once per app start, for a logged-in customer: this device, installed or not, notifications on or
 // not (the admin shows it on the customer's page and on the analytics page)
@@ -34,6 +35,8 @@ const RouteChangeTracker = () => {
     });
     // After logging in the path changes too, so the first page after login reports the device
     pingAppDevice();
+    // A newer version found while the app was open: moving to another page is the moment to load it
+    updateOnPageChange();
   }, [location.pathname]);
 
   return null;
