@@ -7,6 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack serve --config webpack/webpack.config.js --env env=dev --open",
     "build": "webpack --config webpack/webpack.config.js --env env=prod",
+    "build:qa": "webpack --config webpack/webpack.config.js --env env=prod --env qa",
+    "deploy:qa": "npm run build:qa && firebase deploy --only hosting --config firebase.qa.json --project exios-client",
     "lint": "eslint --fix \"./src/**/*.{js,jsx,ts,tsx,json}\"",
     "format": "prettier --write \"./src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "deploy": "npm run build && firebase deploy"

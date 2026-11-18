@@ -8,7 +8,7 @@ const root = (...p) => path.resolve(__dirname, '..', ...p);
 
 // `env` comes from the npm scripts (--env env=dev | env=prod). NODE_ENV is never set by them, so it
 // must not be used to tell development from production here.
-module.exports = (env) => {
+module.exports = (env, { qa = false } = {}) => {
   const isDev = env !== 'prod';
 
   // Plain CSS and SCSS: Sass compiles first, then PostCSS (Tailwind + Autoprefixer) runs on real CSS.
@@ -64,7 +64,7 @@ module.exports = (env) => {
       ],
     },
     output: {
-      path: root('build'),
+      path: root(qa ? 'build-qa' : 'build'),
       filename: isDev ? '[name].js' : 'assets/js/[name].[contenthash:8].js',
       chunkFilename: isDev ? '[name].chunk.js' : 'assets/js/[name].[contenthash:8].chunk.js',
       publicPath: '/',
@@ -76,7 +76,7 @@ module.exports = (env) => {
         template: root('public/index.html'),
       }),
       new Dotenv({
-        path: root(env === 'prod' ? '.env.production' : '.env'),
+        path: root(qa ? '.env.qa' : env === 'prod' ? '.env.production' : '.env'),
       }),
       // Files that must be served from the site root as-is (SEO, favicon, and the installable app)
       new CopyWebpackPlugin({
@@ -95,7 +95,7 @@ module.exports = (env) => {
     ].filter(Boolean),
     // Webpack's own cache on disk: a second build or dev start only redoes what changed
     // (one per mode, so `npm run build` while `npm start` is running never shares the dev cache)
-    cache: { type: 'filesystem', name: isDev ? 'dev' : 'prod', buildDependencies: { config: [__filename] } },
+    cache: { type: 'filesystem', name: isDev ? 'dev' : qa ? 'qa' : 'prod', buildDependencies: { config: [__filename] } },
     stats: 'errors-warnings',
   };
 };
