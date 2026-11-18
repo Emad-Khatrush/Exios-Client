@@ -2,7 +2,7 @@ import { CHECK_AUTH, LOGIN, STATUS_ERROR, STATUS_START, STATUS_SUCCESS, UPDATE_U
 import { User } from "../models";
   
 interface ISession {
-  account: User
+  account: User | null
   token: string | null
   isError: boolean
   isLoggedIn: boolean

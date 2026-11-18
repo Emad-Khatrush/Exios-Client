@@ -18,13 +18,10 @@ const PrivateRoute = () => {
   const dispatch = useDispatch();
   const location = useLocation();
 
-  if (!session.isLoggedIn) {
-    // remember where they were going, so signing in takes them back there
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-
+  // Hooks come before any early return, so they run in the same order on every render (React's
+  // rule): the redirect for a signed-out visitor used to come first, skipping this one
   useLayoutEffect(() => {
-    if (token) {
+    if (session.isLoggedIn && token) {
       api.verifyToken(token)
       .then(() => {
         setToken(token);
@@ -33,7 +30,7 @@ const PrivateRoute = () => {
         // requiring the user to log out and back in.
         api.getMyAccount()
           .then((res: any) => setAccountData(res.data, session, dispatch))
-          .catch(() => {});
+          .catch(() => undefined);
       })
       .catch(() => {
         localStorage.removeItem('user');
@@ -43,7 +40,12 @@ const PrivateRoute = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  
+
+  if (!session.isLoggedIn) {
+    // remember where they were going, so signing in takes them back there
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
   if (!token) {
     localStorage.removeItem('user');
     localStorage.removeItem('authToken');

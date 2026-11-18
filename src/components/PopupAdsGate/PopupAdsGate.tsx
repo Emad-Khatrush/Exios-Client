@@ -47,7 +47,7 @@ const PopupAdsGate = () => {
   return (
     <Dialog
       open
-      onClose={() => {}}
+      onClose={() => undefined}
       disableEscapeKeyDown
       fullWidth
       maxWidth="xs"

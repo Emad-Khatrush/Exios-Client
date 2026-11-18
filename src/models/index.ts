@@ -42,8 +42,8 @@ export type Package = {
   activity: OrderActivity[],
   customerInfo: {
     fullName: string,
-    phone: String,
-    email: String
+    phone: string,
+    email: string
   },
   placedAt: string,
   totalInvoice: number,
