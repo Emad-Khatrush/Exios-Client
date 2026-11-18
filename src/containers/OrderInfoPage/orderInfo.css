@@ -325,14 +325,15 @@
 }
 
 /* Five stages on one line; the labels sit under their dots */
-.oi-steps { display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 20px; }
-.oi-steps li { position: relative; display: grid; justify-items: center; gap: 6px; text-align: center; }
+.oi-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin-top: 20px; }
+.oi-steps li { position: relative; display: grid; justify-items: center; gap: 6px; min-width: 0; text-align: center; }
 .oi-steps li::before {
-  /* the rail to the previous stage (on the right, in Arabic) */
+  /* the rail to the previous stage (on the right, in Arabic). It used to be anchored with right: 50%,
+     which in Arabic drew it toward the NEXT stage: the last stage's rail then ran on to the box's edge */
   content: '';
   position: absolute;
   top: 11px;
-  right: 50%;
+  inset-inline-end: 50%;
   width: 100%;
   height: 3px;
   border-radius: 3px;
@@ -389,8 +390,13 @@
 .oi-pickup__actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .oi-pickup__actions .oi-btn { min-height: 40px; padding: 6px 14px; }
 @media (max-width: 520px) {
-  .oi-pickup__actions { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; }
-  .oi-pickup__actions .oi-btn { padding: 6px 8px; }
+  /* Three equal buttons that fit the box: they used to keep their full width and push out of it */
+  .oi-pickup__actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; }
+  .oi-pickup__actions .oi-btn { min-width: 0; padding: 6px 6px; gap: 5px; }
+}
+/* Small phones: the words alone, so all three still fit */
+@media (max-width: 380px) {
+  .oi-pickup__actions .oi-btn svg { display: none; }
 }
 
 /* Layout */
