@@ -125,12 +125,13 @@
 .wl-sk--hero { height: 180px; }
 
 @media (prefers-reduced-motion: no-preference) {
-  /* The entrance plays once, when the page opens; after that a currency switch only cross-fades */
-  .wl-page:not(.is-entered) .wl-hero,
-  .wl-page:not(.is-entered) .wl-card { animation: wl-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
-  .wl-page:not(.is-entered) .wl-card:nth-of-type(2) { animation-delay: 0.06s; }
-  .wl-page:not(.is-entered) .wl-card:nth-of-type(3) { animation-delay: 0.12s; }
-  .wl-page.is-entered .wl-swap { animation: wl-swap 0.28s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  /* The entrance plays once, when the page opens; after a currency switch the new cards only cross-fade.
+     The cross-fade is never added to cards already on screen: that would play a second animation. */
+  .wl-page:not(.is-switched) .wl-hero,
+  .wl-page:not(.is-switched) .wl-card { animation: wl-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .wl-page:not(.is-switched) .wl-card:nth-of-type(2) { animation-delay: 0.06s; }
+  .wl-page:not(.is-switched) .wl-card:nth-of-type(3) { animation-delay: 0.12s; }
+  .wl-page.is-switched .wl-swap { animation: wl-swap 0.28s cubic-bezier(0.22, 1, 0.36, 1) both; }
   .wl-sk { animation: wl-pulse 1.4s ease-in-out infinite; }
 }
 @media (prefers-reduced-motion: reduce) {

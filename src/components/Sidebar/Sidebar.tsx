@@ -8,6 +8,7 @@ import { routeGroups, routes } from '../PrivateRoute/routes';
 import { useCopy } from '../../utils/useCopy';
 import { logout } from '../../utils/logout';
 import MobileMenu, { MenuAvatar } from './MobileMenu';
+import { isRestoringScroll } from '../ScrollMemory/ScrollMemory';
 import './sidebar.css';
 
 type Props = {
@@ -80,6 +81,8 @@ const useBarAway = (pathname: string, keepShown: boolean) => {
         const dy = y - last;
         last = y;
         if (y < 60) { run = 0; setAway(false); return; }
+        // Going back puts the page where it was left: that is not the customer scrolling
+        if (isRestoringScroll()) { run = 0; return; }
         // The bounce at the bottom of the page is not a scroll up
         if (y + el.clientHeight >= el.scrollHeight - 4) return;
         if (dy === 0) return;

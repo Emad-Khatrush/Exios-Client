@@ -45,8 +45,11 @@ const WalletPage = () => {
   const [movesFailed, setMovesFailed] = useState<Record<string, boolean>>({});
   const loading = useRef(new Set<string>());
   const [shown, setShown] = useState(PAGE);
-  // The entrance plays once; switching currency only cross-fades
-  const [entered, setEntered] = useState(false);
+  // The entrance plays once, when the page opens. After the customer switches currency, the new
+  // currency's cards only cross-fade in. (A timer used to mark the entrance done, and that added the
+  // cross-fade to the cards already on screen, so they moved in a second time.)
+  const [switched, setSwitched] = useState(false);
+  const chooseCurrency = (c: WalletCurrency) => { setSwitched(true); setCurrency(c); };
   const [statementOpen, setStatementOpen] = useState(false);
   const [allUpcoming, setAllUpcoming] = useState(false);
 
@@ -73,18 +76,13 @@ const WalletPage = () => {
   useEffect(() => { loadMoves('USD'); loadMoves('LYD'); }, [loadMoves]);
   // A new currency starts its list from the top (not when a list finishes loading)
   useEffect(() => { setShown(PAGE); }, [currency]);
-  useEffect(() => {
-    if (!summary || entered) return undefined;
-    const t = window.setTimeout(() => setEntered(true), 700);
-    return () => window.clearTimeout(t);
-  }, [summary, entered]);
 
   // Arrow keys move between the two currencies, as in any radio group
   const onSwitchKey = (event: KeyboardEvent<HTMLDivElement>) => {
     if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
     event.preventDefault();
     const next: WalletCurrency = currency === 'USD' ? 'LYD' : 'USD';
-    setCurrency(next);
+    chooseCurrency(next);
     (event.currentTarget.querySelector(`[data-currency="${next}"]`) as HTMLButtonElement | null)?.focus();
   };
 
@@ -107,7 +105,7 @@ const WalletPage = () => {
   const showUpcoming = currency === 'USD' && !!upcoming && (upcoming.items.length > 0 || upcoming.unpriced > 0);
 
   return (
-    <div dir="rtl" lang="ar" className={`wl-page w-full px-4 pb-16 pt-6 sm:px-6 lg:px-8 lg:pt-8${entered ? ' is-entered' : ''}`}>
+    <div dir="rtl" lang="ar" className={`wl-page w-full px-4 pb-16 pt-6 sm:px-6 lg:px-8 lg:pt-8${switched ? ' is-switched' : ''}`}>
       <div className="mx-auto max-w-3xl">
         <header className="wl-head">
           <div>
@@ -119,7 +117,7 @@ const WalletPage = () => {
             <span className="wl-switch__thumb" aria-hidden />
             {(['USD', 'LYD'] as WalletCurrency[]).map((c) => (
               <button key={c} type="button" role="radio" data-currency={c} aria-checked={currency === c} tabIndex={currency === c ? 0 : -1}
-                className={currency === c ? 'is-on' : ''} onClick={() => setCurrency(c)}>
+                className={currency === c ? 'is-on' : ''} onClick={() => chooseCurrency(c)}>
                 {CURRENCY_NAMES[c]} <bdi dir="ltr">{c}</bdi>
               </button>
             ))}

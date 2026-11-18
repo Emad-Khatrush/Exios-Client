@@ -98,3 +98,12 @@ html, body, #root {
 @supports (-moz-appearance: none) {
   * { scrollbar-width: thin; scrollbar-color: #cdd8d1 transparent; }
 }
+
+/* Going back to a page (ScrollMemory): it is shown as it was, without its entrance animations
+   playing again. A negative delay puts each entrance at its end at once; looping animations (loading
+   pulses) only shift in their cycle. Only the page area, never the bar or the menu. */
+html.nav-back .app-main *,
+html.nav-back .app-main *::before,
+html.nav-back .app-main *::after {
+  animation-delay: -60s !important;
+}

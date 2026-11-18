@@ -8,6 +8,7 @@ import Sidebar from '../Sidebar/Sidebar';
 import PassportVerificationGate, { getPassportGateMode } from '../PassportVerificationGate/PassportVerificationGate';
 import PopupAdsGate from '../PopupAdsGate/PopupAdsGate';
 import PageLoader from '../PageLoader/PageLoader';
+import ScrollMemory from '../ScrollMemory/ScrollMemory';
 
 const PrivateRoute = () => {
   const [show, setShow] = useState(false);
@@ -56,6 +57,7 @@ const PrivateRoute = () => {
 
   return (
     <div className="w-full h-full" style={{ background: '#f2f5f3' }}>
+      <ScrollMemory />
       <PassportVerificationGate />
       {!isPassportGateBlocking && <PopupAdsGate />}
       {/* The sidebar comes first and the row is reversed, so it sits on the right */}
