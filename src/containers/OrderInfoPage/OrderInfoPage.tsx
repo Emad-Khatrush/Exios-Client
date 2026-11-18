@@ -621,9 +621,9 @@ const OrderInfoPage = () => {
         {order.unsureOrder && (
           <div className="oi-alert is-info">
             <ScanSearch size={20} aria-hidden />
-            <p>إن لم ترسل بضاعة لمخزننا، أو أخطأت في رقم التتبع، احذف هذا الطلب.</p>
+            <p>إن لم يُرسل البائع هذا الطرد، أو أخطأت في رقم التتبع، احذف هذا التنبيه.</p>
             <button type="button" className="oi-btn oi-btn--small oi-btn--danger" onClick={() => setConfirmDelete(true)}>
-              <Trash2 size={16} aria-hidden /> حذف الطلب
+              <Trash2 size={16} aria-hidden /> حذف التنبيه
             </button>
           </div>
         )}
@@ -737,8 +737,8 @@ const OrderInfoPage = () => {
         <div className="oi-modal" role="dialog" aria-modal="true" aria-labelledby="oi-del-title" onClick={(e) => { if (e.target === e.currentTarget && !deleting) setConfirmDelete(false); }}>
           <div className="oi-modal__box">
             <span className="oi-modal__icon" aria-hidden><Trash2 size={22} /></span>
-            <h2 id="oi-del-title">حذف طلب المتابعة؟</h2>
-            <p>نتوقف عن متابعة {packages.length > 1 ? 'أرقام التتبع هذه' : 'رقم التتبع هذا'}. لا يمكن التراجع عن الحذف.</p>
+            <h2 id="oi-del-title">حذف تنبيه الطرد؟</h2>
+            <p>لن ننتظر {packages.length > 1 ? 'هذه الطرود' : 'هذا الطرد'} ولن نربطه بكودك. لا يمكن التراجع عن الحذف.</p>
             {deleteError && <p className="oi-error" role="alert">{deleteError}</p>}
             <div className="oi-modal__actions">
               <button type="button" className="oi-btn oi-btn--quiet" onClick={() => setConfirmDelete(false)} disabled={deleting} autoFocus>تراجع</button>

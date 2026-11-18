@@ -53,7 +53,7 @@ export const METHOD_SHORT = { air: 'جوي', sea: 'بحري', unknown: 'غير �
 // invoice, or a shipment by how it travels
 export const orderTitle = (o: Package) => {
   if (isPurchaseInvoice(o)) return 'فاتورة شراء';
-  if (o.unsureOrder) return 'أرقام تتبع قيد المتابعة';
+  if (o.unsureOrder) return 'طرد منتظر';
   const m = shipMethod(o);
   return m === 'sea' ? 'شحن بحري' : m === 'air' ? 'شحن جوي' : 'شحن غير محدد';
 };
@@ -95,7 +95,7 @@ export const stageKey = (o: Package): StageKey => SHIPMENT_STAGES[shipmentStage(
 
 // For an order we bought and have not received at the warehouse yet, "waiting" reads better as bought
 export const stageLabel = (o: Package) => {
-  if (o.unsureOrder) return 'قيد المتابعة';
+  if (o.unsureOrder) return 'بانتظار الوصول';
   if (isBlocked(o)) return 'موقوفة عن الشحن';
   const i = shipmentStage(o);
   if (i === 0 && o.isPayment) return Number(o.orderStatus) >= 1 ? 'تم الشراء، في الطريق للمخزن' : 'قيد الشراء';
@@ -106,7 +106,7 @@ export const stageLabel = (o: Package) => {
 export const nextStepText = (o: Package, officeName: string) => {
   if (o.isCanceled) return 'أُلغيت هذه الطلبية. إن كنت تظن أن هذا خطأ تواصل مع المكتب.';
   if (isBlocked(o)) return 'أوقفنا شحن هذه الطلبية ولن تُشحن إلى ليبيا حتى تتواصل مع المكتب. السبب مكتوب أدناه.';
-  if (o.unsureOrder) return 'نتابع أرقام التتبع التي أرسلتها. عندما يصل الطرد لمخزننا تتحول هذه إلى شحنة نشطة.';
+  if (o.unsureOrder) return 'نبّهتنا بهذا الطرد. عندما يصل مخزننا نربطه بكودك، ويصير شحنة نشطة.';
   switch (stageKey(o)) {
     case 'waiting':
       return o.isPayment

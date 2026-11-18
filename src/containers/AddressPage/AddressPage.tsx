@@ -99,7 +99,7 @@ const AddressPage = () => {
               <section className="ad-card" aria-labelledby="ad-next">
                 <h2 id="ad-next" className="ad-card__title">بعد أن يشحن البائع</h2>
                 <ol className="ad-steps">
-                  <li><span>1</span><div><b>أرسل لنا رقم التتبع</b><small>رقم الشحن الداخلي في الصين، لنتابع الطرد حتى يصل المخزن.</small><Link to="/add-tracking-numbers">إضافة رقم تتبع</Link></div></li>
+                  <li><span>1</span><div><b>نبّهنا بالطرد</b><small>أرسل رقم التتبع الذي أعطاك البائع، لنربط الطرد بكودك عند وصوله.</small><Link to="/add-tracking-numbers">نبّهنا بطرد قادم</Link></div></li>
                   <li><span>2</span><div><b>نستلم الطرد في المخزن</b><small>يظهر الطرد في طلبياتك عند وصوله للمخزن.</small><Link to="/orders">طلبياتي</Link></div></li>
                   <li><span>3</span><div><b>يُشحن إلى {cityLabel || 'ليبيا'}</b><small>تتابع الرحلة من الطلبية حتى الاستلام.</small></div></li>
                 </ol>
@@ -119,7 +119,7 @@ const AddressPage = () => {
               <section className="ad-card">
                 <h2 className="ad-card__title">بعد أن يشحن الموقع</h2>
                 <ol className="ad-steps">
-                  <li><span>1</span><div><b>أرسل لنا رقم التتبع</b><small>لنتابع الطرد حتى يصل المخزن في دبي.</small><Link to="/add-tracking-numbers">إضافة رقم تتبع</Link></div></li>
+                  <li><span>1</span><div><b>نبّهنا بالطرد</b><small>أرسل رقم التتبع لنربط الطرد بكودك عند وصوله مخزن دبي.</small><Link to="/add-tracking-numbers">نبّهنا بطرد قادم</Link></div></li>
                   <li><span>2</span><div><b>تابع طلبيتك</b><small>يظهر الطرد في طلبياتك عند وصوله.</small><Link to="/orders">طلبياتي</Link></div></li>
                 </ol>
               </section>

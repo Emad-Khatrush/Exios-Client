@@ -42,7 +42,7 @@ const SHIPMENT_TABS: { value: string, label: string, count: keyof Counts, empty:
   { value: 'arrivedWarehouse', label: 'في المخزن', count: 'warehouseArrived', empty: 'لا توجد شحنات في مخزننا الخارجي الآن.' },
   { value: 'readyForPickup', label: 'جاهزة للاستلام', count: 'readyForReceivement', empty: 'لا توجد شحنات جاهزة للاستلام الآن.' },
   { value: 'finished', label: 'تم التسليم', count: 'finishedOrders', empty: 'لم تستلم أي شحنة بعد.' },
-  { value: 'unsure', label: 'أرقام قيد المتابعة', count: 'unsureOrders', empty: 'لم ترسل أرقام تتبع لنتابعها.' },
+  { value: 'unsure', label: 'طرود منتظرة', count: 'unsureOrders', empty: 'لم تنبّهنا بأي طرد قادم.' },
   // Shown only when there is one: shipments the office stopped (prohibited goods)
   { value: 'blocked', label: 'موقوفة عن الشحن', count: 'blockedOrders', empty: 'لا توجد شحنات موقوفة.' },
 ];
@@ -224,7 +224,7 @@ const ClientOrders = () => {
             <p>تابع شحناتك من المخزن حتى الاستلام، وفواتير ما اشتريناه لك.</p>
           </div>
           <Link to="/add-tracking-numbers" className="or-btn or-btn--primary">
-            <PackagePlus size={18} aria-hidden /> إضافة رقم تتبع
+            <PackagePlus size={18} aria-hidden /> نبّهنا بطرد قادم
           </Link>
         </header>
 
@@ -446,8 +446,8 @@ const ClientOrders = () => {
 
         {!isSearch && view === 'shipments' && tab === 'unsure' && (
           <p className="or-hint">
-            أرقام التتبع التي أرسلتها لنتابعها. عندما يصل الطرد لمخزننا ينتقل إلى الشحنات النشطة.
-            إن أخطأت في رقم أو تراجعت عنه، افتحه واحذفه.
+            طرود نبّهتنا بها ولم تصل مخزننا بعد. عندما يصل الطرد نربطه بكودك وينتقل إلى «النشطة».
+            إن أخطأت في رقم أو ألغى البائع الإرسال، افتح التنبيه واحذفه.
           </p>
         )}
 
@@ -486,8 +486,8 @@ const ClientOrders = () => {
           <div className="or-empty">
             <Search size={34} aria-hidden />
             <b>لا توجد طلبية بهذا الرقم</b>
-            <p>تأكد من رقم الطلبية أو رقم التتبع. إن أرسلت طرداً لمخزننا ولم يظهر بعد، أضف رقم تتبعه لنتابعه.</p>
-            <Link to="/add-tracking-numbers" className="or-btn or-btn--outline"><Plus size={16} aria-hidden /> إضافة رقم تتبع</Link>
+            <p>تأكد من رقم الطلبية أو رقم التتبع. إن شحن البائع طردك لمخزننا ولم يظهر بعد، نبّهنا به برقم تتبعه.</p>
+            <Link to="/add-tracking-numbers" className="or-btn or-btn--outline"><Plus size={16} aria-hidden /> نبّهنا بطرد قادم</Link>
           </div>
         ) : view === 'purchases' ? (
           <div className="or-empty">
@@ -502,10 +502,10 @@ const ClientOrders = () => {
             <b>{currentTab.empty}</b>
             {tab === 'active' || tab === 'unsure' ? (
               <>
-                <p>أرسل بضاعتك إلى عنوان مخزننا، ثم أضف رقم التتبع لنتابع طردك حتى يصلك.</p>
+                <p>اطلب من البائع الشحن إلى عنوان مخزننا، ثم نبّهنا بالطرد برقم تتبعه لنربطه بكودك.</p>
                 <div className="or-empty__actions">
                   <Link to="/address" className="or-btn or-btn--primary">عناوين المخازن</Link>
-                  <Link to="/add-tracking-numbers" className="or-btn or-btn--outline">إضافة رقم تتبع</Link>
+                  <Link to="/add-tracking-numbers" className="or-btn or-btn--outline">نبّهنا بطرد قادم</Link>
                 </div>
               </>
             ) : (

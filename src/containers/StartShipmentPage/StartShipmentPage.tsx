@@ -246,7 +246,7 @@ const StartShipmentPage = () => {
                 <li className={added.length ? 'is-done' : 'is-wait'}>
                   {added.length ? <Check size={18} aria-hidden /> : <Clock3 size={18} aria-hidden />}
                   {added.length ? `أضفت رقم التتبع (${added.join('، ')})` : 'رقم التتبع: أضفه عندما يرسله لك البائع'}
-                  {!added.length && <Link to="/add-tracking-numbers">إضافة رقم تتبع</Link>}
+                  {!added.length && <Link to="/add-tracking-numbers">نبّهنا بطرد قادم</Link>}
                 </li>
               </ul>
               <div className="ss-next-note">
@@ -365,7 +365,7 @@ const TrackingStep = ({ n, method, choice, setChoice, added, onAdded, seller, wa
       {choice === 'later' && (
         <div className="ss-later">
           <Clock3 size={20} aria-hidden />
-          <p>لا مشكلة. عندما يرسل لك {seller} رقم التتبع، أضفه من صفحة <Link to="/add-tracking-numbers">إضافة رقم تتبع</Link>، أو ارجع لهذه الخطوة.</p>
+          <p>لا مشكلة. عندما يرسل لك {seller} رقم التتبع، نبّهنا به من صفحة <Link to="/add-tracking-numbers">نبّهنا بطرد قادم</Link>، أو ارجع لهذه الخطوة.</p>
         </div>
       )}
     </>

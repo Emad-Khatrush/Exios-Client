@@ -1,6 +1,6 @@
 import { ClipboardEvent, FormEvent, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Check, PackageSearch, Plane, Plus, Ship, Trash2 } from 'lucide-react';
+import { ArrowLeft, Check, Info, PackageSearch, Plane, Plus, Ship, Trash2 } from 'lucide-react';
 import api from '../../api';
 import { Method } from '../../constants/warehouses';
 import '../AddressPage/address.css';
@@ -14,8 +14,10 @@ const METHOD_TEXT: Record<Method, { label: string, hint: string }> = {
 // Several numbers pasted at once (one per line, or separated by commas or spaces) become several rows
 const splitNumbers = (text: string) => text.split(/[\s,،;]+/).map((t) => t.trim()).filter(Boolean);
 
-/* Add tracking numbers: the seller's courier number, so we know the parcel when it reaches our
-   warehouse even if it arrives without a name. Same form as the tracking step of "start shipping". */
+/* "نبّهنا بطرد قادم": the customer tells us a parcel is on its way to our warehouse, with the courier
+   tracking number the seller gave them, so we link it to their code when it arrives (even without a
+   name on it). The terms (clause 5) make it matter: we answer only for parcels we were told about.
+   Same form as the tracking step of "start shipping". */
 const AddTrackingNumbers = () => {
   const [method, setMethod] = useState<Method | ''>('');
   const [rows, setRows] = useState<string[]>(['']);
@@ -46,7 +48,7 @@ const AddTrackingNumbers = () => {
       setAdded((prev) => [...numbers.map((number) => ({ number, method })), ...prev]);
       setRows(['']);
     } catch {
-      setError('تعذر حفظ رقم التتبع. تحقق من اتصالك ثم حاول مرة أخرى.');
+      setError('لم يُرسل التنبيه. تحقق من اتصالك ثم حاول مرة أخرى.');
     } finally {
       setBusy(false);
     }
@@ -58,11 +60,23 @@ const AddTrackingNumbers = () => {
     <div dir="rtl" lang="ar" className="ad-page ss-page page-enter w-full px-4 pb-16 pt-6 sm:px-6 lg:px-8 lg:pt-8">
       <div className="mx-auto max-w-4xl">
         <header>
-          <h1 className="text-2xl font-extrabold text-zinc-900 sm:text-3xl">إضافة رقم تتبع</h1>
+          <h1 className="text-2xl font-extrabold text-zinc-900 sm:text-3xl">نبّهنا بطرد قادم</h1>
           <p className="mt-1 max-w-[62ch] text-base leading-relaxed text-zinc-600 sm:text-lg">
-            عندما يشحن البائع طردك إلى مخزننا، يعطيك رقم تتبع من شركة الشحن. أضفه هنا لنتعرّف على طردك عند وصوله، حتى لو وصل بدون اسم.
+            شحن البائع بضاعتك إلى مخزننا؟ أرسل لنا رقم التتبع الذي أعطاك إياه، فنعرف أن الطرد لك حتى لو وصل بدون اسم.
           </p>
         </header>
+
+        {/* How it works, in the order it happens */}
+        <ol className="at-steps" aria-label="كيف يعمل التنبيه">
+          <li><span aria-hidden>1</span><b>البائع يشحن طردك</b><small>ويعطيك رقم تتبع من شركة الشحن</small></li>
+          <li><span aria-hidden>2</span><b>ترسل لنا الرقم هنا</b><small>مع طريقة الشحن: جوي أم بحري</small></li>
+          <li><span aria-hidden>3</span><b>نربطه بكودك عند وصوله</b><small>ويظهر في طلبياتي كشحنة نشطة</small></li>
+        </ol>
+
+        <p className="at-note" role="note">
+          <Info size={18} aria-hidden />
+          <span><b>مهم:</b> نتحمّل مسؤولية الطرود التي نبّهتنا بها فقط. الطرد الذي يصل بدون تنبيه قد يتأخر التعرّف عليه.</span>
+        </p>
 
         <section className="ss-panel">
           <form onSubmit={submit} noValidate>
@@ -116,7 +130,7 @@ const AddTrackingNumbers = () => {
               <div className="ss-track__bar">
                 <button type="button" className="ss-track__more" onClick={() => setRows([...rows, ''])}><Plus size={16} aria-hidden /> رقم آخر</button>
                 <button type="submit" className="ad-btn ad-btn--primary" disabled={busy}>
-                  {busy ? 'جارٍ الحفظ…' : count > 1 ? `حفظ ${count} أرقام` : 'حفظ رقم التتبع'}
+                  {busy ? 'جارٍ الإرسال…' : count > 1 ? `نبّهنا بـ ${count} طرود` : 'نبّهنا بالطرد'}
                 </button>
               </div>
               {error && <p className="ss-error" role="alert">{error}</p>}
@@ -126,7 +140,7 @@ const AddTrackingNumbers = () => {
 
           {!!added.length && (
             <div className="at-done" role="status">
-              <p className="at-done__title"><Check size={18} aria-hidden /> أرسلنا الأرقام للمكتب ليتابعها</p>
+              <p className="at-done__title"><Check size={18} aria-hidden /> وصلنا تنبيهك، ننتظر {added.length > 1 ? 'هذه الطرود' : 'هذا الطرد'}</p>
               <ul className="ss-track__added">
                 {added.map((a) => (
                   <li key={`${a.number}:${a.method}`}>
@@ -136,7 +150,7 @@ const AddTrackingNumbers = () => {
                 ))}
               </ul>
               <Link to="/orders?tab=unsure" className="at-done__link">
-                <PackageSearch size={17} aria-hidden /> تابعها في طلبياتي، قسم «أرقام قيد المتابعة» <ArrowLeft size={16} aria-hidden />
+                <PackageSearch size={17} aria-hidden /> تابعها في طلبياتي، قسم «طرود منتظرة» <ArrowLeft size={16} aria-hidden />
               </Link>
             </div>
           )}

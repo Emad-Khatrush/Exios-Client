@@ -33,7 +33,7 @@ const greeting = () => {
 const SHORTCUTS = [
   { to: '/start-shipment', icon: Rocket, title: 'ابدأ الشحن', text: 'خطوات شحنة جديدة' },
   { to: '/address', icon: Warehouse, title: 'عناويننا', text: 'عنوان المخزن وعلامة الشحن' },
-  { to: '/add-tracking-numbers', icon: PackagePlus, title: 'إضافة رقم تتبع', text: 'عند شحن البائع لطردك' },
+  { to: '/add-tracking-numbers', icon: PackagePlus, title: 'نبّهنا بطرد قادم', text: 'أرسل رقم التتبع من البائع' },
   { to: '/prices/shipping', icon: Tags, title: 'أسعار الشحن', text: 'الأسعار والحاسبة' },
   { to: '/prices/purchase', icon: ShoppingBag, title: 'أسعار الشراء', text: 'نشتري لك من المواقع' },
   { to: '/prohibited-items', icon: Ban, title: 'ممنوعات الشحن', text: 'ما لا يمكن شحنه' },
