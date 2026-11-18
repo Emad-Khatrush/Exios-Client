@@ -784,3 +784,39 @@
 }
 
 .flag-frame { display: inline-flex; padding: 3px; border-radius: 7px; background: #f4f4f5; }
+
+/* "حسبتك عند الاستلام" (ReadyBill): a short receipt above the ready list. One line per package and
+   per amount still owed, then the total in the brand's deep green: the one figure to remember. */
+.or-bill {
+  margin-bottom: 16px;
+  padding: 16px 18px;
+  border: 1px solid var(--or-line);
+  border-radius: 20px;
+  background: #fff;
+}
+.or-bill__head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.or-bill__head h2 { margin: 0; font-size: 1.05rem; font-weight: 800; }
+.or-bill__head p { margin: 0; font-size: 0.84rem; color: var(--or-muted); }
+.or-bill__icon { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 13px; background: var(--or-tint); color: var(--or-brand); }
+.or-bill__lines { display: grid; margin: 0; padding: 0; list-style: none; }
+.or-bill__lines li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px solid var(--or-line); }
+.or-bill__what { display: grid; min-width: 0; }
+.or-bill__order { width: fit-content; font-weight: 800; color: var(--or-brand); }
+.or-bill__what small { overflow-wrap: anywhere; font-size: 0.82rem; color: var(--or-muted); }
+.or-bill__what small.is-owed { color: var(--or-red); font-weight: 700; }
+.or-bill__amount { flex: none; font-weight: 800; }
+.or-bill__num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.or-bill__total {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1.5px dashed #c9d6ce;
+}
+.or-bill__total > span { font-size: 0.95rem; font-weight: 800; color: var(--or-muted); }
+.or-bill__total b { font-size: 1.6rem; font-weight: 800; line-height: 1.2; color: var(--or-deep); }
+.or-bill__plus { font-size: 1.1rem; color: var(--or-muted); }
+.or-bill__note { margin: 8px 0 0; font-size: 0.8rem; color: var(--or-faint); }

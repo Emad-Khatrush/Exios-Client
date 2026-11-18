@@ -11,6 +11,7 @@ import { Announcement, OrderStatusType, Package } from '../../models';
 import { officeFor } from '../../constants/contact';
 import { useCopy } from '../../utils/useCopy';
 import { CardSkeleton, PurchaseCard, ShipmentCard } from './OrderCards';
+import ReadyBill from './ReadyBill';
 import { ORDER_THEMES } from '../../constants/orderThemes';
 import Flag from '../PricesPage/Flag';
 import {
@@ -436,6 +437,11 @@ const ClientOrders = () => {
             <div><dt>تم شراؤها</dt><dd>{purchases.paid}</dd></div>
             <div><dt>قيد الشراء</dt><dd>{purchases.pending}</dd></div>
           </dl>
+        )}
+
+        {/* Ready for pickup: what collecting them comes to, worked out */}
+        {!isSearch && view === 'shipments' && tab === 'readyForPickup' && shown && shown.length > 0 && (
+          <ReadyBill orderIds={shown.map((o) => o._id)} />
         )}
 
         {!isSearch && view === 'shipments' && tab === 'unsure' && (
