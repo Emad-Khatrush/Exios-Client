@@ -791,19 +791,44 @@
 
 .flag-frame { display: inline-flex; padding: 3px; border-radius: 7px; background: #f4f4f5; }
 
-/* "حسبتك عند الاستلام" (ReadyBill): a short receipt above the ready list. One line per package and
-   per amount still owed, then the total in the brand's deep green: the one figure to remember. */
+/* "حسبتك عند الاستلام" (ReadyBill): closed, one line with the total in the brand's deep green, the
+   one figure to remember; a tap opens the lines (one per package and per amount still owed). The
+   body opens by easing its row from 0fr to 1fr, so its height animates without being measured. */
 .or-bill {
   margin-bottom: 16px;
-  padding: 16px 18px;
   border: 1px solid var(--or-line);
   border-radius: 20px;
   background: #fff;
+  transition: box-shadow 0.25s ease;
 }
-.or-bill__head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-.or-bill__head h2 { margin: 0; font-size: 1.05rem; font-weight: 800; }
-.or-bill__head p { margin: 0; font-size: 0.84rem; color: var(--or-muted); }
+.or-bill.is-open { box-shadow: 0 10px 28px -20px rgba(20, 40, 28, 0.35); }
+.or-bill__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 20px;
+  text-align: start;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+.or-bill__head:active { background: #f6f9f7; }
 .or-bill__icon { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 13px; background: var(--or-tint); color: var(--or-brand); }
+.or-bill__title { display: grid; flex: 1 1 auto; min-width: 0; }
+.or-bill__title b { font-size: 1rem; font-weight: 800; }
+.or-bill__title small { font-size: 0.82rem; color: var(--or-muted); }
+.or-bill__sum { display: grid; flex: none; justify-items: end; text-align: end; }
+.or-bill__sum small { font-size: 0.75rem; font-weight: 700; color: var(--or-muted); }
+.or-bill__sum b { font-size: 1.35rem; font-weight: 800; line-height: 1.2; color: var(--or-deep); }
+.or-bill__chev { flex: none; color: var(--or-faint); transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+.or-bill.is-open .or-bill__chev { transform: rotate(180deg); }
+
+.or-bill__body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+.or-bill.is-open .or-bill__body { grid-template-rows: 1fr; }
+.or-bill__inner { min-height: 0; overflow: hidden; padding: 0 16px; opacity: 0; transition: opacity 0.2s ease, padding 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+.or-bill.is-open .or-bill__inner { padding-bottom: 14px; opacity: 1; transition: opacity 0.3s ease 0.08s, padding 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+
 .or-bill__lines { display: grid; margin: 0; padding: 0; list-style: none; }
 .or-bill__lines li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px solid var(--or-line); }
 .or-bill__what { display: grid; min-width: 0; }
@@ -812,17 +837,8 @@
 .or-bill__what small.is-owed { color: var(--or-red); font-weight: 700; }
 .or-bill__amount { flex: none; font-weight: 800; }
 .or-bill__num { font-variant-numeric: tabular-nums; white-space: nowrap; }
-.or-bill__total {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 4px 12px;
-  margin-top: 4px;
-  padding-top: 12px;
-  border-top: 1.5px dashed #c9d6ce;
+.or-bill__plus { font-size: 1rem; color: var(--or-muted); }
+.or-bill__note { margin: 0; padding-top: 10px; border-top: 1.5px dashed #c9d6ce; font-size: 0.8rem; color: var(--or-faint); }
+@media (prefers-reduced-motion: reduce) {
+  .or-bill, .or-bill__chev, .or-bill__body, .or-bill__inner, .or-bill.is-open .or-bill__inner { transition: none; }
 }
-.or-bill__total > span { font-size: 0.95rem; font-weight: 800; color: var(--or-muted); }
-.or-bill__total b { font-size: 1.6rem; font-weight: 800; line-height: 1.2; color: var(--or-deep); }
-.or-bill__plus { font-size: 1.1rem; color: var(--or-muted); }
-.or-bill__note { margin: 8px 0 0; font-size: 0.8rem; color: var(--or-faint); }

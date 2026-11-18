@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Calculator } from 'lucide-react';
+import { Calculator, ChevronDown } from 'lucide-react';
 import api from '../../api';
 import { UpcomingPackage, WalletCurrency, WalletDebt, WalletSummary } from '../WalletPage/walletTypes';
 import { DEBT_NAMES } from '../WalletPage/walletFormat';
@@ -19,6 +19,8 @@ type Line =
 
 const ReadyBill = ({ orderIds }: { orderIds: string[] }) => {
   const [wallet, setWallet] = useState<WalletSummary | null>(null);
+  // Closed at first: only the total shows
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -53,49 +55,58 @@ const ReadyBill = ({ orderIds }: { orderIds: string[] }) => {
   if (!bill || !bill.lines.length) return null;
   const pkgCount = bill.lines.filter((l) => l.kind === 'pkg').length;
 
+  const total = (
+    <>
+      {bill.totals.USD > 0 && <Money value={bill.totals.USD} currency="USD" className="or-bill__num" />}
+      {bill.totals.USD > 0 && bill.totals.LYD > 0 && <span className="or-bill__plus"> + </span>}
+      {bill.totals.LYD > 0 && <Money value={bill.totals.LYD} currency="LYD" className="or-bill__num" />}
+    </>
+  );
+
+  // Closed, it is one line: what collecting comes to. A tap opens what makes it up.
   return (
-    <section className="or-bill" aria-labelledby="or-bill-title">
-      <header className="or-bill__head">
+    <section className={`or-bill${open ? ' is-open' : ''}`} aria-labelledby="or-bill-title">
+      <button type="button" className="or-bill__head" aria-expanded={open} aria-controls="or-bill-body" onClick={() => setOpen((v) => !v)}>
         <span className="or-bill__icon" aria-hidden><Calculator size={20} /></span>
-        <div>
-          <h2 id="or-bill-title">حسبتك عند الاستلام</h2>
-          <p>{pkgCount === 1 ? 'طرد واحد جاهز' : pkgCount > 1 ? `${pkgCount} طرود جاهزة` : 'مبالغ متبقية على طلبياتك الجاهزة'}</p>
+        <span className="or-bill__title">
+          <b id="or-bill-title">حسبتك عند الاستلام</b>
+          <small>{pkgCount === 1 ? 'طرد واحد جاهز' : pkgCount > 1 ? `${pkgCount} طرود جاهزة` : 'مبالغ متبقية على طلبياتك الجاهزة'}</small>
+        </span>
+        <span className="or-bill__sum">
+          <small>الإجمالي</small>
+          <b>{total}</b>
+        </span>
+        <ChevronDown size={20} className="or-bill__chev" aria-hidden />
+      </button>
+
+      <div className="or-bill__body" id="or-bill-body" aria-hidden={!open}>
+        <div className="or-bill__inner">
+          <ul className="or-bill__lines">
+            {bill.lines.map((line) => (
+              <li key={line.key}>
+                <div className="or-bill__what">
+                  <Link to={`/order/${line.orderId}`} className="or-bill__order" tabIndex={open ? 0 : -1}><bdi dir="ltr">{line.orderNumber}</bdi></Link>
+                  {line.kind === 'pkg' ? (
+                    <small>
+                      شحن
+                      {line.item.trackingNumber && <> · <bdi dir="ltr">{line.item.trackingNumber}</bdi></>}
+                      {line.item.weight > 0 && <> · <bdi dir="ltr">{line.item.weight} {line.item.unit || 'KG'}</bdi></>}
+                    </small>
+                  ) : (
+                    <small className="is-owed">{DEBT_NAMES[line.debt.type] || 'مبلغ متبقي'}</small>
+                  )}
+                </div>
+                <b className="or-bill__amount">
+                  {line.kind === 'pkg'
+                    ? <Money value={line.item.amount} currency="USD" className="or-bill__num" />
+                    : <Money value={line.debt.amount} currency={line.debt.currency} className="or-bill__num" />}
+                </b>
+              </li>
+            ))}
+          </ul>
+          <p className="or-bill__note">المبالغ كما تُحسب عند التسليم، ويؤكدها المكتب.</p>
         </div>
-      </header>
-
-      <ul className="or-bill__lines">
-        {bill.lines.map((line) => (
-          <li key={line.key}>
-            <div className="or-bill__what">
-              <Link to={`/order/${line.orderId}`} className="or-bill__order"><bdi dir="ltr">{line.orderNumber}</bdi></Link>
-              {line.kind === 'pkg' ? (
-                <small>
-                  شحن
-                  {line.item.trackingNumber && <> · <bdi dir="ltr">{line.item.trackingNumber}</bdi></>}
-                  {line.item.weight > 0 && <> · <bdi dir="ltr">{line.item.weight} {line.item.unit || 'KG'}</bdi></>}
-                </small>
-              ) : (
-                <small className="is-owed">{DEBT_NAMES[line.debt.type] || 'مبلغ متبقي'}</small>
-              )}
-            </div>
-            <b className="or-bill__amount">
-              {line.kind === 'pkg'
-                ? <Money value={line.item.amount} currency="USD" className="or-bill__num" />
-                : <Money value={line.debt.amount} currency={line.debt.currency} className="or-bill__num" />}
-            </b>
-          </li>
-        ))}
-      </ul>
-
-      <div className="or-bill__total">
-        <span>الإجمالي</span>
-        <b>
-          {bill.totals.USD > 0 && <Money value={bill.totals.USD} currency="USD" className="or-bill__num" />}
-          {bill.totals.USD > 0 && bill.totals.LYD > 0 && <span className="or-bill__plus"> + </span>}
-          {bill.totals.LYD > 0 && <Money value={bill.totals.LYD} currency="LYD" className="or-bill__num" />}
-        </b>
       </div>
-      <p className="or-bill__note">المبالغ كما تُحسب عند التسليم، ويؤكدها المكتب.</p>
     </section>
   );
 };
