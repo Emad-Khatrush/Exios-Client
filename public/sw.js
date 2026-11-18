@@ -71,7 +71,7 @@ self.addEventListener('push', (event) => {
   let payload = {};
   try { payload = event.data ? event.data.json() : {}; } catch { payload = {}; }
   const data = payload.data || payload.notification || payload;
-  const title = data.title || 'اكسيوس';
+  const title = data.title || 'Exios';
   event.waitUntil(self.registration.showNotification(title, {
     body: data.body || '',
     icon: '/icon-192.png',
