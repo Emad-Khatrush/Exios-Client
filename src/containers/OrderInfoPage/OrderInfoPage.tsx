@@ -18,6 +18,8 @@ import OrderRatingWidget from '../../components/OrderRatingWidget/OrderRatingWid
 import OrderNoteCustomizer from '../../components/OrderNoteCustomizer/OrderNoteCustomizer';
 import PackageCard from './PackageCard';
 import OrderPoints from './OrderPoints';
+import OrderDebt from './OrderDebt';
+import { WalletDebt } from '../WalletPage/walletTypes';
 import { OrderLoyalty } from '../PointsPage/loyaltyTypes';
 import FileViewer, { KIND_ICONS, toViewerFile } from '../../components/FileViewer/FileViewer';
 import {
@@ -144,10 +146,10 @@ const ThemeStamp = ({ theme, note, preview, pressKey }: { theme: OrderTheme, not
 
 /* ---------- Purchase invoice ---------- */
 
-const PurchaseView = ({ order, setOrder, onPhotos, office, customerId, customerName, theme, preview, onPreview, pressKey }: {
+const PurchaseView = ({ order, setOrder, onPhotos, office, customerId, customerName, theme, preview, onPreview, pressKey, debts }: {
   order: Package, setOrder: (o: Package) => void, onPhotos: (p: Photos) => void, office: ReturnType<typeof officeFor>,
   customerId: string, customerName: string, theme: OrderTheme | null, preview: boolean, onPreview: (t?: string | null) => void,
-  pressKey: number,
+  pressKey: number, debts: WalletDebt[],
 }) => {
   const { copied, copy } = useCopy();
   const paid = Number(order.orderStatus) >= 1;
@@ -179,6 +181,8 @@ const PurchaseView = ({ order, setOrder, onPhotos, office, customerId, customerN
 
         <p className="oi-bill__label">قيمة الفاتورة</p>
         <p className="oi-bill__amount"><bdi dir="ltr">{usd(order.totalInvoice)}</bdi></p>
+        {/* Not paid in full: what is still owed, on the invoice itself (printed too) */}
+        <OrderDebt debts={debts} variant="bill" />
 
         <dl className="oi-bill__rows">
           <div><dt>رقم الفاتورة</dt><dd><CopyChip value={order.orderId} copied={copied} copy={copy} /></dd></div>
@@ -292,6 +296,19 @@ const OrderInfoPage = () => {
     return () => { alive = false; };
   }, [orderId]);
 
+  // What is still owed on this order (a purchase or shipping invoice not paid in full): the wallet's
+  // open debts linked to it
+  const [debts, setDebts] = useState<WalletDebt[]>([]);
+  useEffect(() => {
+    let alive = true;
+    setDebts([]);
+    api.getWallet()
+      .then((res: any) => { if (alive && Array.isArray(res?.data?.debts)) setDebts(res.data.debts); })
+      .catch(() => undefined);
+    return () => { alive = false; };
+  }, [orderId]);
+  const orderDebts = useMemo(() => debts.filter((d) => order && d.orderId === order._id && d.amount > 0), [debts, order]);
+
   // The order's points: the totals below and each package's own line
   useEffect(() => {
     let alive = true;
@@ -400,6 +417,7 @@ const OrderInfoPage = () => {
             preview={previewing}
             onPreview={setPreviewTheme}
             pressKey={pressKey}
+            debts={orderDebts}
           />
         </div>
         {lightbox}
@@ -504,6 +522,8 @@ const OrderInfoPage = () => {
             <p>أُلغيت هذه الطلبية من الإدارة. إن كنت تظن أن هذا خطأ تواصل مع {office.name}.</p>
           </div>
         )}
+
+        <OrderDebt debts={orderDebts} variant="notice" />
 
         {(method === 'unknown' || pkgsNoMethod > 0) && !order.unsureOrder && !order.isCanceled && !order.isFinished && (
           <div className="oi-alert is-warn" role="status">

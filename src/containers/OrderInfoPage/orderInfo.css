@@ -132,6 +132,32 @@
 .oi-alert.is-warn .oi-btn { background: #fff; color: #3b2300; border: 1px solid #f1d38a; }
 .oi-alert.is-info { background: #eef1ef; color: #34423a; }
 
+/* Still owed on this order (OrderDebt): red like owed amounts in the wallet. On the purchase
+   invoice it sits under the amount; on a shipment it is a notice above the status. */
+.oi-debt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #fdecea;
+  color: #7a1c13;
+  font-size: 0.93rem;
+  line-height: 1.6;
+}
+.oi-debt.is-notice { margin-bottom: 14px; }
+.oi-debt.is-bill { margin-top: 12px; border: 1px solid #f6c9c3; }
+.oi-debt__icon { display: grid; place-items: center; flex: none; width: 36px; height: 36px; border-radius: 11px; background: #fff; color: var(--or-red); }
+.oi-debt__text { display: grid; flex: 1 1 200px; gap: 6px; min-width: 0; }
+.oi-debt__text p { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; margin: 0; }
+.oi-debt__text b { font-weight: 700; }
+.oi-debt__num { font-size: 1.15rem; font-weight: 800; color: var(--or-red); white-space: nowrap; }
+.oi-debt__text small { flex-basis: 100%; font-size: 0.84rem; color: #8a3a31; }
+.oi-debt__part { font-weight: 700; white-space: nowrap; }
+.oi-debt__late { padding: 1px 8px; border-radius: 999px; background: var(--or-red); color: #fff; font-size: 0.75rem; font-weight: 800; }
+.oi-debt .oi-btn { background: #fff; color: #7a1c13; border: 1px solid #f1b8b2; }
+
 /* Status: the bold block */
 .oi-status {
   position: relative;
