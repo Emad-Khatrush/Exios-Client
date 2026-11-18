@@ -5,6 +5,7 @@ import { useReactToPrint } from 'react-to-print';
 import { User } from '../../models';
 import { WalletCurrency, WalletMovement } from './walletTypes';
 import { amountText, dayKey } from './walletFormat';
+import logo from '../../../public/images/exios-logo.png';
 import './statement.scss';
 
 // The customer's account statement: the same document as the admin's
@@ -147,7 +148,7 @@ const WalletStatementDialog = ({ open, onClose, account, currency, rows }: Props
       <div className="statement-preview__canvas">
         <div className="statement-paper" ref={paper} dir="rtl">
           <header className="statement-paper__brand">
-            <div><img src="/images/exios-logo.png" alt="Exios" /><p>شركة إكسيوس للشحن</p></div>
+            <div><img src={logo} alt="Exios" /><p>شركة إكسيوس للشحن</p></div>
             <div>
               <h1>كشف حساب عميل</h1>
               <span>{currency === 'LYD' ? 'دينار ليبي' : 'دولار أمريكي'} · <bdi>{currency}</bdi></span>

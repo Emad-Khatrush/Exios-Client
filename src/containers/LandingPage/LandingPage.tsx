@@ -35,11 +35,11 @@ import { useInstallApp } from '../../utils/installApp';
 import { InstallSheet } from '../../components/InstallApp/InstallSheet';
 import { EMAIL, FACEBOOK_URL, OFFICES as offices, TIKTOK_URL, whatsappLink } from '../../constants/contact';
 import logo from '../../../public/images/exios-logo.png';
-import portImage from '../../../public/images/landing/port.jpg';
-import shipImage from '../../../public/images/landing/ship.jpg';
-import warehouseImage from '../../../public/images/landing/warehouse.jpg';
-import agreementImage from '../../../public/images/landing/agreement.jpg';
-import airImage from '../../../public/images/air-shipping.jpg';
+import portImage from '../../../public/images/landing/port.webp';
+import shipImage from '../../../public/images/landing/ship.webp';
+import warehouseImage from '../../../public/images/landing/warehouse.webp';
+import agreementImage from '../../../public/images/landing/agreement.webp';
+import airImage from '../../../public/images/air-shipping.webp';
 
 const navLinks = [
   { href: '#services', label: 'خدماتنا' },
@@ -302,6 +302,11 @@ const LandingPage = () => {
             <div className="relative">
               <img
                 src={portImage}
+                // The first thing a visitor sees: fetched before anything else, and its box reserved
+                // (React 18 passes fetchpriority through only in lowercase)
+                {...{ fetchpriority: 'high' }}
+                width={1200}
+                height={800}
                 alt="سفن شحن محملة بالحاويات في الميناء"
                 className="aspect-[4/3] w-full rounded-3xl object-cover shadow-[0_30px_60px_-30px_rgba(24,24,27,0.45)] lg:aspect-[5/6]"
               />

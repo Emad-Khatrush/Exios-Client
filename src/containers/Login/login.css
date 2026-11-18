@@ -243,7 +243,7 @@
     border-radius: 28px;
     background:
       linear-gradient(180deg, rgba(12, 59, 34, 0.15) 0%, rgba(12, 59, 34, 0.55) 45%, rgba(8, 36, 21, 0.94) 100%),
-      url('../../../public/images/landing/warehouse.jpg') center / cover no-repeat,
+      url('../../../public/images/landing/warehouse.webp') center / cover no-repeat,
       var(--lg-deep);
     color: #fff;
   }
