@@ -8,6 +8,7 @@ import LandingPage from './containers/LandingPage/LandingPage';
 import RouteChangeTracker from './components/RouteChangeTracker/RouteChangeTracker';
 import SeoManager from './components/SeoManager/SeoManager';
 import PageLoader from './components/PageLoader/PageLoader';
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 
 // Every page except the landing page is its own file, downloaded the first time it is opened.
 // Visitors to the landing page no longer download the whole app, and each page opens with only
@@ -54,6 +55,7 @@ const App = () => {
   const isLoggedIn = useSelector((state: any) => state.session.isLoggedIn);
 
   return (
+    <ErrorBoundary>
       <Router>
         <RouteChangeTracker />
         <SeoManager />
@@ -92,6 +94,7 @@ const App = () => {
           </Routes>
         </Suspense>
       </Router>
+    </ErrorBoundary>
   )
 }
 

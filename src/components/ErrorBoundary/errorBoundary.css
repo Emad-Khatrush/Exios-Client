@@ -1,0 +1,12 @@
+/* The page that replaces a broken one (ErrorBoundary): calm, centred, two ways out */
+.eb { display: grid; place-items: center; padding: 32px 16px; font-family: 'Cairo', sans-serif; color: #1f2a24; }
+.eb--app { min-height: 100vh; background: #f2f5f3; }
+.eb--page { min-height: 60vh; }
+.eb__box { display: grid; justify-items: center; gap: 10px; max-width: 420px; text-align: center; }
+.eb__icon { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 18px; background: #fdecea; color: #b42318; font-size: 1.8rem; font-weight: 800; }
+.eb h1 { margin: 6px 0 0; font-size: 1.35rem; font-weight: 800; }
+.eb p { margin: 0; color: #66736b; line-height: 1.7; }
+.eb__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 8px; }
+.eb .eb__btn { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 8px 20px; border: 1px solid #d7e1db; border-radius: 14px; background: #fff; color: #1f2a24; font-weight: 800; }
+.eb .eb__btn--primary { border-color: #15803d; background: #15803d; color: #fff; }
+.eb .eb__btn:focus-visible { outline: 2px solid #15803d; outline-offset: 2px; }

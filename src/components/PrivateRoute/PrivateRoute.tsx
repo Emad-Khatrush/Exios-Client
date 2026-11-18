@@ -9,6 +9,7 @@ import PassportVerificationGate, { getPassportGateMode } from '../PassportVerifi
 import PopupAdsGate from '../PopupAdsGate/PopupAdsGate';
 import PageLoader from '../PageLoader/PageLoader';
 import ScrollMemory from '../ScrollMemory/ScrollMemory';
+import ErrorBoundary from '../ErrorBoundary/ErrorBoundary';
 
 const PrivateRoute = () => {
   const [show, setShow] = useState(false);
@@ -65,9 +66,12 @@ const PrivateRoute = () => {
         <Sidebar account={session.account} open={show} setOpen={setShow} />
         <div className="app-main w-full min-w-0 overflow-auto">
           {/* While a page's file downloads, the sidebar stays and only the content area waits */}
-          <Suspense fallback={<PageLoader />}>
-            <Outlet />
-          </Suspense>
+          {/* A page that breaks shows a way out in its place; the menu and the bar keep working */}
+          <ErrorBoundary page resetKey={location.pathname}>
+            <Suspense fallback={<PageLoader />}>
+              <Outlet />
+            </Suspense>
+          </ErrorBoundary>
         </div>
       </div>
     </div>
