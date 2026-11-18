@@ -391,7 +391,11 @@
 }
 
 /* The list */
-.or-list { display: grid; gap: 14px; }
+/* The column is the list's width and never more: a card with a long title (kept on one line, cut
+   with "…") used to size the column to that title, so on a phone, or in the second column on a
+   computer, the card ran past its edge and was cut off. Each card may shrink to its column too. */
+.or-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.or-list > * { min-width: 0; }
 @media (min-width: 900px) { .or-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 900px) { .or-list--receipts { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); } }
 
@@ -404,6 +408,8 @@
 /* Shipment card */
 .or-card {
   display: grid;
+  /* One column, the card's own width: the head (long title) and the stages must fit inside it */
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
   padding: 16px;
   border: 1px solid var(--or-line);
@@ -535,7 +541,7 @@
 
 /* Five steps: done in green, the current one half-filled */
 /* Stages, by name. Each stop is joined to the one before it by a line that fills as it passes. */
-.or-stages { display: grid; grid-template-columns: repeat(5, 1fr); margin: 2px 0 0; padding: 0; list-style: none; }
+.or-stages { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin: 2px 0 0; padding: 0; list-style: none; }
 .or-stages li { position: relative; display: grid; justify-items: center; gap: 5px; min-width: 0; }
 .or-stages li + li::before {
   content: '';
