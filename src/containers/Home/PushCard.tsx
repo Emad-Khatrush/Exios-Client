@@ -5,8 +5,8 @@ import { useInstallApp } from '../../utils/installApp';
 import { wasDismissed as installDismissed } from './InstallAppCard';
 
 /* "Turn on notifications" on the home page. Asked with a button the customer taps, never with a
-   browser pop-up on arrival (people refuse those). Shown only when it can be turned on and the
-   "install the app" card isn't showing, so the home page asks for one thing at a time.
+   browser pop-up on arrival (people refuse those). Shown only when it can be turned on; on iPhone
+   only once the app is installed, since Safari allows it nowhere else.
    "Not now" hides it for two weeks on this device. */
 const DISMISS_KEY = 'exios-push-dismissed';
 const DISMISS_DAYS = 14;
@@ -45,7 +45,8 @@ const PushCard = () => {
     );
   }
 
-  if (state !== 'ask' || hidden || (installMode && !installDismissed())) return null;
+  // iPhone asks for the install first (its card is showing); elsewhere both cards can show
+  if (state !== 'ask' || hidden || (installMode === 'ios' && !installDismissed())) return null;
 
   const dismiss = () => {
     try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch { /* hide for this visit only */ }

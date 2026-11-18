@@ -37,8 +37,8 @@ if (typeof window !== 'undefined') {
 
 export const registerServiceWorker = () => {
   if (!('serviceWorker' in navigator)) return;
-  // Not on the dev server: a cached bundle there would hide the change being worked on
-  if (['localhost', '127.0.0.1'].includes(window.location.hostname)) return;
+  // Also on the dev server, so notifications can be tried locally: it never caches the dev bundles
+  // (they aren't under /assets/) and pages always come from the network first
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => undefined);
   });

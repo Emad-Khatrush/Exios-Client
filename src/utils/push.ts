@@ -35,8 +35,13 @@ export const pushState = async (): Promise<PushState> => {
   } catch {
     return null;
   }
-  // No service worker on the dev server (see registerServiceWorker), so nothing to subscribe with
-  if (!(await navigator.serviceWorker.getRegistration())) return null;
+  // The service worker registers once the page has loaded, which on a first visit is after this
+  // runs: wait for it a little instead of deciding it isn't there
+  const ready = await Promise.race([
+    navigator.serviceWorker.ready.then(() => true),
+    new Promise<boolean>((resolve) => setTimeout(() => resolve(false), 8000)),
+  ]);
+  if (!ready) return null;
   if (Notification.permission === 'granted') return 'on';
   if (Notification.permission === 'denied') return 'blocked';
   return 'ask';
