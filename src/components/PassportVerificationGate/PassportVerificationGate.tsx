@@ -6,6 +6,7 @@ import { AiOutlineCloudUpload, AiOutlineCloseCircle, AiOutlineClockCircle, AiOut
 import api from '../../api';
 import { setAccountData } from '../../actions/session';
 import { User } from '../../models';
+import { logout } from '../../utils/logout';
 
 type Mode = 'mustUpload' | 'rejected' | 'pendingReReview';
 
@@ -74,12 +75,6 @@ const PassportVerificationGate = () => {
       // ignore, the button stays available to try again
     }
     setIsRefreshing(false);
-  }
-
-  const logout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('authToken');
-    window.location.replace('/login');
   }
 
   if (!mode) return null;

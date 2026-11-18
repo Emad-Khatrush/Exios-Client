@@ -82,7 +82,7 @@ module.exports = (env) => {
       new CopyWebpackPlugin({
         patterns: [
           'robots.txt', 'sitemap.xml', 'favicon.ico', 'icon-192.png', 'apple-touch-icon.png', 'og-image.jpg',
-          'manifest.webmanifest', 'sw.js', 'icon-512.png', 'icon-maskable-512.png',
+          'manifest.webmanifest', 'sw.js', 'icon-512.png', 'icon-maskable-512.png', 'badge-96.png',
         ].map((file) => ({
           from: root('public', file),
           to: file,

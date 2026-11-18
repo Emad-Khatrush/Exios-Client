@@ -9,7 +9,7 @@ import { useInstallApp } from '../../utils/installApp';
 const DISMISS_KEY = 'exios-install-dismissed';
 const DISMISS_DAYS = 30;
 
-const wasDismissed = () => {
+export const wasDismissed = () => {
   try {
     const at = Number(localStorage.getItem(DISMISS_KEY));
     return at > 0 && Date.now() - at < DISMISS_DAYS * 24 * 60 * 60 * 1000;

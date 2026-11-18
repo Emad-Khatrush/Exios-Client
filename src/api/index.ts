@@ -206,6 +206,11 @@ export default {
 
   getWalletStatement: (currency: 'USD' | 'LYD') => base.get(`client/wallet/statement`, { currency }),
 
+  // Phone notifications: this device's Firebase token, saved when turned on, removed on logout
+  savePushToken: (token: string) => base.post(`client/push/token`, { token }),
+
+  removePushToken: (token: string) => base.delete(`client/push/token`, { token }),
+
   // Settings Endpoints
   getAnnouncements: () => base.get(`announcements`),
 

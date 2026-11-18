@@ -12,6 +12,8 @@ import LatestPosts from './LatestPosts';
 import PointsCard from './PointsCard';
 import WalletCard from './WalletCard';
 import InstallAppCard from './InstallAppCard';
+import PushCard from './PushCard';
+import { syncPush } from '../../utils/push';
 import RecentShipments from './RecentShipments';
 import Flag from '../PricesPage/Flag';
 import { money, Pricing, updatedLabel } from '../PricesPage/pricingMath';
@@ -51,6 +53,8 @@ const Home = () => {
   // Each block loads on its own: a slow or failed one never holds the others back
   useEffect(() => {
     api.getHomeData().then((res: any) => setCounts(res.data?.results?.countList || null)).catch(() => setCounts({ activeOrders: 0, readyForReceivement: 0, receivedOrders: 0, totalPaidInvoices: 0 }));
+    // Notifications already on: keep this device's token current for the logged-in customer
+    syncPush();
     api.getAnnouncements().then((res: any) => setAnnouncements(Array.isArray(res?.data) ? res.data : [])).catch(() => undefined);
     api.getOrdersForUser('all', {
       orderId: 1, createdAt: 1, orderStatus: 1, isPayment: 1, isShipment: 1, productName: 1,
@@ -127,6 +131,7 @@ const Home = () => {
             </Link>
           )}
           <InstallAppCard />
+          <PushCard />
         </div>
 
         {/* Numbers */}

@@ -6,6 +6,7 @@ import api from '../../api';
 import { User } from '../../models';
 import { routeGroups, routes } from '../PrivateRoute/routes';
 import { useCopy } from '../../utils/useCopy';
+import { logout } from '../../utils/logout';
 import './sidebar.css';
 
 type Props = {
@@ -13,12 +14,6 @@ type Props = {
   open: boolean
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
-
-const logout = () => {
-  localStorage.removeItem('user');
-  localStorage.removeItem('authToken');
-  window.location.replace('/login');
-};
 
 const fullName = (account: User) => [account?.firstName, account?.lastName].filter(Boolean).join(' ');
 

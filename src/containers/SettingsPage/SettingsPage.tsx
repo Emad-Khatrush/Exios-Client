@@ -9,6 +9,7 @@ import { libyanCities } from '../../constants/info';
 import { officeFor, whatsappLink } from '../../constants/contact';
 import { User } from '../../models';
 import { useCopy } from '../../utils/useCopy';
+import { logout } from '../../utils/logout';
 import './settings.css';
 
 type PassportState = 'missing' | 'verified' | 'rejected' | 'review';
@@ -56,12 +57,6 @@ const SettingsPage = () => {
     } catch {
       setReset('error');
     }
-  };
-
-  const logout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('authToken');
-    window.location.replace('/login');
   };
 
   const rows = [
