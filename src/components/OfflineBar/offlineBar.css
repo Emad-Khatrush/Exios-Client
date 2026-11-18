@@ -1,0 +1,28 @@
+/* No connection (OfflineBar): dark strip over the top of the page, below the phone's status bar;
+   green for the moment the connection comes back */
+.ofb {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: calc(8px + env(safe-area-inset-top)) 16px 8px;
+  background: #1f2a24;
+  color: #fff;
+  font-family: 'Cairo', sans-serif;
+  font-size: 0.86rem;
+  font-weight: 700;
+  line-height: 1.5;
+  text-align: center;
+  transform: translateY(-100%);
+  visibility: hidden;
+  transition: transform 0.3s cubic-bezier(0.55, 0, 0.75, 0.25), background-color 0.3s ease, visibility 0s linear 0.3s;
+}
+.ofb.is-shown { transform: none; visibility: visible; transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.3s ease, visibility 0s; }
+.ofb.is-back { background: #15803d; }
+.ofb svg { flex: none; }
+@media (prefers-reduced-motion: reduce) { .ofb, .ofb.is-shown { transition: none; } }

@@ -9,6 +9,7 @@ import RouteChangeTracker from './components/RouteChangeTracker/RouteChangeTrack
 import SeoManager from './components/SeoManager/SeoManager';
 import PageLoader from './components/PageLoader/PageLoader';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
+import OfflineBar from './components/OfflineBar/OfflineBar';
 
 // Every page except the landing page is its own file, downloaded the first time it is opened.
 // Visitors to the landing page no longer download the whole app, and each page opens with only
@@ -56,6 +57,7 @@ const App = () => {
 
   return (
     <ErrorBoundary>
+      <OfflineBar />
       <Router>
         <RouteChangeTracker />
         <SeoManager />
