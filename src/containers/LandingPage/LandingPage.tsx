@@ -25,8 +25,14 @@ import {
   TbShoppingCart,
   TbWorld,
   TbX,
+  TbDownload,
+  TbBellRinging,
+  TbBolt,
+  TbWallet,
 } from 'react-icons/tb';
 
+import { useInstallApp } from '../../utils/installApp';
+import { InstallSheet } from '../../components/InstallApp/InstallSheet';
 import { EMAIL, FACEBOOK_URL, OFFICES as offices, TIKTOK_URL, whatsappLink } from '../../constants/contact';
 import logo from '../../../public/images/exios-logo.png';
 import portImage from '../../../public/images/landing/port.jpg';
@@ -175,6 +181,9 @@ const Reveal = ({ children, className = '', delay = 0 }: { children: ReactNode; 
 const LandingPage = () => {
   const isLoggedIn = useSelector((state: any) => state.session.isLoggedIn);
   const [menuOpen, setMenuOpen] = useState(false);
+  // The app: offered only where this browser can install it and it isn't installed yet
+  const { mode: installMode, install } = useInstallApp();
+  const [installOpen, setInstallOpen] = useState(false);
 
   const primaryCta = isLoggedIn
     ? { to: '/home', label: 'حسابي' }
@@ -235,6 +244,15 @@ const LandingPage = () => {
                 </li>
               ))}
             </ul>
+            {installMode && (
+              <button
+                type="button"
+                className="mt-2 flex w-full items-center gap-2 rounded-2xl bg-green-50 px-4 py-3 text-base font-bold text-green-800"
+                onClick={() => { setMenuOpen(false); setInstallOpen(true); }}
+              >
+                <TbDownload size={20} /> حمّل تطبيق Exios
+              </button>
+            )}
             <div className="mt-4 grid grid-cols-2 gap-3">
               {!isLoggedIn && (
                 <Link to="/login" className="rounded-full border border-zinc-300 py-3 text-center text-sm font-bold text-zinc-800">
@@ -504,6 +522,40 @@ const LandingPage = () => {
           </Reveal>
         </section>
 
+        {/* The app: only where this browser can install it (Android, iPhone) and it isn't installed */}
+        {installMode && (
+          <section id="app" className="mx-auto max-w-7xl scroll-mt-20 px-4 pt-20 md:px-8 md:pt-28">
+            <Reveal>
+              <div className="grid items-center gap-10 rounded-3xl border border-zinc-200 bg-zinc-50 px-7 py-12 md:grid-cols-12 md:px-14 md:py-16">
+                <div className="md:col-span-7">
+                  <h2 className="text-3xl font-extrabold leading-tight md:text-4xl">تطبيق Exios على جوالك</h2>
+                  <p className="mt-4 max-w-[48ch] text-lg leading-relaxed text-zinc-600">
+                    حسابك كله في أيقونة على شاشة جوالك، بدون متجر تطبيقات وبدون مساحة تُذكر.
+                  </p>
+                  <ul className="mt-7 grid gap-3 text-base font-semibold text-zinc-800">
+                    <li className="flex items-center gap-3"><TbBolt size={22} className="shrink-0 text-green-700" /> يفتح بلمسة، بدون متصفح</li>
+                    <li className="flex items-center gap-3"><TbBellRinging size={22} className="shrink-0 text-green-700" /> إشعار عندما تصل شحنتك أو تصبح جاهزة للاستلام</li>
+                    <li className="flex items-center gap-3"><TbWallet size={22} className="shrink-0 text-green-700" /> طلبياتك ومحفظتك ونقاطك في مكان واحد</li>
+                  </ul>
+                  <button
+                    type="button"
+                    onClick={() => setInstallOpen(true)}
+                    className="mt-9 inline-flex items-center gap-2 rounded-full bg-green-700 px-7 py-3.5 text-base font-bold text-white shadow-[0_10px_30px_-10px_rgba(21,128,61,0.6)] transition hover:bg-green-800 active:scale-[0.98]"
+                  >
+                    <TbDownload size={20} /> حمّل التطبيق
+                  </button>
+                </div>
+                <div className="flex justify-center md:col-span-5">
+                  <figure className="grid justify-items-center gap-3">
+                    <img src="/icon-512.png?v=2" alt="أيقونة تطبيق Exios" width={160} height={160} className="h-36 w-36 rounded-[2.2rem] shadow-[0_24px_50px_-20px_rgba(21,128,61,0.55)] md:h-40 md:w-40" />
+                    <figcaption className="text-lg font-extrabold text-zinc-800">Exios</figcaption>
+                  </figure>
+                </div>
+              </div>
+            </Reveal>
+          </section>
+        )}
+
         {/* FAQ: native <details> so every answer is in the HTML for crawlers */}
         <section id="faq" className="mx-auto max-w-7xl scroll-mt-20 px-4 pb-4 pt-20 md:px-8 md:pt-28">
           <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: faqJsonLd }} />
@@ -624,6 +676,8 @@ const LandingPage = () => {
           <p className="text-sm text-zinc-500">© {new Date().getFullYear()} Exios</p>
         </div>
       </footer>
+
+      {installOpen && installMode && <InstallSheet mode={installMode} onInstall={install} onClose={() => setInstallOpen(false)} />}
     </div>
   );
 };
