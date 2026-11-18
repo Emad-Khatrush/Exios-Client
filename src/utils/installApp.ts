@@ -44,6 +44,27 @@ export const registerServiceWorker = () => {
   });
 };
 
+// In the installed app only (opened from the home screen), the screen can't be zoomed in or out,
+// like a native app: pinching or double-tapping would break the layout. The site in a browser
+// tab stays zoomable, for people who need bigger text.
+// iPhone ignores user-scalable=no, so pinch is also stopped by its gesture events, and double-tap
+// zoom by touch-action. maximum-scale=1 also stops iPhone zooming into a field when it is tapped.
+export const lockAppZoom = () => {
+  if (!isStandalone()) return;
+  const viewport = document.querySelector('meta[name="viewport"]');
+  viewport?.setAttribute('content', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover');
+  document.documentElement.style.touchAction = 'manipulation';
+  // The Google map (and anything marked data-allow-zoom) keeps its own pinch zoom
+  const zoomable = (e: Event) => !!(e.target as Element | null)?.closest?.('.gm-style, [data-allow-zoom]');
+  const stop = (e: Event) => { if (!zoomable(e)) e.preventDefault(); };
+  ['gesturestart', 'gesturechange', 'gestureend'].forEach((type) => document.addEventListener(type, stop, { passive: false }));
+  // Two fingers on the screen: no pinch
+  document.addEventListener('touchmove', (e) => { if ((e as TouchEvent).touches.length > 1) stop(e); }, { passive: false });
+  // Installed on a computer: Ctrl + wheel and Ctrl + / - / 0
+  window.addEventListener('wheel', (e) => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+  window.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && ['+', '=', '-', '_', '0'].includes(e.key)) e.preventDefault(); });
+};
+
 // 'prompt': the browser can install it with one tap. 'ios': show the Safari steps.
 // null: already installed, or this browser cannot install it.
 export type InstallMode = 'prompt' | 'ios' | null;
