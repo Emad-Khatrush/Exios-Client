@@ -10,6 +10,8 @@ export type User = {
   phone: number
   isAgreeToTermsOfCompany: boolean
   passportVerification?: PassportVerification
+  // Set when staff switched this customer's loyalty points off: the app hides the points
+  loyaltyOff?: { at: string }
   roles: {
     isAdmin: boolean
     isEmployee: boolean

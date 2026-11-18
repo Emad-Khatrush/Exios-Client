@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, Gift } from 'lucide-react';
 import api from '../../api';
 import { dateText } from '../ClientOrders/orderUtils';
+import LevelEmblem from '../PointsPage/LevelEmblem';
 import { LoyaltyResponse } from '../PointsPage/loyaltyTypes';
 import { pointsText, usdText } from '../PointsPage/pointsFormat';
 
@@ -25,7 +26,14 @@ const PointsCard = () => {
     <Link to="/points" className="hm-points">
       <span className="hm-points__icon" aria-hidden><Gift size={22} /></span>
       <span className="hm-points__body">
-        <small>نقاطي</small>
+        <small>
+          نقاطي
+          {data.level && (
+            <span className="hm-points__level" style={{ ['--lv' as any]: data.level.color }}>
+              <LevelEmblem levelKey={data.level.level} rank={data.level.rank} size={18} />{data.level.name}
+            </span>
+          )}
+        </small>
         <span className="hm-points__balance">
           <bdi dir="ltr"><b>{pointsText(data.points)}</b> نقطة</bdi>
           <span className="hm-points__usd">= <bdi dir="ltr">{usdText(data.points)}</bdi></span>

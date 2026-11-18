@@ -196,6 +196,16 @@ export default {
   // { [orderId]: { earned, pending } } for the orders list badges
   getLoyaltyOrders: () => base.get(`client/loyalty/orders`),
 
+  // Loyalty levels: every level with its perks, and "the app celebrated my new level"
+  getLoyaltyTiers: () => base.get(`client/loyalty/tiers`),
+
+  markLevelSeen: () => base.post(`client/loyalty/level/seen`, {}),
+
+  // The customer's wallet: balances, debts, packages on the way, and the movements of one currency
+  getWallet: () => base.get(`client/wallet`),
+
+  getWalletStatement: (currency: 'USD' | 'LYD') => base.get(`client/wallet/statement`, { currency }),
+
   // Settings Endpoints
   getAnnouncements: () => base.get(`announcements`),
 

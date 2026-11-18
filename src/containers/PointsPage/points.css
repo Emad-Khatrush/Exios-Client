@@ -183,3 +183,192 @@
 @keyframes pt-enter { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 @keyframes pt-enter-balance { from { opacity: 0; transform: translateY(18px) scale(0.97); } to { opacity: 1; transform: none; } }
 @keyframes pt-chip { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ---- Levels ---- */
+/* The level card: white, the level's own colour on its name, its chip and its progress */
+.pt-level {
+  margin-bottom: 16px;
+  padding: 20px 22px;
+  border: 1px solid #ececee;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(24, 24, 27, 0.05), 0 18px 40px -30px rgba(21, 61, 37, 0.45);
+}
+@media (max-width: 480px) { .pt-level { padding: 16px; } }
+.pt-level__top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.pt-level__label { color: #71717a; font-size: 0.9rem; font-weight: 700; }
+.pt-level__times { padding: 3px 10px; border: 1px solid var(--lv, #15803d); border-radius: 999px; color: var(--lv, #15803d); font-size: 0.82rem; font-weight: 800; }
+.pt-level__id { display: flex; align-items: center; gap: 14px; margin: 6px 0 14px; }
+.pt-level__emblem { flex: none; filter: drop-shadow(0 8px 14px rgb(24 24 27 / 0.18)); }
+.pt-level__name { font-size: clamp(1.7rem, 6vw, 2.2rem); font-weight: 800; line-height: 1.25; color: var(--lv, #15803d); }
+.pt-level__top-note { margin-top: 0; }
+.pt-level__next { margin-top: 10px; font-weight: 700; color: #27272a; }
+.pt-level__next b { color: var(--lv, #15803d); }
+.pt-level__hint { margin-top: 4px; color: #71717a; font-size: 0.86rem; line-height: 1.7; }
+.pt-earn__boost { margin: -4px 0 12px; color: #15803d; font-size: 0.9rem; font-weight: 800; }
+
+/* The levels as stops on a route: a line down the side, one dot per level */
+.pt-levels__intro { margin: -4px 0 14px; color: #71717a; font-size: 0.9rem; line-height: 1.7; }
+.pt-route { position: relative; display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.pt-stop { position: relative; padding-inline-start: 46px; }
+/* The line from this stop to the next */
+.pt-stop:not(:last-child)::before {
+  content: ''; position: absolute; inset-inline-start: 16px; top: 44px; bottom: -10px; width: 2px; border-radius: 2px; background: #e4e4e7;
+}
+.pt-stop.is-passed:not(:last-child)::before { background: var(--lv); }
+.pt-stop__dot { position: absolute; inset-inline-start: 0; top: 7px; display: grid; place-items: center; width: 34px; height: 34px; }
+.pt-stop.is-current .pt-stop__dot::after {
+  content: ''; position: absolute; inset: -5px; border: 2px solid var(--lv); border-radius: 50%; opacity: 0.45;
+}
+.pt-stop__lock {
+  position: absolute; inset-inline-end: -3px; bottom: -2px; display: grid; place-items: center; width: 16px; height: 16px;
+  border: 2px solid #fff; border-radius: 50%; background: #71717a; color: #fff;
+}
+.pt-stop__head { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 8px 10px; border-radius: 12px; text-align: start; }
+.pt-stop__head:hover { background: #fafafa; }
+.pt-stop__name { display: flex; flex: 1 1 auto; flex-wrap: wrap; align-items: center; gap: 8px; font-weight: 800; color: #52525b; }
+.pt-stop.is-current .pt-stop__name, .pt-stop.is-passed .pt-stop__name { color: var(--lv); }
+.pt-stop__you { padding: 1px 8px; border-radius: 999px; background: var(--lv); color: #fff; font-size: 0.72rem; font-weight: 800; }
+.pt-stop__min { flex: none; color: #71717a; font-size: 0.85rem; font-weight: 700; }
+.pt-stop__chev { flex: none; color: #a1a1aa; transition: transform 0.2s ease; }
+.pt-stop__head[aria-expanded='true'] .pt-stop__chev { transform: rotate(180deg); }
+.pt-stop__perks { display: grid; gap: 6px; margin: 2px 0 10px; padding: 12px 14px; list-style: none; border-radius: 12px; background: #fafafa; }
+.pt-stop__perks li { position: relative; padding-inline-start: 16px; color: #3f3f46; font-size: 0.9rem; line-height: 1.6; }
+.pt-stop__perks li::before { content: ''; position: absolute; inset-inline-start: 0; top: 0.62em; width: 6px; height: 6px; border-radius: 50%; background: var(--lv); }
+.pt-stop.is-ahead .pt-stop__perks li::before { background: #a1a1aa; }
+@media (prefers-reduced-motion: reduce) { .pt-stop__chev { transition: none; } }
+
+/* The one celebration: reaching a new level */
+.pt-celebrate { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 16px; background: rgb(24 24 27 / 0.55); }
+.pt-celebrate__card { display: grid; justify-items: center; gap: 8px; width: min(100%, 380px); padding: 28px 22px 22px; border-radius: 24px; background: #fff; text-align: center; }
+.pt-celebrate__icon { position: relative; display: grid; place-items: center; width: 150px; height: 150px; margin: -10px 0 -6px; }
+.pt-celebrate__icon .lv-emblem { position: relative; filter: drop-shadow(0 12px 22px rgb(24 24 27 / 0.28)); }
+/* Light rays turning behind the emblem */
+.pt-celebrate__rays {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--lv) 30%, transparent) 0 10deg, transparent 10deg 30deg);
+  -webkit-mask: radial-gradient(circle, #000 30%, transparent 70%); mask: radial-gradient(circle, #000 30%, transparent 70%);
+}
+.pt-celebrate__kicker { margin-top: 4px; color: #71717a; font-weight: 700; }
+.pt-celebrate__name { font-size: 2rem; font-weight: 800; line-height: 1.2; color: var(--lv); }
+.pt-celebrate__gift { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: #dcfce7; color: #14532d; font-weight: 800; }
+.pt-celebrate__perks { display: grid; gap: 6px; width: 100%; margin: 6px 0 10px; padding: 0; list-style: none; text-align: start; }
+.pt-celebrate__perks li { display: flex; align-items: flex-start; gap: 8px; color: #3f3f46; font-size: 0.92rem; line-height: 1.6; }
+.pt-celebrate__perks svg { flex: none; margin-top: 4px; color: var(--lv); }
+.pt-celebrate .pt-btn { width: 100%; }
+@media (prefers-reduced-motion: no-preference) {
+  .pt-celebrate { animation: pt-fade 0.25s ease-out both; }
+  .pt-celebrate__card { animation: pt-pop 0.5s cubic-bezier(0.22, 1.3, 0.36, 1) both; }
+  .pt-celebrate__rays { animation: pt-fade 0.6s 0.3s both, lv-turn 14s linear infinite; }
+  .pt-celebrate__icon .lv-emblem { animation: lv-arrive 0.9s 0.15s cubic-bezier(0.22, 1.4, 0.36, 1) both; }
+}
+@keyframes pt-pop { from { opacity: 0; transform: translateY(16px) scale(0.92); } to { opacity: 1; transform: none; } }
+@keyframes pt-spin-in { from { opacity: 0; transform: rotate(-90deg) scale(0.5); } to { opacity: 1; transform: none; } }
+@keyframes pt-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* ---- Level emblems (LevelEmblem.tsx) ---- */
+.lv-emblem { display: block; overflow: visible; }
+.lv-emblem.is-locked { filter: grayscale(1); opacity: 0.45; }
+.lv-emblem__sparks path { transform-box: fill-box; transform-origin: center; }
+.lv-emblem__sheen { transform-box: fill-box; transform-origin: center; transform: rotate(20deg); }
+
+/* The way to the next level: this emblem, the track, the next emblem glowing */
+.pt-next { margin-top: 4px; }
+.pt-next__goal { position: relative; flex: none; display: grid; place-items: center; }
+.pt-next__goal::before {
+  content: ''; position: absolute; inset: -4px; border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--nx) 35%, transparent), transparent 70%);
+}
+.pt-next__goal .lv-emblem { position: relative; }
+.pt-level__next b.pt-next__name { color: var(--nx); }
+.pt-next__gains {
+  margin-top: 12px; padding: 12px 14px; border: 1px dashed #e4e4e7; background: #fafafa;
+  border: 1px dashed color-mix(in srgb, var(--nx) 45%, #e4e4e7); border-radius: 16px;
+  background: color-mix(in srgb, var(--nx) 6%, #fff);
+}
+.pt-next__title { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; color: var(--nx); font-weight: 800; }
+.pt-next__gains ul { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
+.pt-next__gains li { display: flex; align-items: flex-start; gap: 8px; color: #3f3f46; font-size: 0.9rem; line-height: 1.6; }
+.pt-next__tick {
+  flex: none; display: grid; place-items: center; width: 18px; height: 18px; margin-top: 2px; border-radius: 50%;
+  background: var(--nx); color: #fff;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .lv-emblem__sheen { animation: lv-sheen 5s 1s ease-in-out infinite; }
+  .lv-emblem__sparks path { animation: lv-twinkle 2.4s ease-in-out infinite; }
+  .lv-emblem__sparks path:nth-child(2) { animation-delay: 0.8s; }
+  .lv-emblem__sparks path:nth-child(3) { animation-delay: 1.6s; }
+  .pt-level__emblem { animation: lv-arrive 0.8s 0.1s cubic-bezier(0.22, 1.4, 0.36, 1) both; }
+  .pt-next__goal { animation: lv-float 3.2s ease-in-out infinite; }
+  .pt-next__goal::before { animation: lv-glow 2.4s ease-in-out infinite; }
+  .pt-next__gains li { animation: pt-enter 0.45s calc(0.6s + var(--i) * 0.08s) cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .pt-stop.is-current .pt-stop__dot::after { animation: lv-ring 2.2s ease-out infinite; }
+}
+@keyframes lv-sheen { 0% { transform: translateX(0) rotate(20deg); } 22%, 100% { transform: translateX(110px) rotate(20deg); } }
+@keyframes lv-twinkle { 0%, 100% { opacity: 0.2; transform: scale(0.5); } 50% { opacity: 1; transform: scale(1.15); } }
+@keyframes lv-arrive { from { opacity: 0; transform: scale(0.4) rotate(-25deg); } to { opacity: 1; transform: none; } }
+@keyframes lv-turn { to { transform: rotate(360deg); } }
+@keyframes lv-fill { from { width: 0; } }
+@keyframes lv-run { from { inset-inline-start: 0; } }
+@keyframes lv-beat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+@keyframes lv-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes lv-glow { 0%, 100% { opacity: 0.45; transform: scale(0.9); } 50% { opacity: 1; transform: scale(1.15); } }
+@keyframes lv-ring { 0% { opacity: 0.6; transform: scale(0.85); } 100% { opacity: 0; transform: scale(1.35); } }
+
+/* ---- One line from 0 to the next level (LevelLine) ----
+   The page is right to left: the line starts at the right. Marks sit at --at (a share of the line):
+   the shield where the level is secured for another year (label above), this level's start (its
+   stamp below) and the customer's points (the dot). Labels near an end are anchored to that end. */
+.pt-line { margin-top: 2px; }
+.pt-line__row { display: flex; align-items: center; gap: 10px; }
+.pt-line__rail { position: relative; flex: 1 1 auto; min-width: 0; padding: 32px 0; }
+.pt-line__track { position: relative; height: 10px; overflow: hidden; border-radius: 999px; background: #f1f1f3; }
+.pt-line__fill {
+  position: absolute; inset-block: 0; inset-inline-start: 0; width: var(--to); border-radius: inherit;
+  background: linear-gradient(to left, var(--lv), var(--nx));
+}
+.pt-line__pin { position: absolute; top: 0; bottom: 0; inset-inline-start: var(--at); width: 0; }
+.pt-line__pin > * { position: absolute; inset-inline-start: 0; transform: translateX(50%); }
+.pt-line__pin.is-start > :not(.pt-line__tick) { transform: translateX(10px); }
+.pt-line__pin.is-end > :not(.pt-line__tick) { transform: translateX(calc(100% - 10px)); }
+.pt-line__tick { top: 26px; width: 2px; height: 22px; border-radius: 2px; background: #a1a1aa; }
+.pt-line__flag {
+  top: 0; display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; white-space: nowrap;
+  background: #fef3c7; color: #92400e; font-size: 0.74rem; font-weight: 800;
+}
+.pt-line__pin.is-keep .pt-line__tick { background: #d97706; }
+.pt-line__pin.is-keep.is-done .pt-line__flag { background: #dcfce7; color: #166534; }
+.pt-line__pin.is-keep.is-done .pt-line__tick { background: #16a34a; }
+.pt-line__under {
+  bottom: 2px; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+  color: var(--lv); font-size: 0.74rem; font-weight: 800;
+}
+.pt-line__pin.is-level .pt-line__tick { background: var(--lv); }
+/* The customer's points */
+.pt-line__you {
+  position: absolute; top: 37px; inset-inline-start: var(--at); width: 18px; height: 18px; margin-top: -9px;
+  margin-inline-start: -9px; border: 3px solid #fff; border-radius: 50%; background: var(--lv);
+  box-shadow: 0 0 0 1px rgb(24 24 27 / 0.12), 0 2px 6px rgb(24 24 27 / 0.25);
+}
+.pt-line__legend { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; color: #71717a; font-size: 0.8rem; font-weight: 600; }
+.pt-line__legend b { color: #27272a; }
+
+/* Until when the membership runs, and what happens then */
+.pt-member { display: grid; gap: 8px; margin-top: 12px; }
+.pt-member__row { display: flex; align-items: center; gap: 8px; color: #3f3f46; font-size: 0.9rem; font-weight: 600; }
+.pt-member__row svg { flex: none; color: var(--lv); }
+.pt-member__state {
+  display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; border-radius: 14px;
+  background: #fef3c7; color: #92400e; font-size: 0.88rem; font-weight: 600; line-height: 1.75;
+}
+.pt-member__state svg { flex: none; margin-top: 3px; }
+.pt-member__state.is-ok { background: #dcfce7; color: #14532d; }
+.pt-member__state.is-urgent { background: #fee2e2; color: #991b1b; }
+.pt-member .pt-level__next { margin-top: 0; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .pt-line__fill { animation: lv-fill 1.1s 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .pt-line__you { animation: lv-run 1.1s 0.35s cubic-bezier(0.22, 1, 0.36, 1) both, lv-beat 2s 1.6s ease-in-out infinite; }
+  .pt-line__flag, .pt-line__under { animation: pt-fade 0.4s 0.9s ease-out both; }
+}

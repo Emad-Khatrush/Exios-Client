@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ChevronDown, CircleMinus, Clock, Coins, Gift, LucideIcon, Plus, Rocket, ShoppingBag, TriangleAlert, Undo2 } from 'lucide-react';
 import api from '../../api';
 import { dateText, relativeDay, timeText } from '../ClientOrders/orderUtils';
-import { LoyaltyHistory, LoyaltyHistoryRow, LoyaltyHistoryType, LoyaltyKind, LoyaltyMonth, LoyaltyPending, LoyaltyResponse } from './loyaltyTypes';
+import { LoyaltyHistory, LoyaltyHistoryRow, LoyaltyHistoryType, LoyaltyKind, LoyaltyMonth, LoyaltyPending, LoyaltyResponse, LoyaltyTier } from './loyaltyTypes';
+import { LevelCard, LevelCelebration, LevelRoute } from './LevelSection';
 import { pointsTerms } from './pointsTerms';
 import { pointsText, usdText } from './pointsFormat';
 import './points.css';
@@ -276,6 +277,10 @@ const PointsPage = () => {
   const [failed, setFailed] = useState(false);
   // Bumped on every summary that lands, so the history starts over from it
   const [loads, setLoads] = useState(0);
+  // The levels and their perks (the page works without them)
+  const [tiers, setTiers] = useState<LoyaltyTier[]>([]);
+  const [celebrating, setCelebrating] = useState(false);
+  const navigate = useNavigate();
 
   const load = useCallback(() => {
     setFailed(false);
@@ -283,14 +288,22 @@ const PointsPage = () => {
     api.getLoyalty()
       .then((res: any) => {
         const body = res?.data;
+        // Points switched off for this customer: the page is not for them
+        if (body?.off) { navigate('/home', { replace: true }); return; }
         if (typeof body?.points !== 'number') { setFailed(true); return; }
         setData(body);
         setLoads((n) => n + 1);
+        if (body.level?.celebrate) setCelebrating(true);
       })
       .catch(() => setFailed(true));
-  }, []);
+  }, [navigate]);
 
   useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    api.getLoyaltyTiers()
+      .then((res: any) => { if (Array.isArray(res?.data?.tiers)) setTiers(res.data.tiers); })
+      .catch(() => undefined);
+  }, []);
 
   const pending = data?.pending || [];
   const empty = !!data && data.points <= 0 && !pending.length && !data.history?.rows?.length;
@@ -335,6 +348,8 @@ const PointsPage = () => {
               )}
             </section>
 
+            {data.level && <LevelCard level={data.level} tiers={tiers} />}
+
             {empty && (
               <section className="pt-card pt-empty">
                 <h2>لا نقاط بعد</h2>
@@ -347,6 +362,9 @@ const PointsPage = () => {
 
             <section className="pt-card" aria-labelledby="pt-earn">
               <h2 id="pt-earn">كيف تكسب النقاط</h2>
+              {data.level && data.level.multiplier > 1 && (
+                <p className="pt-earn__boost">مستوى {data.level.name}: تكسب <bdi dir="ltr">×{data.level.multiplier}</bdi> من هذه النقاط</p>
+              )}
               <ul className="pt-list">
                 {RATES.map((r) => (
                   <li key={r.what} className="pt-row">
@@ -356,6 +374,8 @@ const PointsPage = () => {
                 ))}
               </ul>
             </section>
+
+            {data.level && tiers.length > 0 && <LevelRoute tiers={tiers} level={data.level} />}
 
             {!empty && <HistorySection key={loads} initial={data.history} />}
 
@@ -381,6 +401,9 @@ const PointsPage = () => {
           </>
         )}
       </div>
+      {celebrating && data?.level && (
+        <LevelCelebration level={data.level} tier={tiers.find((t) => t.key === data.level?.level)} onClose={() => setCelebrating(false)} />
+      )}
     </div>
   );
 };

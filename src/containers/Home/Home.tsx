@@ -10,6 +10,7 @@ import api from '../../api';
 import AnnouncementBar from '../../components/AnnouncementBar/AnnouncementBar';
 import LatestPosts from './LatestPosts';
 import PointsCard from './PointsCard';
+import WalletCard from './WalletCard';
 import RecentShipments from './RecentShipments';
 import Flag from '../PricesPage/Flag';
 import { money, Pricing, updatedLabel } from '../PricesPage/pricingMath';
@@ -141,7 +142,11 @@ const Home = () => {
           ))}
         </ul>
 
-        <PointsCard />
+        {/* Money at a glance: the wallet and the points side by side (stacked on phones) */}
+        <div className="hm-money">
+          <WalletCard />
+          <PointsCard />
+        </div>
 
         <LatestPosts />
 

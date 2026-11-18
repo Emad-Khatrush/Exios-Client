@@ -375,3 +375,42 @@
 .hm-points__balance b { font-size: 1.4rem; font-weight: 800; }
 .hm-points__usd { color: #52525b; font-size: 0.95rem; }
 .hm-points__soon { font-size: 0.85rem; font-weight: 700; color: #b45309; }
+/* The customer's loyalty level beside "نقاطي", in the level's colour */
+.hm-points__level { display: inline-flex; align-items: center; gap: 4px; vertical-align: middle; margin-inline-start: 8px; padding: 1px 8px 1px 4px; border: 1px solid var(--lv, #15803d); border-radius: 999px; color: var(--lv, #15803d); font-size: 0.75rem; font-weight: 800; }
+
+/* ---- Money at a glance: the wallet and the points side by side, stacked on phones ---- */
+.hm-money { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin: 0 0 20px; }
+.hm-money .hm-points { margin: 0; height: 100%; }
+
+/* The wallet card: the net in dollars, green when it is the customer's, red when they owe */
+.hm-wallet {
+  display: grid; align-content: start; gap: 6px; padding: 16px 18px; border-radius: 18px; border: 1px solid transparent;
+  background: linear-gradient(160deg, #f0fdf4 0%, #fff 55%); color: #18181b;
+  transition: border-color 0.2s ease, transform 0.15s ease;
+}
+.hm-wallet:hover { border-color: #86efac; transform: translateY(-1px); }
+.hm-wallet:focus-visible { outline: 2px solid #15803d; outline-offset: 2px; }
+.hm-wallet.is-owed { background: linear-gradient(160deg, #fef2f2 0%, #fff 55%); }
+.hm-wallet.is-owed:hover { border-color: #fca5a5; }
+.hm-wallet__top { display: flex; align-items: center; gap: 10px; }
+.hm-wallet__top small { flex: 1; font-size: 0.85rem; font-weight: 700; color: #71717a; }
+.hm-wallet__icon { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 13px; background: #dcfce7; color: #15803d; }
+.hm-wallet.is-owed .hm-wallet__icon { background: #fee2e2; color: #b91c1c; }
+.hm-wallet__go { flex: none; color: #a1a1aa; transition: transform 0.2s ease; }
+.hm-wallet:hover .hm-wallet__go { transform: translateX(-3px); }
+.hm-wallet__net { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; }
+.hm-wallet__label { font-size: 0.85rem; font-weight: 700; color: #15803d; }
+.hm-wallet.is-owed .hm-wallet__label { color: #b91c1c; }
+.hm-wallet__net b { font-size: 1.6rem; font-weight: 800; line-height: 1.25; color: #14532d; }
+.hm-wallet.is-owed .hm-wallet__net b { color: #991b1b; }
+.hm-wallet__num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.hm-wallet__parts { color: #52525b; font-size: 0.88rem; font-weight: 600; line-height: 1.7; }
+.hm-wallet__parts .hm-wallet__num { color: #27272a; font-weight: 800; }
+.hm-wallet__hints { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+.hm-wallet__hint {
+  display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px;
+  background: #f4f4f5; color: #3f3f46; font-size: 0.8rem; font-weight: 700; line-height: 1.5;
+}
+.hm-wallet__hint svg { flex: none; }
+.hm-wallet__hint.is-owed { background: #fee2e2; color: #991b1b; }
+@media (prefers-reduced-motion: reduce) { .hm-wallet, .hm-wallet__go { transition: none; } }

@@ -12,8 +12,25 @@ export type LoyaltySummary = {
   pending: LoyaltyPending[],
   earnedTotal: number, redeemedTotal: number,
 };
+// One loyalty level (GET /client/loyalty/tiers), from the first up
+export type LoyaltyTier = {
+  key: string, name: string, nameEn: string, color: string, rank: number, min: number,
+  multiplier: number, expiryMonths: number, keepMin: number, upgradeGift: number, perks: string[],
+};
+// The customer's level: `points` are the points earned in the last 12 months (they decide the level)
+export type LoyaltyLevel = {
+  level: string, name: string, nameEn: string, rank: number, color: string, multiplier: number, expiryMonths: number, perks: string[],
+  since: string | null, reviewAt: string | null, points: number,
+  next: { key: string, name: string, min: number, remaining: number } | null,
+  // The points that keep the level at the yearly review (70% of what it needs); null at the first level
+  keep?: { min: number, remaining: number } | null,
+  // Within 30 days of the yearly review: whether the level is kept, and the points still needed
+  review: { at: string, keeps: boolean, needed: number } | null,
+  // The level reached and not celebrated yet in the app
+  celebrate: string | null,
+};
 // GET /client/loyalty
-export type LoyaltyResponse = LoyaltySummary & { history: LoyaltyHistory };
+export type LoyaltyResponse = LoyaltySummary & { history: LoyaltyHistory, level?: LoyaltyLevel };
 // GET /client/order/:id/loyalty
 export type PackagePoints = { earned: number, pending: number, waitingFor: 'payment' | 'delivery' | 'processing' | null };
 export type OrderLoyalty = {
