@@ -11,6 +11,9 @@ export type ShippingRoute = {
   updatedAt?: string | null,
   // The shipping line (sea) or airline (air) of this shared shipping
   carrier?: string,
+  // This customer's own prices (utils/specialPrices.ts), and everyone's base price beside them
+  special?: boolean,
+  regularPrice?: number,
 };
 
 // Carriers the office types in English, as customers read them. Anything else is shown as typed.
@@ -97,6 +100,7 @@ export const shippingQuote = (
   const freight = up(charged * unitPrice);
   const total = Math.max(freight, route.minCharge || 0);
   if (kind) lines.unshift({ label: 'نوع البضاعة', value: 0, text: kind });
+  if (route.special) lines.unshift({ label: 'التسعير', value: 0, text: 'سعرك الخاص' });
   const carrier = carrierName(route.carrier).ar;
   const carrierLabel = route.method === 'sea' ? 'الخط الملاحي' : 'شركة الطيران';
   if (carrier) lines.unshift({ label: carrierLabel, value: 0, text: carrier });
@@ -111,7 +115,7 @@ export const shippingQuote = (
       kind ? `${route.label} - ${kind}` : route.label,
       carrier ? `${carrierLabel}: ${carrier}` : '',
       route.unit === 'kg' ? `الوزن المحسوب: ${plain(charged)} كجم` : `الحجم: ${plain(charged)} CBM`,
-      `السعر: ${money(unitPrice)} لكل ${route.unit === 'kg' ? 'كجم' : 'CBM'}`,
+      `السعر: ${money(unitPrice)} لكل ${route.unit === 'kg' ? 'كجم' : 'CBM'}${route.special ? ' (سعري الخاص)' : ''}`,
       `التكلفة التقريبية: ${money(total)}`,
     ].filter(Boolean),
   };

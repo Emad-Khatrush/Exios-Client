@@ -14,6 +14,7 @@ import { libyanCities } from '../../constants/info';
 import { officeFor } from '../../constants/contact';
 import { Method, warehouseCode } from '../../constants/warehouses';
 import { useCopy } from '../../utils/useCopy';
+import { withSpecialPrices } from '../../utils/specialPrices';
 import '../AddressPage/address.css';
 import './startShipment.css';
 
@@ -79,7 +80,8 @@ const StartShipmentPage = () => {
   const cityLabel = libyanCities.find((c) => c.value === city)?.label || '';
   const countryLabel = COUNTRIES.find((c) => c.key === country)?.label || '';
   const code = warehouseCode(method, id, cityCode);
-  const routeFor = (m: Method) => routes.find((r) => r.country === country && r.method === m);
+  // With the customer's own prices from China, when the office set any
+  const routeFor = (m: Method) => withSpecialPrices(routes, account?.specialPrices).find((r) => r.country === country && r.method === m);
   const markUsed = (k: StepKey) => setUsed((u) => (u.includes(k) ? u : [...u, k]));
 
   const go = (next: StepKey) => {
@@ -167,7 +169,7 @@ const StartShipmentPage = () => {
                               {available && route && (
                                 <span className="ss-method__facts">
                                   {route.duration && <span><Clock size={14} aria-hidden /> {route.duration}</span>}
-                                  {!!route.price && <span>{money(route.price)} لكل {route.unit === 'cbm' ? 'متر مكعب' : 'كجم'}</span>}
+                                  {!!route.price && <span>{money(route.price)} لكل {route.unit === 'cbm' ? 'متر مكعب' : 'كجم'}{route.special ? ' · سعرك الخاص' : ''}</span>}
                                 </span>
                               )}
                             </span>

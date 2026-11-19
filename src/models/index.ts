@@ -12,6 +12,8 @@ export type User = {
   passportVerification?: PassportVerification
   // Set when staff switched this customer's loyalty points off: the app hides the points
   loyaltyOff?: { at: string }
+  // The customer's own shipping prices, set by staff (utils/specialPrices.ts)
+  specialPrices?: import('../utils/specialPrices').SpecialPrices
   roles: {
     isAdmin: boolean
     isEmployee: boolean

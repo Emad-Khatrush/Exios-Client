@@ -22,6 +22,7 @@ import { cachedPricing, fetchPricing } from '../PricesPage/pricingCache';
 import { Announcement, Package } from '../../models';
 import { officeFor, whatsappLink } from '../../constants/contact';
 import { useCopy } from '../../utils/useCopy';
+import { withSpecialPrices } from '../../utils/specialPrices';
 import './home.css';
 
 type Counts = { activeOrders: number, readyForReceivement: number, receivedOrders: number, totalPaidInvoices: number };
@@ -75,7 +76,8 @@ const Home = () => {
   const office = officeFor(account?.city);
   const ready = counts?.readyForReceivement || 0;
 
-  const routes = pricing?.shipping?.routes || [];
+  // The customer's own prices from China, when the office set any (utils/specialPrices.ts)
+  const routes = withSpecialPrices(pricing?.shipping?.routes || [], account?.specialPrices);
   const todayPrices = routes.filter((r) => r.country === 'china' || r.country === 'uae').slice(0, 3);
   const rate = pricing?.exchangeRate;
   const pricesUpdated = updatedLabel(pricing?.shipping?.updatedAt);
@@ -182,7 +184,10 @@ const Home = () => {
                   {todayPrices.map((r) => (
                     <li key={r.key}>
                       <span className="flag-frame"><Flag country={r.country} size={20} /></span>
-                      <span>{r.method === 'air' ? 'جوي' : 'بحري'} من {r.countryLabel || (r.country === 'china' ? 'الصين' : 'الإمارات')}</span>
+                      <span>
+                        {r.method === 'air' ? 'جوي' : 'بحري'} من {r.countryLabel || (r.country === 'china' ? 'الصين' : 'الإمارات')}
+                        {r.special && <em className="hm-prices__special">سعرك الخاص</em>}
+                      </span>
                       <b dir="ltr">{money(r.price)}</b>
                       <small>لكل {r.unit === 'cbm' ? 'م³' : 'كجم'}</small>
                     </li>

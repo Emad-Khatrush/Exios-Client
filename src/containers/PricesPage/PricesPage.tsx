@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import {
-  ArrowLeft, Banknote, Calculator, Check, Clock, Container as ContainerIcon, History, Info, Landmark, Plane, RefreshCw, Ship, ShoppingCart,
+  ArrowLeft, Banknote, Calculator, Check, Clock, Container as ContainerIcon, Crown, History, Info, Landmark, Plane, RefreshCw, Ship, ShoppingCart,
 } from 'lucide-react';
 import QuoteTicket from './QuoteTicket';
 import { PricingPart, cachedPricing, fetchPricing, hasParts } from './pricingCache';
@@ -9,6 +9,7 @@ import Flag, { countryOfPort } from './Flag';
 import {
   Container, Pricing, Quote, ShippingRoute, Tier, alipayQuote, carrierName, fclQuote, ltr, money, plain, purchaseQuote, shippingQuote, swiftQuote, tierFor, toNumber, updatedLabel,
 } from './pricingMath';
+import { SpecialPrices, categoryLabel, specialCategories, withSpecialPrices } from '../../utils/specialPrices';
 import './pricesPage.css';
 
 type Service = 'shipping' | 'fcl' | 'purchase' | 'alipay' | 'swift';
@@ -211,6 +212,45 @@ const SectionHead = ({ title, sub, updatedAt }: { title: string, sub: string, up
   </div>
 );
 
+// "Your special prices": the customer's own rates (set by the office), one row per kind of goods,
+// air per KG and sea per CBM. Shown above the shipping prices, which then use them for China.
+const SpecialPricesCard = ({ prices }: { prices?: SpecialPrices }) => {
+  const cats = specialCategories(prices);
+  if (!cats.length) return null;
+  const hasAir = cats.some((c) => c.air);
+  const hasSea = cats.some((c) => c.sea);
+  return (
+    <section className="sp-card" aria-labelledby="sp-title">
+      <div className="sp-card__head">
+        <span className="sp-card__badge" aria-hidden><Crown size={22} /></span>
+        <div>
+          <h2 id="sp-title">أسعارك الخاصة</h2>
+          <p>حدّدها لك المكتب، وبها تُحسب شحناتك من <span className="sp-card__flag"><Flag country="china" size={18} /></span> الصين.</p>
+        </div>
+      </div>
+      <table className="sp-table">
+        <thead>
+          <tr>
+            <th scope="col">نوع البضاعة</th>
+            {hasAir && <th scope="col"><Plane size={15} aria-hidden /> جوي <small>لكل كجم</small></th>}
+            {hasSea && <th scope="col"><Ship size={15} aria-hidden /> بحري <small>لكل م³</small></th>}
+          </tr>
+        </thead>
+        <tbody>
+          {cats.map((c) => (
+            <tr key={c.name}>
+              <th scope="row" dir="auto">{categoryLabel(c.name)}</th>
+              {hasAir && <td>{c.air ? <bdi dir="ltr">{money(c.air)}</bdi> : <span className="sp-none">—</span>}</td>}
+              {hasSea && <td>{c.sea ? <bdi dir="ltr">{money(c.sea)}</bdi> : <span className="sp-none">—</span>}</td>}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="sp-card__foot"><Check size={15} aria-hidden /> الحاسبة تحسب بأسعارك هذه. الشحن من الدول الأخرى بالأسعار العامة أدناه.</p>
+    </section>
+  );
+};
+
 const PricesPage = ({ group = 'shipping' }: { group?: PriceGroup }) => {
   const account = useSelector((state: any) => state.session.account);
   // Starts from what this visit already loaded, so a page seen before opens at once
@@ -276,7 +316,12 @@ const PricesPage = ({ group = 'shipping' }: { group?: PriceGroup }) => {
   const page = GROUPS[group] || GROUPS.shipping;
   const available = useMemo(() => page.services.filter((s) => pricing?.[s.key]), [pricing, page]);
   const active = service && available.some((s) => s.key === service) ? service : available[0]?.key;
-  const route = pricing?.shipping?.routes.find((r) => r.key === routeKey) || pricing?.shipping?.routes[0];
+  // Everyone's routes, with this customer's own prices on those from China (when the office set any)
+  const shippingRoutes = useMemo(
+    () => withSpecialPrices(pricing?.shipping?.routes || [], account?.specialPrices),
+    [pricing, account?.specialPrices],
+  );
+  const route = shippingRoutes.find((r) => r.key === routeKey) || shippingRoutes[0];
   const category = route?.categories.find((c) => c.key === categoryKey) || route?.categories[0];
   const containers = pricing?.fcl?.containers || [];
   const container = containers.find((c) => c.key === containerKey) || containers[0];
@@ -362,7 +407,7 @@ const PricesPage = ({ group = 'shipping' }: { group?: PriceGroup }) => {
     );
   }
 
-  const routes = pricing.shipping?.routes || [];
+  const routes = shippingRoutes;
   const byMethod = [
     { method: 'air', title: 'شحن جوي', icon: <Plane size={18} aria-hidden />, list: routes.filter((r) => r.method === 'air') },
     { method: 'sea', title: 'شحن بحري', icon: <Ship size={18} aria-hidden />, list: routes.filter((r) => r.method === 'sea') },
@@ -422,6 +467,7 @@ const PricesPage = ({ group = 'shipping' }: { group?: PriceGroup }) => {
         <section ref={panelRef} className="prices-panel min-w-0 scroll-mt-4 lg:col-span-7 2xl:col-span-8" key={active} role="tabpanel">
           {active === 'shipping' && pricing.shipping && (
             <div className="grid gap-8">
+              <SpecialPricesCard prices={account?.specialPrices} />
               {byMethod.map((g) => (
                 <div key={g.method}>
                   <h2 className="mb-3 flex items-center gap-2 text-xl font-bold text-zinc-900">
@@ -432,7 +478,8 @@ const PricesPage = ({ group = 'shipping' }: { group?: PriceGroup }) => {
                     {g.list.map((r) => {
                       const on = r.key === route?.key;
                       return (
-                        <li key={r.key} className={`route-card flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 transition-shadow duration-200 ${on ? 'ring-2 ring-green-700' : 'ring-zinc-200 hover:ring-zinc-300'}`}>
+                        <li key={r.key} className={`route-card flex flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 transition-shadow duration-200 ${r.special ? 'route-card--special' : ''} ${on ? 'ring-2 ring-green-700' : 'ring-zinc-200 hover:ring-zinc-300'}`}>
+                          {r.special && <span className="route-card__special"><Crown size={14} aria-hidden /> سعرك الخاص</span>}
                           <button
                             type="button"
                             aria-pressed={on}
@@ -466,9 +513,13 @@ const PricesPage = ({ group = 'shipping' }: { group?: PriceGroup }) => {
                                 ))}
                               </span>
                             ) : (
-                              <span className="mt-auto flex items-baseline gap-1.5 pt-4">
+                              <span className="mt-auto flex flex-wrap items-baseline gap-x-1.5 gap-y-1 pt-4">
                                 <span dir="ltr" className="text-3xl font-extrabold tabular-nums text-zinc-900">{money(r.price)}</span>
                                 <span className="text-base text-zinc-600">{perUnit(r)}</span>
+                                {/* What everyone else pays, when this customer's price is lower */}
+                                {r.special && r.regularPrice && r.regularPrice > r.price && (
+                                  <span className="route-card__was">بدل <s dir="ltr">{money(r.regularPrice)}</s></span>
+                                )}
                               </span>
                             )}
                             {r.minCharge > 0 && <span className="mt-2 text-sm text-zinc-600">أقل تكلفة للشحنة <bdi dir="ltr" className="font-bold text-zinc-700">{money(r.minCharge)}</bdi></span>}
@@ -606,7 +657,10 @@ const PricesPage = ({ group = 'shipping' }: { group?: PriceGroup }) => {
                   <div className="calc-route">
                     <span className="flag-frame"><Flag country={route.country} size={30} /></span>
                     <span className="min-w-0 flex-1">
-                      <span className="block font-bold text-zinc-900">{route.label}</span>
+                      <span className="flex flex-wrap items-center gap-2 font-bold text-zinc-900">
+                        {route.label}
+                        {route.special && <span className="calc-special"><Crown size={12} aria-hidden /> سعرك الخاص</span>}
+                      </span>
                       <span className="block text-sm text-zinc-600">
                         <bdi dir="ltr">{money(category?.price || route.price)}</bdi> {perUnit(route)}{route.duration ? `، ${route.duration}` : ''}
                       </span>
