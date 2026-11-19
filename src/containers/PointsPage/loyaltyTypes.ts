@@ -1,6 +1,8 @@
 // A points offer (GET /client/loyalty/promotions): orders created during it earn ×N (spec 2026-11-19)
 export type LoyaltyPromotion = {
   id: string, name: string, multiplierPct: number, startsAt: string, endsAt: string, state: 'active' | 'upcoming',
+  // An upcoming offer is sent only once its announcement day came (the countdown to its start)
+  announceAt?: string | null,
   kinds: ('shipping' | 'purchase' | 'remittance')[], methods: ('air' | 'sea')[], countries: string[],
 };
 // The offer an earned or pending row was multiplied by, when it decided the multiplier

@@ -82,3 +82,19 @@ describe('the offer card on home', () => {
     expect(offerPoints(30, 'remittance', 100, 300)).toEqual({ now: 21, before: 7, extra: 14 });
   });
 });
+
+describe('an announced offer before it starts', () => {
+  const { startDayText, startsCountdownText } = require('../containers/PointsPage/promotions');
+  const coming = { ...base, startsAt: '2026-11-26T22:00:00.000Z', endsAt: '2026-12-03T22:00:00.000Z' };
+
+  it('names its first day in Libya', () => {
+    expect(startDayText(coming.startsAt)).toBe('الجمعة 27 نوفمبر');
+  });
+
+  it('counts down to its start', () => {
+    const start = new Date(coming.startsAt).getTime();
+    expect(startsCountdownText(coming.startsAt, new Date(start - (2 * 24 + 14) * 3600 * 1000))).toBe('يبدأ خلال يومين و14 ساعة');
+    expect(startsCountdownText(coming.startsAt, new Date(start - 3 * 3600 * 1000))).toBe('يبدأ خلال 3 ساعات');
+    expect(startsCountdownText(coming.startsAt, new Date(start - 10 * 60 * 1000))).toBe('يبدأ خلال دقائق');
+  });
+});

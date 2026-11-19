@@ -110,3 +110,19 @@ export const offerPoints = (usd: number, kind: EarnKind, levelPct: number, offer
   const before = Math.floor((basePoints * levelPct) / 100);
   return { now, before, extra: now - before };
 };
+
+/* ---- An announced offer, before it starts ---- */
+// Its first day in Libya: "الجمعة 27 نوفمبر"
+export const startDayText = (startsAt: string) => lastDayText(new Date(new Date(startsAt).getTime() + 1).toISOString());
+
+// After «خلال» the dual takes its genitive form (يومين، ساعتين)
+const daysAfter = (n: number) => (n === 1 ? 'يوم' : n === 2 ? 'يومين' : n <= 10 ? `${n} أيام` : `${n} يوماً`);
+const hoursAfter = (n: number) => (n === 1 ? 'ساعة' : n === 2 ? 'ساعتين' : n <= 10 ? `${n} ساعات` : `${n} ساعة`);
+
+// "يبدأ خلال يومين و14 ساعة"، "يبدأ خلال 3 ساعات"، "يبدأ خلال دقائق"
+export const startsCountdownText = (startsAt: string, now = new Date()) => {
+  const { days, hours } = timeLeft(startsAt, now);
+  if (days > 0) return `يبدأ خلال ${daysAfter(days)}${hours > 0 ? ` و${hoursAfter(hours)}` : ''}`;
+  if (hours > 0) return `يبدأ خلال ${hoursAfter(hours)}`;
+  return 'يبدأ خلال دقائق';
+};

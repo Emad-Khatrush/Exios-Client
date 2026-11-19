@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, CalendarClock, Flame } from 'lucide-react';
+import { ArrowLeft, CalendarClock, Flame, Hourglass } from 'lucide-react';
 import api from '../../api';
 import { LoyaltyPromotion } from './loyaltyTypes';
-import { isActive, promotionLine, startsInText, timeLeft, timesText } from './promotions';
+import { coverText, isActive, lastDayText, promotionLine, startDayText, startsCountdownText, timeLeft, timesText } from './promotions';
 
 /* The points offers running now or soon (GET /client/loyalty/promotions), read once per page.
    Nothing on failure or when the customer's points are off. */
@@ -53,10 +53,16 @@ const PromotionBanner = ({ promotions, levelPct = 100 }: { promotions: LoyaltyPr
           </Link>
         </section>
       ))}
+      {/* Announced and still to come: the countdown to its start */}
       {soon.map((p) => (
-        <p key={p.id} className="pr-soon">
-          <Flame size={15} aria-hidden /> <b dir="auto">{p.name}</b>: {promotionLine(p)} · {startsInText(p.startsAt, now)}
-        </p>
+        <section key={p.id} className="pr-offer pr-offer--soon" aria-label={`عرض قادم: ${p.name}`}>
+          <span className="pr-offer__times" aria-hidden><Hourglass size={18} /><bdi dir="ltr">{timesText(p.multiplierPct)}</bdi></span>
+          <div className="pr-offer__text">
+            <b dir="auto">قريباً: {p.name}</b>
+            <span>نقاطك {timesText(p.multiplierPct)} على {coverText(p)}، من {startDayText(p.startsAt)} حتى {lastDayText(p.endsAt)}</span>
+            <small className="pr-offer__left"><CalendarClock size={14} aria-hidden /> {startsCountdownText(p.startsAt, now)}</small>
+          </div>
+        </section>
       ))}
     </div>
   );

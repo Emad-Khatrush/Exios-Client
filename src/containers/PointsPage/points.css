@@ -413,3 +413,6 @@
 .pt-row.is-offer .pt-rate { color: #c2410c; font-weight: 900; }
 .pt-row__offer { color: #9a3412; }
 .pt-row__offer s { text-decoration-color: #ef4444; text-decoration-thickness: 2px; }
+
+.pr-offer--soon { background: linear-gradient(120deg, #7c3aed 0%, #5b21b6 55%, #312e81 100%); box-shadow: 0 14px 30px -16px rgba(76, 29, 149, 0.75); }
+.pr-offer--soon .pr-offer__text span { color: #ede9fe; }

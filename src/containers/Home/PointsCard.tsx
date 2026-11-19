@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import TeaserPointsCard from './TeaserPointsCard';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Gift } from 'lucide-react';
 import api from '../../api';
@@ -15,6 +16,13 @@ import OfferPointsCard from './OfferPointsCard';
 const PointsCard = () => {
   const [data, setData] = useState<LoyaltyResponse | null>(null);
   const promotions = usePromotions();
+  // With offers about, the clock ticks each second so a coming offer turns into the running one by itself
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    if (!promotions.length) return undefined;
+    const t = window.setInterval(() => setNow(new Date()), 1000);
+    return () => window.clearInterval(t);
+  }, [promotions.length]);
 
   useEffect(() => {
     let alive = true;
@@ -28,8 +36,13 @@ const PointsCard = () => {
 
   // A running offer higher than the customer's membership turns this into the offer card
   const levelPct = data.level ? Math.round(data.level.multiplier * 100) : 100;
-  const offer = promotions.filter((p) => isActive(p) && p.multiplierPct > levelPct).sort((a, b) => b.multiplierPct - a.multiplierPct)[0];
+  const beats = promotions.filter((p) => p.multiplierPct > levelPct).sort((a, b) => b.multiplierPct - a.multiplierPct);
+  const offer = beats.find((p) => isActive(p, now));
   if (offer) return <OfferPointsCard offer={offer} levelPct={levelPct} points={data.points} />;
+  // An announced offer still to come: the countdown to its start (the soonest one)
+  const coming = beats.filter((p) => new Date(p.startsAt).getTime() > now.getTime())
+    .sort((a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime())[0];
+  if (coming) return <TeaserPointsCard offer={coming} now={now} />;
 
   return (
     <Link to="/points" className="hm-points">

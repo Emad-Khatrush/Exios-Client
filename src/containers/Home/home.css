@@ -528,3 +528,14 @@
   .op-card, .op-card::before, .op-card__sparks i, .op-flame, .op-card__times, .op-count__box b, .op-calc__now { animation: none !important; }
   .op-card__sparks { display: none; }
 }
+
+/* ---- An announced offer still to come (TeaserPointsCard): the same card, calm and expectant ---- */
+.op-card--soon { background: linear-gradient(125deg, #7c3aed 0%, #5b21b6 40%, #312e81 80%, #1e1b4b 100%); background-size: 160% 160%; box-shadow: 0 22px 44px -22px rgba(76, 29, 149, 0.85); }
+.op-card--soon .op-card__times { color: #6d28d9; }
+.op-card--soon .op-card__sparks i { background: #c4b5fd; box-shadow: 0 0 10px 2px rgba(196, 181, 253, 0.7); }
+.op-card--soon .op-btn--go { color: #5b21b6; }
+.op-hourglass { color: #ddd6fe; animation: op-turn 3s ease-in-out infinite; }
+.op-soon__dates { color: #ede9fe; font-size: 0.9rem; font-weight: 700; }
+.op-soon__tip { margin: 0; padding: 12px 14px; border-radius: 16px; background: rgba(255, 255, 255, 0.12); color: #fff; font-weight: 600; line-height: 1.7; }
+@keyframes op-turn { 0%, 40% { transform: rotate(0); } 50%, 90% { transform: rotate(180deg); } 100% { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .op-hourglass { animation: none; } }
