@@ -1,9 +1,9 @@
-// Rating rewards (GET/POST client/ratings): 3 points for every order rated within 30 days of receiving
-// it. The words the page, the home card and the thanks use.
-export const POINTS_EACH = 3;
+// Rating rewards (GET/POST client/ratings): 2 points for every order rated within 30 days of receiving
+// it (orders from the points programme's start). The words the page, the home card and the thanks use.
+export const POINTS_EACH = 2;
 
-const pointsWord = (n: number) => (n >= 3 && n <= 10 ? 'نقاط' : 'نقطة');
-export const pointsText = (n: number) => `${n} ${pointsWord(n)}`;
+// "نقطتين" alone, "4 نقاط", "12 نقطة"
+export const pointsText = (n: number) => (n === 2 ? 'نقطتين' : `${n} ${n >= 3 && n <= 10 ? 'نقاط' : 'نقطة'}`);
 
 export const rateButtonText = (count: number) => (count > 0 ? `أرسل التقييم واكسب ${pointsText(count * POINTS_EACH)}` : 'اختر طلبية لتقييمها');
 

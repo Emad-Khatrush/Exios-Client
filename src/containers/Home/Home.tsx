@@ -53,7 +53,7 @@ const Home = () => {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [pricing, setPricing] = useState<Pricing | null>(() => cachedPricing() as Pricing | null);
   const [unreadReplies, setUnreadReplies] = useState(0);
-  // Orders received and not rated yet (each earns 3 points)
+  // Orders received and not rated yet (each earns 2 points)
   const [toRate, setToRate] = useState(0);
 
   // Each block loads on its own: a slow or failed one never holds the others back

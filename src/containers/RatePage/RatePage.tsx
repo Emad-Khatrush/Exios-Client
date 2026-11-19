@@ -11,7 +11,7 @@ const KIND: Record<string, string> = { shipping: 'شحن', purchase: 'فاتور
 const TRACKS_SHOWN = 3;
 const dayText = (d: string) => new Date(d).toLocaleDateString('ar-LY-u-nu-latn', { day: 'numeric', month: 'long' });
 
-/* "قيّم خدمتنا": every order received and not rated yet, all ticked, rated at once; 3 points each
+/* "قيّم خدمتنا": every order received and not rated yet, all ticked, rated at once; 2 points each
    (within 30 days of receiving it). Opened from the home card and the reminder notification. */
 const RatePage = () => {
   const [data, setData] = useState<PendingRatings | null>(null);

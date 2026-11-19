@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Gift, HeartHandshake, Loader2, Star } from 'lucide-react';
 import api from '../../api';
+import { POINTS_EACH, pointsText, rateThanksText } from '../../containers/RatePage/rateText';
 
 // The questions the office reads; the names are what the API stores, so they stay as they are
 export const QUESTIONS = [
@@ -46,7 +47,7 @@ const OrderRatingWidget = () => {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
-  // 3 points when this order still earns them (received within 30 days), and what the rating added
+  // 2 points when this order still earns them (received within 30 days), and what the rating added
   const [earns, setEarns] = useState(false);
   const [added, setAdded] = useState(0);
   useEffect(() => {
@@ -78,7 +79,7 @@ const OrderRatingWidget = () => {
     return (
       <section className="oi-card oi-rate is-sent" aria-live="polite">
         <HeartHandshake size={30} aria-hidden />
-        <b>{added > 0 ? `شكراً لك! أضفنا لك ${added} نقاط` : 'وصلنا تقييمك، شكراً لك'}</b>
+        <b>{added > 0 ? rateThanksText(added) : 'وصلنا تقييمك، شكراً لك'}</b>
         <p>رأيك يساعدنا نحسّن خدمتنا.</p>
       </section>
     );
@@ -88,7 +89,7 @@ const OrderRatingWidget = () => {
     <section className="oi-card oi-rate" aria-labelledby="oi-rate-title">
       <h2 id="oi-rate-title" className="oi-card__title">كيف كانت تجربتك؟</h2>
       <p className="oi-muted">استلمت شحنتك. قيّم خدمتنا في أقل من دقيقة.</p>
-      {earns && <p className="oi-rate__earn"><Gift size={16} aria-hidden /> قيّم واكسب 3 نقاط</p>}
+      {earns && <p className="oi-rate__earn"><Gift size={16} aria-hidden /> قيّم واكسب {pointsText(POINTS_EACH)}</p>}
 
       {QUESTIONS.filter((q) => q.type === 'rating').map((q) => (
         <Stars
