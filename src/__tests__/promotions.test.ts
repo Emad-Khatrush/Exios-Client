@@ -64,3 +64,21 @@ describe('points offers: the earning rates the page shows', () => {
     expect(winningOffer(110, [], now)).toBeNull();
   });
 });
+
+describe('the offer card on home', () => {
+  const { countdownParts, offerPoints } = require('../containers/PointsPage/promotions');
+
+  it('counts down in days, hours, minutes and seconds, never below zero', () => {
+    const end = new Date(base.endsAt).getTime();
+    const left = ((3 * 24 + 5) * 3600 + 42 * 60 + 17) * 1000;
+    expect(countdownParts(base.endsAt, new Date(end - left))).toEqual({ days: '3', hours: '05', minutes: '42', seconds: '17' });
+    expect(countdownParts(base.endsAt, new Date(end + 5000))).toEqual({ days: '0', hours: '00', minutes: '00', seconds: '00' });
+  });
+
+  it('works out the points of an amount now and without the offer, as the server does', () => {
+    // $200 shipping: 100 base points; gold ×1.25 → 125; offer ×2 → 200
+    expect(offerPoints(200, 'shipping', 125, 200)).toEqual({ now: 200, before: 125, extra: 75 });
+    // $30 Alipay: 7 base points; bronze ×1 → 7; offer ×3 → 21
+    expect(offerPoints(30, 'remittance', 100, 300)).toEqual({ now: 21, before: 7, extra: 14 });
+  });
+});

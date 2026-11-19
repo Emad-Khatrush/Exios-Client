@@ -94,3 +94,19 @@ export const winningOffer = (levelPct: number, promotions: LoyaltyPromotion[], n
   const best = promotions.filter((p) => isActive(p, now)).sort((a, b) => b.multiplierPct - a.multiplierPct)[0];
   return best ? { offer: best.name, pct: best.multiplierPct, wins: best.multiplierPct > levelPct } : null;
 };
+
+/* ---- The offer card on home: its live countdown and its points calculator ---- */
+const two = (n: number) => String(n).padStart(2, '0');
+export const countdownParts = (endsAt: string, now = new Date()) => {
+  const s = Math.max(Math.floor((new Date(endsAt).getTime() - now.getTime()) / 1000), 0);
+  return { days: String(Math.floor(s / 86400)), hours: two(Math.floor((s % 86400) / 3600)), minutes: two(Math.floor((s % 3600) / 60)), seconds: two(s % 60) };
+};
+
+// The points of an order of `usd` dollars with the offer and without it (the level alone), rounded as
+// the server does: the base points down, then the multiplier down
+export const offerPoints = (usd: number, kind: EarnKind, levelPct: number, offerPct: number) => {
+  const basePoints = Math.floor(Math.round(usd * 100) / (kind === 'remittance' ? 400 : 200));
+  const now = Math.floor((basePoints * Math.max(levelPct, offerPct)) / 100);
+  const before = Math.floor((basePoints * levelPct) / 100);
+  return { now, before, extra: now - before };
+};
