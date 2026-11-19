@@ -67,7 +67,21 @@
   .mm a, .mm button { -webkit-tap-highlight-color: transparent; }
   .mm :where(a, button):focus-visible { outline: 2px solid var(--sb-brand); outline-offset: 2px; }
 
+  /* The handle: says the screen can be pulled down */
+  .mm-grab {
+    position: absolute;
+    top: calc(6px + env(safe-area-inset-top));
+    left: 50%;
+    width: 40px;
+    height: 5px;
+    border-radius: 999px;
+    background: #c5d0c9;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
   .mm-head {
+    touch-action: none;
     display: flex;
     align-items: center;
     justify-content: space-between;

@@ -1,10 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
 import { BadgeCheck, Check, ChevronLeft, Copy, LogOut, Settings, X } from 'lucide-react';
 import { User } from '../../models';
 import { routeGroups } from '../PrivateRoute/routes';
 import { useCopy } from '../../utils/useCopy';
 import { logout } from '../../utils/logout';
+import { useDragToClose } from './useDragToClose';
 import './mobileMenu.css';
 
 /* Phones: the "القائمة" screen of the bottom bar, like Facebook's menu. It slides up over the page:
@@ -51,19 +52,27 @@ const MobileMenu = ({ open, onClose, account, badges }: Props) => {
     return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', onKey); };
   }, [open, onClose]);
 
+  // Pulled down from the top, it goes back down (see useDragToClose)
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const headRef = useRef<HTMLElement>(null);
+  const scrimRef = useRef<HTMLDivElement>(null);
+  useDragToClose(open, onClose, { sheet: sheetRef, body: bodyRef, head: headRef, scrim: scrimRef });
+
   const tiles = mainGroup.routes.filter((r) => r.value !== 'home' && !(r.value === 'points' && account?.loyaltyOff));
 
   return (
     <>
     {/* Dims the page while the menu rises over it and while it goes back down */}
-    <div className={`mm-scrim ${open ? 'is-open' : ''}`} onClick={onClose} aria-hidden />
-    <div className={`mm ${open ? 'is-open' : ''}`} dir="rtl" lang="ar" role="dialog" aria-modal="true" aria-label="القائمة" aria-hidden={!open}>
-      <header className="mm-head">
+    <div ref={scrimRef} className={`mm-scrim ${open ? 'is-open' : ''}`} onClick={onClose} aria-hidden />
+    <div ref={sheetRef} className={`mm ${open ? 'is-open' : ''}`} dir="rtl" lang="ar" role="dialog" aria-modal="true" aria-label="القائمة" aria-hidden={!open}>
+      <span className="mm-grab" aria-hidden />
+      <header ref={headRef} className="mm-head">
         <h2>القائمة</h2>
         <button type="button" className="mm-close" onClick={onClose} aria-label="إغلاق القائمة" tabIndex={open ? 0 : -1}><X size={22} /></button>
       </header>
 
-      <div className="mm-body">
+      <div ref={bodyRef} className="mm-body">
         {/* Who is signed in: tapping the card opens the settings; the code copies on its own */}
         <div className="mm-profile">
           <NavLink to="/settings" className="mm-profile__who" tabIndex={open ? 0 : -1}>
