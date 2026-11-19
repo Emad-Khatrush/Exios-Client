@@ -1,7 +1,21 @@
 // The company's terms, as written in public/terms.pdf. The numbers are the PDF's, so a clause can be
 // quoted by its number; the groups only help the customer find one. Change the PDF and this together.
 
-export type TermGroup = 'payment' | 'timing' | 'customer' | 'liability';
+// The version of the terms below. The server records it when a customer agrees (sign-up, or the
+// "terms changed" window), and asks everyone again once its own TERMS_VERSION (Exios-Api
+// utils/termsAcceptance.js) moves to the version this app shows. Raise both with the PDF and the text.
+export const TERMS_VERSION = '1.0';
+
+// What changed, shown in the window that asks customers to agree again. Written for version 2.0.
+export const TERMS_UPDATE_SUMMARY = [
+  'سعر صرف الدينار يكون بالسعر الذي تعلنه الشركة وقت الدفع.',
+  'الأسعار والحد الأدنى ومدد الشحن تُعلن في قسم الأسعار أو رسائل الأسعار الرسمية على واتساب.',
+  'رسوم تخزين على الشحنات التي لا تُستلم خلال 10 أيام من إبلاغك بوصولها.',
+  'قواعد أوضح للتأمين والتعويض والشكاوى والجمارك.',
+  'سياسة خصوصية توضح البيانات التي نحفظها وكيف نحميها.',
+];
+
+export type TermGroup ='payment' | 'timing' | 'customer' | 'liability';
 
 export const GROUPS: { key: TermGroup, label: string }[] = [
   { key: 'payment', label: 'الأسعار والدفع' },

@@ -152,6 +152,9 @@ export default {
 
   getMyAccount: () => base.get(`account/me`),
 
+  // Agree to the terms version this app shows; the server answers with the account (as account/me)
+  acceptTerms: (version: string) => base.post(`account/terms/accept`, { version }),
+
   uploadPassport: (file: File) => {
     const body = new FormData();
     body.append('passportImage', file);

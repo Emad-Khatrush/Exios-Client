@@ -7,6 +7,9 @@ import { addAuthInterceptor } from '../../utils/AuthInterceptor';
 import Sidebar from '../Sidebar/Sidebar';
 import PassportVerificationGate, { getPassportGateMode } from '../PassportVerificationGate/PassportVerificationGate';
 import PopupAdsGate from '../PopupAdsGate/PopupAdsGate';
+import TermsUpdateGate from '../TermsUpdateGate/TermsUpdateGate';
+import { shouldAskForTerms } from '../../utils/termsGate';
+import { TERMS_VERSION } from '../../containers/TermsAndPrivacy/terms';
 import PageLoader from '../PageLoader/PageLoader';
 import ScrollMemory from '../ScrollMemory/ScrollMemory';
 import ErrorBoundary from '../ErrorBoundary/ErrorBoundary';
@@ -56,13 +59,16 @@ const PrivateRoute = () => {
 
   // Popup ads are suppressed while the passport gate is blocking, so the
   // customer never sees two non-dismissible dialogs stacked on top of each other.
+  // The same for the new-terms window, which waits until the passport one is done.
   const isPassportGateBlocking = !!getPassportGateMode(session.account);
+  const isTermsGateBlocking = shouldAskForTerms(session.account, TERMS_VERSION);
 
   return (
     <div className="w-full h-full" style={{ background: '#f2f5f3' }}>
       <ScrollMemory />
       <PassportVerificationGate />
-      {!isPassportGateBlocking && <PopupAdsGate />}
+      {!isPassportGateBlocking && <TermsUpdateGate />}
+      {!isPassportGateBlocking && !isTermsGateBlocking && <PopupAdsGate />}
       {/* The sidebar comes first and the row is reversed, so it sits on the right */}
       <div className="w-full h-full flex flex-nowrap flex-row-reverse">
         <Sidebar account={session.account} open={show} setOpen={setShow} />

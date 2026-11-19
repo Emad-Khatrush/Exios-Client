@@ -8,6 +8,7 @@ import {
 import { TbBrandWhatsapp } from 'react-icons/tb';
 import api from '../../api';
 import TermsPdf from '../../../public/terms.pdf';
+import { TERMS_VERSION } from '../TermsAndPrivacy/terms';
 import { apiErrorsTypes } from '../../constants/errorTypes';
 import { libyanCities } from '../../constants/info';
 import { OFFICES, officeFor, whatsappLink } from '../../constants/contact';
@@ -219,6 +220,7 @@ const Register = () => {
       body.append('password', form.password);
       body.append('repeatedPassword', form.repeatedPassword);
       body.append('isAgreeToTermsOfCompany', 'true');
+      body.append('termsVersion', TERMS_VERSION);
       body.append('passportImage', passport as File);
       await api.createClientAccount(body);
 

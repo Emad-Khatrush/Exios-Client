@@ -9,6 +9,8 @@ export type User = {
   city: string
   phone: number
   isAgreeToTermsOfCompany: boolean
+  // Where the customer stands on the company's terms; only in GET /account/me (utils/termsGate.ts)
+  terms?: { current: string, accepted: string | null, needsAcceptance: boolean }
   passportVerification?: PassportVerification
   // Set when staff switched this customer's loyalty points off: the app hides the points
   loyaltyOff?: { at: string }
