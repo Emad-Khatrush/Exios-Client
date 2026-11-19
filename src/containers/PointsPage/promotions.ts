@@ -53,3 +53,44 @@ export const startsInText = (startsAt: string, now = new Date()) => {
   const days = Math.ceil((new Date(startsAt).getTime() - now.getTime()) / 86400000);
   return days <= 1 ? 'يبدأ غداً' : days === 2 ? 'يبدأ بعد يومين' : `يبدأ بعد ${daysWord(days)}`;
 };
+
+/* ---- The earning rates with a running offer (the points page shows the effective ones) ---- */
+export type EarnKind = 'shipping' | 'purchase' | 'remittance';
+// Points per $20 before any multiplier: shipping, purchase invoices and SWIFT 10, Alipay 5
+const BASE_PER_TWENTY: Record<EarnKind, number> = { shipping: 10, purchase: 10, remittance: 5 };
+const round2 = (n: number) => Math.round(n * 100) / 100;
+
+// What an offer is limited to on shipping: "البحري من الصين فقط", or '' when it covers all shipping
+const shippingScope = (p: LoyaltyPromotion) => {
+  const method = p.methods.length === 1 ? (p.methods[0] === 'air' ? 'الجوي' : 'البحري') : '';
+  const from = p.countries.length ? `من ${p.countries.map((c) => COUNTRIES[c] || c).join(' و')}` : '';
+  return method || from ? `${[method, from].filter(Boolean).join(' ')} فقط` : '';
+};
+
+export type EarnRate = {
+  kind: EarnKind, pct: number, perTwenty: number, levelPerTwenty: number,
+  // Points of a $30 order at this rate (the base rounded down, then the multiplier, rounded down)
+  example: number, offer: LoyaltyPromotion | null, scope: string,
+};
+
+// Each kind of order at the higher of the level and the best running offer on it (never both)
+export const earnRates = (levelPct: number, promotions: LoyaltyPromotion[], now = new Date()): EarnRate[] =>
+  (['shipping', 'purchase', 'remittance'] as EarnKind[]).map((kind) => {
+    const best = promotions.filter((p) => isActive(p, now) && p.kinds.includes(kind) && p.multiplierPct > levelPct)
+      .sort((a, b) => b.multiplierPct - a.multiplierPct)[0] || null;
+    const pct = best ? best.multiplierPct : levelPct;
+    const base = BASE_PER_TWENTY[kind];
+    return {
+      kind, pct, offer: best,
+      perTwenty: round2((base * pct) / 100),
+      levelPerTwenty: round2((base * levelPct) / 100),
+      example: Math.floor((Math.floor(3000 / (kind === 'remittance' ? 400 : 200)) * pct) / 100),
+      scope: best && kind === 'shipping' ? shippingScope(best) : '',
+    };
+  });
+
+// The highest running offer against the membership: does it beat the level for this customer?
+export const winningOffer = (levelPct: number, promotions: LoyaltyPromotion[], now = new Date()) => {
+  const best = promotions.filter((p) => isActive(p, now)).sort((a, b) => b.multiplierPct - a.multiplierPct)[0];
+  return best ? { offer: best.name, pct: best.multiplierPct, wins: best.multiplierPct > levelPct } : null;
+};

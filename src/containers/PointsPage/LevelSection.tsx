@@ -13,15 +13,23 @@ const timesText = (m: number) => `×${Number(m || 1).toLocaleString('en-US', { m
 // level with where the level is secured for another year (70% of its points), and under it until
 // when the membership runs and what happens then (kept, renewed or lowered), and what the next
 // level brings
-export const LevelCard = ({ level, tiers }: { level: LoyaltyLevel, tiers: LoyaltyTier[] }) => {
+// offer: a running points offer higher than the level (what this customer earns now, and on what)
+export const LevelCard = ({ level, tiers, offer }: { level: LoyaltyLevel, tiers: LoyaltyTier[], offer?: { pct: number, cover: string } }) => {
   const next = level.next;
   const nextTier = next ? tiers.find((t) => t.key === next.key) : undefined;
   return (
     <section className="pt-level" style={{ ['--lv' as any]: level.color, ['--nx' as any]: nextTier?.color || level.color }} aria-label="عضويتك">
       <div className="pt-level__top">
         <span className="pt-level__label">عضويتك</span>
-        <span className="pt-level__times" title="نقاطك تُضاعف بهذه النسبة">نقاطك <bdi dir="ltr">{timesText(level.multiplier)}</bdi></span>
+        {offer ? (
+          <span className="pt-level__times is-offer" title={`على ${offer.cover}`}>
+            نقاطك <s><bdi dir="ltr">{timesText(level.multiplier)}</bdi></s> ← 🔥 <bdi dir="ltr">{timesText(offer.pct / 100)}</bdi> الآن مع العرض
+          </span>
+        ) : (
+          <span className="pt-level__times" title="نقاطك تُضاعف بهذه النسبة">نقاطك <bdi dir="ltr">{timesText(level.multiplier)}</bdi></span>
+        )}
       </div>
+      {offer && <p className="pt-level__offer">العرض على {offer.cover}، وباقي طلبياتك بعضويتك.</p>}
       <div className="pt-level__id">
         <LevelEmblem levelKey={level.level} rank={level.rank} size={72} className="pt-level__emblem" />
         <p className="pt-level__name">{level.name}</p>

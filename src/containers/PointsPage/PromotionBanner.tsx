@@ -31,7 +31,7 @@ const useNow = () => {
 
 /* Above the balance: each running offer as a warm band with its multiplier, what it covers, the
    countdown and where to order; an offer about to start as one quiet line */
-const PromotionBanner = ({ promotions }: { promotions: LoyaltyPromotion[] }) => {
+const PromotionBanner = ({ promotions, levelPct = 100 }: { promotions: LoyaltyPromotion[], levelPct?: number }) => {
   const now = useNow();
   const running = promotions.filter((p) => isActive(p, now));
   const soon = promotions.filter((p) => new Date(p.startsAt).getTime() > now.getTime());
@@ -43,7 +43,9 @@ const PromotionBanner = ({ promotions }: { promotions: LoyaltyPromotion[] }) => 
           <span className="pr-offer__times" aria-hidden><Flame size={18} /><bdi dir="ltr">{timesText(p.multiplierPct)}</bdi></span>
           <div className="pr-offer__text">
             <b dir="auto">{p.name}</b>
-            <span>{promotionLine(p)}</span>
+            <span>{p.multiplierPct > levelPct
+              ? promotionLine(p)
+              : `عضويتك ${timesText(levelPct)} أعلى من هذا العرض، فنقاطك تبقى ${timesText(levelPct)}`}</span>
             <small className="pr-offer__left"><CalendarClock size={14} aria-hidden /> {timeLeft(p.endsAt, now).text}</small>
           </div>
           <Link className="pr-offer__go" to={p.kinds.includes('shipping') ? '/start-shipment' : '/prices/purchase'}>

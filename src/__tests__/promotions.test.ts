@@ -1,4 +1,4 @@
-import { isActive, promotionLine, timeLeft } from '../containers/PointsPage/promotions';
+import { earnRates, isActive, promotionLine, timeLeft, winningOffer } from '../containers/PointsPage/promotions';
 
 // Libya days 2026-11-20 .. 2026-11-27 (the server's startsAt / endsAt, end exclusive)
 const base = {
@@ -28,5 +28,39 @@ describe('points offers: what the customer reads', () => {
     expect(isActive(base, new Date('2026-11-21T10:00:00Z'))).toBe(true);
     expect(isActive(base, new Date('2026-11-28T10:00:00Z'))).toBe(false);
     expect(isActive(base, new Date('2026-11-19T10:00:00Z'))).toBe(false);
+  });
+});
+
+
+describe('points offers: the earning rates the page shows', () => {
+  const now = new Date('2026-11-21T10:00:00Z');
+  const sea = { ...base, methods: ['sea'] as ('air' | 'sea')[], countries: ['china'] };
+
+  it('a gold customer under a ×2 shipping offer: shipping doubles, the rest stay at the level', () => {
+    const [shipping, purchase, remittance] = earnRates(125, [sea], now);
+    expect(shipping).toMatchObject({ kind: 'shipping', pct: 200, perTwenty: 20, levelPerTwenty: 12.5, example: 30, scope: 'البحري من الصين فقط' });
+    expect(shipping.offer?.name).toBe('الجمعة البيضاء');
+    expect(purchase).toMatchObject({ kind: 'purchase', pct: 125, perTwenty: 12.5, example: 18, offer: null });
+    expect(remittance).toMatchObject({ kind: 'remittance', pct: 125, perTwenty: 6.25, example: 8, offer: null });
+  });
+
+  it('a level above the offer keeps the level, and no offer is shown on the rates', () => {
+    const small = { ...sea, multiplierPct: 150 };
+    expect(earnRates(175, [small], now)[0]).toMatchObject({ pct: 175, offer: null });
+    expect(winningOffer(175, [small], now)).toEqual({ offer: base.name, pct: 150, wins: false });
+    expect(winningOffer(125, [small], now)).toEqual({ offer: base.name, pct: 150, wins: true });
+  });
+
+  it('an offer on every kind with no filters has no scope note', () => {
+    const all = { ...base, kinds: ['shipping', 'purchase', 'remittance'] as ('shipping' | 'purchase' | 'remittance')[], methods: [], countries: [] };
+    const rates = earnRates(100, [all], now);
+    expect(rates.map((r) => r.pct)).toEqual([200, 200, 200]);
+    expect(rates[0].scope).toBe('');
+    expect(rates[2].example).toBe(14);
+  });
+
+  it('no running offer: everything at the level', () => {
+    expect(earnRates(110, [base], new Date('2026-12-05T10:00:00Z')).map((r) => r.offer)).toEqual([null, null, null]);
+    expect(winningOffer(110, [], now)).toBeNull();
   });
 });

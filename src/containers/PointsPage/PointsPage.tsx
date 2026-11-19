@@ -8,7 +8,7 @@ import { LevelCard, LevelCelebration, LevelRoute } from './LevelSection';
 import { pointsTerms } from './pointsTerms';
 import { pointsText, usdText } from './pointsFormat';
 import PromotionBanner, { usePromotions } from './PromotionBanner';
-import { timesText } from './promotions';
+import { coverText, earnRates, timesText, winningOffer } from './promotions';
 import './points.css';
 
 // Each movement in the history: its icon, its tone and its title (with the order number when it has one)
@@ -77,11 +77,13 @@ const HISTORY_TYPES: { type: LoyaltyHistoryType, label: string }[] = [
 
 const GAINS: LoyaltyKind[] = ['earn', 'add', 'restore'];
 
-const RATES = [
-  { what: 'الشحن', rate: '10 نقاط لكل 20$', example: 'شحن بـ 30$ = 15 نقطة' },
-  { what: 'فواتير الشراء وسويفت', rate: '10 نقاط لكل 20$', example: 'فاتورة بـ 30$ = 15 نقطة' },
-  { what: 'علي باي', rate: '5 نقاط لكل 20$', example: 'حوالة بـ 30$ = 7 نقاط' },
-];
+// The rows of "كيف تكسب النقاط": each kind at the customer's effective rate (level, or a running offer)
+const RATE_ROWS = {
+  shipping: { what: 'الشحن', example: 'شحن' },
+  purchase: { what: 'فواتير الشراء وسويفت', example: 'فاتورة' },
+  remittance: { what: 'علي باي', example: 'حوالة' },
+} as const;
+const perTwentyText = (n: number) => `${Number(n.toFixed(2))} نقطة لكل 20$`;
 
 const WAITING = { payment: 'بانتظار الدفع', delivery: 'بانتظار التسليم', processing: 'تُضاف خلال ساعة' };
 type PendingFilter = 'all' | LoyaltyPending['waitingFor'];
@@ -311,6 +313,11 @@ const PointsPage = () => {
   }, []);
 
   const pending = data?.pending || [];
+  // The membership's multiplier (100 = ×1), and what a running offer changes for this customer
+  const levelPct = data?.level ? Math.round(data.level.multiplier * 100) : 100;
+  const rates = earnRates(levelPct, promotions);
+  const offerVsLevel = winningOffer(levelPct, promotions);
+  const bestOffer = offerVsLevel?.wins ? promotions.find((p) => p.name === offerVsLevel.offer && p.multiplierPct === offerVsLevel.pct) : undefined;
   const empty = !!data && data.points <= 0 && !pending.length && !data.history?.rows?.length;
 
   return (
@@ -335,7 +342,7 @@ const PointsPage = () => {
 
         {data && (
           <>
-            <PromotionBanner promotions={promotions} />
+            <PromotionBanner promotions={promotions} levelPct={levelPct} />
 
             <section className="pt-balance" aria-label="رصيدك">
               <span className="pt-balance__label"><Gift size={18} aria-hidden /> رصيدك الآن</span>
@@ -355,7 +362,7 @@ const PointsPage = () => {
               )}
             </section>
 
-            {data.level && <LevelCard level={data.level} tiers={tiers} />}
+            {data.level && <LevelCard level={data.level} tiers={tiers} offer={bestOffer ? { pct: bestOffer.multiplierPct, cover: coverText(bestOffer) } : undefined} />}
 
             {empty && (
               <section className="pt-card pt-empty">
@@ -369,16 +376,33 @@ const PointsPage = () => {
 
             <section className="pt-card" aria-labelledby="pt-earn">
               <h2 id="pt-earn">كيف تكسب النقاط</h2>
-              {data.level && data.level.multiplier > 1 && (
-                <p className="pt-earn__boost">مستوى {data.level.name}: تكسب <bdi dir="ltr">×{data.level.multiplier}</bdi> من هذه النقاط</p>
-              )}
+              {/* Which multiplier is in force: the membership's, or a running offer's when it is higher */}
+              {offerVsLevel?.wins ? (
+                <p className="pt-earn__boost is-offer">
+                  {data.level ? <>عضويتك <bdi dir="ltr">{timesText(levelPct)}</bdi> · </> : null}
+                  🔥 العرض <bdi dir="ltr">{timesText(offerVsLevel.pct)}</bdi> ← تأخذ الأعلى
+                </p>
+              ) : data.level && levelPct > 100 ? (
+                <p className="pt-earn__boost">عضويتك {data.level.name}: تكسب <bdi dir="ltr">{timesText(levelPct)}</bdi> من هذه النقاط</p>
+              ) : null}
               <ul className="pt-list">
-                {RATES.map((r) => (
-                  <li key={r.what} className="pt-row">
-                    <span className="pt-row__main"><b>{r.what}</b><small>{r.example}</small></span>
-                    <span className="pt-rate">{r.rate}</span>
-                  </li>
-                ))}
+                {rates.map((r) => {
+                  const row = RATE_ROWS[r.kind];
+                  return (
+                    <li key={r.kind} className={`pt-row${r.offer ? ' is-offer' : ''}`}>
+                      <span className="pt-row__main">
+                        <b>{r.offer && <span aria-hidden>🔥 </span>}{row.what}</b>
+                        {r.offer && (
+                          <small className="pt-row__offer">
+                            بدل <s><bdi dir="ltr">{Number(r.levelPerTwenty.toFixed(2))}</bdi></s>{r.scope ? ` · ${r.scope}` : ''}
+                          </small>
+                        )}
+                        <small>{row.example} بـ 30$ = <bdi dir="ltr">{r.example}</bdi> نقطة</small>
+                      </span>
+                      <span className="pt-rate">{perTwentyText(r.perTwenty)}</span>
+                    </li>
+                  );
+                })}
               </ul>
             </section>
 

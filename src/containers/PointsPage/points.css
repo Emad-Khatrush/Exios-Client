@@ -403,3 +403,13 @@
 }
 @media (prefers-reduced-motion: reduce) { .pr-offer, .pr-offer__times svg { animation: none; } }
 .pr-soon svg { display: inline; vertical-align: -2px; color: #ea580c; }
+
+/* ---- The page during an offer: the effective multiplier, struck level, offer rows ---- */
+.pt-level__times.is-offer { background: linear-gradient(120deg, #f97316, #dc2626); color: #fff; }
+.pt-level__times s { opacity: 0.75; }
+.pt-level__offer { margin: 6px 0 0; color: #9a3412; font-size: 0.85rem; font-weight: 600; }
+.pt-earn__boost.is-offer { background: #fff1f2; color: #9f1239; }
+.pt-row.is-offer { border-radius: 14px; background: linear-gradient(90deg, #fff7ed, #fff1f2); box-shadow: inset 0 0 0 1px #fed7aa; }
+.pt-row.is-offer .pt-rate { color: #c2410c; font-weight: 900; }
+.pt-row__offer { color: #9a3412; }
+.pt-row__offer s { text-decoration-color: #ef4444; text-decoration-thickness: 2px; }
