@@ -6,7 +6,7 @@ import './index.css';
 
 import { Provider } from 'react-redux'
 import store from './config/store';
-import { lockAppZoom, registerServiceWorker } from './utils/installApp';
+import { lockAppZoom, markIosApp, registerServiceWorker } from './utils/installApp';
 import { startAutoUpdate } from './utils/appUpdate';
 import { watchUncaughtErrors } from './utils/errorReport';
 
@@ -15,4 +15,5 @@ ReactDOM.render(<Provider store={store}><App /></Provider>, document.getElementB
 watchUncaughtErrors();
 registerServiceWorker();
 lockAppZoom();
+markIosApp();
 startAutoUpdate();

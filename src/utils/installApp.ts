@@ -49,6 +49,13 @@ export const registerServiceWorker = () => {
 // tab stays zoomable, for people who need bigger text.
 // iPhone ignores user-scalable=no, so pinch is also stopped by its gesture events, and double-tap
 // zoom by touch-action. maximum-scale=1 also stops iPhone zooming into a field when it is tapped.
+// The installed app on iPhone: html.ios-app. iPhone paints the bar behind the clock white whatever
+// theme-color says (status-bar-style "default"; "black-translucent" would make the clock white on our
+// light pages), so index.css starts the app white under it and fades into its background.
+export const markIosApp = () => {
+  if (isStandalone() && isIOS()) document.documentElement.classList.add('ios-app');
+};
+
 export const lockAppZoom = () => {
   if (!isStandalone()) return;
   const viewport = document.querySelector('meta[name="viewport"]');
