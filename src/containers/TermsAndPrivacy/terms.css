@@ -64,6 +64,12 @@
 .tm-chips button { background: #fff; }
 .tm-chips button:hover { border-color: #a1a1aa; }
 .tm-chips button.is-active { background: #18181b; border-color: #18181b; color: #fff; }
+/* 15 sections: on a phone they scroll sideways in one row instead of filling the screen */
+@media (max-width: 640px) {
+  .tm-chips { flex-wrap: nowrap; overflow-x: auto; margin-inline: -16px; padding: 2px 16px 6px; scrollbar-width: none; }
+  .tm-chips::-webkit-scrollbar { display: none; }
+  .tm-chips button { flex: none; white-space: nowrap; }
+}
 
 .tm-list { display: grid; gap: 10px; margin: 20px 0 0; padding: 0; list-style: none; }
 .tm-item {
