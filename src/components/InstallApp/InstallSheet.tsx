@@ -22,7 +22,23 @@ const sharePlace = (): Place => {
   const safari = Number((ua.match(/Version\/(\d+)/) || [])[1] || 0);
   return safari >= 26 ? 'menu' : 'bottom';
 };
-const ARROW: Record<Place, string> = { menu: '↘', bottom: '↓', top: '↗' };
+/* The pointer over the page, outside the sheet: "اضغط هنا" with the icon of the button to tap, a big
+   arrow turned towards it (down, down-right or up-right, by CSS), and a ring pulsing where to tap */
+const Pointer = ({ place }: { place: Place }) => {
+  const Icon = place === 'menu' ? MoreHorizontal : Share;
+  return (
+    // ltr: "end" is the right side of the screen, where the button is, whatever the page direction
+    <div className={`ia-pointer ia-pointer--${place}`} dir="ltr" aria-hidden>
+      <span className="ia-pointer__label" dir="rtl"><span className="ia-pointer__icon"><Icon size={18} strokeWidth={2.6} /></span> اضغط هنا</span>
+      <span className="ia-pointer__aim">
+        <svg className="ia-pointer__arrow" viewBox="0 0 48 64" width="64" height="84">
+          <path d="M24 60 L5 37 H16.5 V5 H31.5 V37 H43 Z" />
+        </svg>
+        <span className="ia-pointer__ping" />
+      </span>
+    </div>
+  );
+};
 
 const BENEFITS = [
   { icon: Zap, text: 'يفتح بلمسة من شاشة جوالك، بدون متصفح' },
@@ -51,12 +67,7 @@ export const InstallSheet = ({ mode, onInstall, onClose }: SheetProps) => {
   return createPortal(
     <div className="ia-sheet" role="dialog" aria-modal="true" aria-labelledby="ia-sheet-title" dir="rtl" onClick={() => onClose(true)}>
       {/* iPhone: the arrow points at the share button, outside the sheet */}
-      {mode === 'ios' && state === 'ask' && (
-        <div className={`ia-pointer ia-pointer--${place}`} aria-hidden>
-          <span className="ia-pointer__label">من هنا</span>
-          <span className="ia-pointer__arrow">{ARROW[place]}</span>
-        </div>
-      )}
+      {mode === 'ios' && state === 'ask' && <Pointer place={place} />}
       <div className={`ia-sheet__panel${mode === 'ios' && place !== 'top' && state === 'ask' ? ' ia-sheet__panel--mid' : ''}`} onClick={(e) => e.stopPropagation()}>
         <button type="button" className="ia-sheet__close" onClick={() => onClose(true)} aria-label="إغلاق"><X size={20} /></button>
         <img src="/icon-192.png" alt="" className="ia-sheet__icon" width={64} height={64} />
