@@ -539,3 +539,12 @@
 .op-soon__tip { margin: 0; padding: 12px 14px; border-radius: 16px; background: rgba(255, 255, 255, 0.12); color: #fff; font-weight: 600; line-height: 1.7; }
 @keyframes op-turn { 0%, 40% { transform: rotate(0); } 50%, 90% { transform: rotate(180deg); } 100% { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .op-hourglass { animation: none; } }
+
+/* Orders received and not rated: a warm card to the rating page (3 points each) */
+.hm-rate { display: flex; align-items: center; gap: 12px; margin: 0 0 14px; padding: 14px 16px; border: 1px solid #fde68a; border-radius: 18px; background: linear-gradient(90deg, #fffbeb, #fff7ed); color: #78350f; }
+.hm-rate__icon { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; }
+.hm-rate__icon svg { fill: currentColor; }
+.hm-rate__text { display: grid; flex: 1; gap: 2px; min-width: 0; }
+.hm-rate__text b { font-weight: 800; }
+.hm-rate__text small { color: #92400e; font-weight: 600; }
+.hm-rate__go { display: inline-flex; align-items: center; gap: 4px; flex: none; padding: 8px 12px; border-radius: 12px; background: #f59e0b; color: #fff; font-size: 0.88rem; font-weight: 800; white-space: nowrap; }

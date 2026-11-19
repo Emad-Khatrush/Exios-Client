@@ -201,6 +201,11 @@ export default {
 
   markLevelSeen: () => base.post(`client/loyalty/level/seen`, {}),
 
+  // Rating rewards: the orders received and not rated yet, and one rating for several (3 points each)
+  getPendingRatings: () => base.get(`client/ratings/pending`),
+
+  rateOrders: (orderIds: string[], questions: any[]) => base.post(`client/ratings`, { orderIds, questions }),
+
   // Points offers running or about to start (orders created during one earn ×N)
   getLoyaltyPromotions: () => base.get(`client/loyalty/promotions`),
 

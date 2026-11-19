@@ -990,3 +990,5 @@
 .oi-points__note { margin-top: 6px; }
 .oi-points__note a { font-weight: 700; color: inherit; text-decoration: underline; }
 .oi-points__offer { margin: 6px 0 0; padding: 6px 10px; border-radius: 10px; background: #fff1f2; color: #9f1239; font-size: 0.88rem; }
+
+.oi-rate__earn { display: inline-flex; align-items: center; gap: 6px; justify-self: start; margin: 0; padding: 4px 12px; border-radius: 999px; background: #fef3c7; color: #92400e; font-size: 0.88rem; font-weight: 800; }

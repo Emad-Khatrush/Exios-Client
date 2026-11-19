@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { HeartHandshake, Loader2, Star } from 'lucide-react';
+import { Gift, HeartHandshake, Loader2, Star } from 'lucide-react';
 import api from '../../api';
 
 // The questions the office reads; the names are what the API stores, so they stay as they are
-const QUESTIONS = [
+export const QUESTIONS = [
   { name: 'employeeQuestion', label: 'كيف كان تعامل الموظفين معك؟', type: 'rating' },
   { name: 'generalQuestion', label: 'ما رأيك في الخدمة بشكل عام؟', type: 'rating' },
   { name: 'reviewQuestion', label: 'اكتب لنا رأيك', type: 'text' },
@@ -12,7 +12,7 @@ const QUESTIONS = [
 
 const WORDS = ['', 'سيئة', 'مقبولة', 'جيدة', 'جيدة جداً', 'ممتازة'];
 
-const Stars = ({ label, value, onChange, disabled }: { label: string, value: number, onChange: (v: number) => void, disabled: boolean }) => {
+export const Stars = ({ label, value, onChange, disabled }: { label: string, value: number, onChange: (v: number) => void, disabled: boolean }) => {
   const [hover, setHover] = useState(0);
   const shown = hover || value;
   return (
@@ -46,6 +46,16 @@ const OrderRatingWidget = () => {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
+  // 3 points when this order still earns them (received within 30 days), and what the rating added
+  const [earns, setEarns] = useState(false);
+  const [added, setAdded] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    api.getPendingRatings()
+      .then((res: any) => { if (alive && !res?.data?.off) setEarns((res?.data?.orders || []).some((o: any) => String(o._id) === String(orderId))); })
+      .catch(() => undefined);
+    return () => { alive = false; };
+  }, [orderId]);
 
   const complete = QUESTIONS.every((q) => (q.type === 'text' ? String(values[q.name] || '').trim() : values[q.name]));
 
@@ -54,7 +64,9 @@ const OrderRatingWidget = () => {
     setError('');
     setSending(true);
     try {
-      await api.createRatingForOrder(orderId, { questions: QUESTIONS.map((q) => ({ ...q, value: values[q.name] })) });
+      const res: any = await api.createRatingForOrder(orderId, { questions: QUESTIONS.map((q) => ({ ...q, value: values[q.name] })) });
+      if (!res) throw new Error('offline');
+      setAdded(Number(res?.data?.points) || 0);
       setSent(true);
     } catch {
       setError('لم يُرسل تقييمك. تحقق من اتصالك وحاول مرة أخرى.');
@@ -66,7 +78,7 @@ const OrderRatingWidget = () => {
     return (
       <section className="oi-card oi-rate is-sent" aria-live="polite">
         <HeartHandshake size={30} aria-hidden />
-        <b>وصلنا تقييمك، شكراً لك</b>
+        <b>{added > 0 ? `شكراً لك! أضفنا لك ${added} نقاط` : 'وصلنا تقييمك، شكراً لك'}</b>
         <p>رأيك يساعدنا نحسّن خدمتنا.</p>
       </section>
     );
@@ -76,6 +88,7 @@ const OrderRatingWidget = () => {
     <section className="oi-card oi-rate" aria-labelledby="oi-rate-title">
       <h2 id="oi-rate-title" className="oi-card__title">كيف كانت تجربتك؟</h2>
       <p className="oi-muted">استلمت شحنتك. قيّم خدمتنا في أقل من دقيقة.</p>
+      {earns && <p className="oi-rate__earn"><Gift size={16} aria-hidden /> قيّم واكسب 3 نقاط</p>}
 
       {QUESTIONS.filter((q) => q.type === 'rating').map((q) => (
         <Stars

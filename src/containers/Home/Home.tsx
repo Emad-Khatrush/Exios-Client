@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import {
   ArrowLeft, Ban, Bell, Check, CircleCheckBig, Copy, FileText, MapPin, MessageSquareText, PackageCheck, PackageOpen, PackagePlus,
-  Phone, Receipt, Rocket, ShoppingBag, Tags, Warehouse,
+  Phone, Receipt, Rocket, ShoppingBag, Star, Tags, Warehouse,
 } from 'lucide-react';
 import { TbBrandWhatsapp } from 'react-icons/tb';
 import api from '../../api';
@@ -23,6 +23,7 @@ import { Announcement, Package } from '../../models';
 import { officeFor, whatsappLink } from '../../constants/contact';
 import { useCopy } from '../../utils/useCopy';
 import { withSpecialPrices } from '../../utils/specialPrices';
+import { homeCardText } from '../RatePage/rateText';
 import './home.css';
 
 type Counts = { activeOrders: number, readyForReceivement: number, receivedOrders: number, totalPaidInvoices: number };
@@ -52,6 +53,8 @@ const Home = () => {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [pricing, setPricing] = useState<Pricing | null>(() => cachedPricing() as Pricing | null);
   const [unreadReplies, setUnreadReplies] = useState(0);
+  // Orders received and not rated yet (each earns 3 points)
+  const [toRate, setToRate] = useState(0);
 
   // Each block loads on its own: a slow or failed one never holds the others back
   useEffect(() => {
@@ -66,6 +69,9 @@ const Home = () => {
       'paymentList.deliveredPackages.trackingNumber': 1, 'paymentList.deliveredPackages.weight': 1,
     }).then((res: any) => setOrders(res.data?.results?.orders || [])).catch(() => setOrders([]));
     fetchPricing(['shipping', 'fcl']).then((data) => setPricing({ ...data } as Pricing)).catch(() => undefined);
+    api.getPendingRatings()
+      .then((res: any) => { if (!res?.data?.off) setToRate(Array.isArray(res?.data?.orders) ? res.data.orders.length : 0); })
+      .catch(() => undefined);
     api.get('client/feedback')
       .then((res: any) => setUnreadReplies(Array.isArray(res?.data) ? res.data.filter((f: any) => f.unread).length : 0))
       .catch(() => undefined);
@@ -139,6 +145,13 @@ const Home = () => {
               <MessageSquareText size={20} aria-hidden />
               <span>{unreadReplies === 1 ? 'وصلك رد جديد من المكتب على شكواك' : `وصلتك ${unreadReplies} ردود جديدة من المكتب على شكاواك`}</span>
               <b>عرض الرد <ArrowLeft size={16} aria-hidden /></b>
+            </Link>
+          )}
+          {toRate > 0 && (
+            <Link to="/rate" className="hm-rate">
+              <span className="hm-rate__icon" aria-hidden><Star size={22} /></span>
+              <span className="hm-rate__text"><b>{homeCardText(toRate).title}</b><small>{homeCardText(toRate).sub}</small></span>
+              <span className="hm-rate__go">قيّم الآن <ArrowLeft size={16} aria-hidden /></span>
             </Link>
           )}
           <InstallAppCard />
