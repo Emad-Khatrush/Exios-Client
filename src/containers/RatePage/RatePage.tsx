@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Check, Gift, HeartHandshake, Loader2, PackageCheck, RefreshCw, Star } from 'lucide-react';
 import api from '../../api';
-import { QUESTIONS, Stars } from '../../components/OrderRatingWidget/OrderRatingWidget';
+import { HonestNote, QUESTIONS, Stars } from '../../components/OrderRatingWidget/OrderRatingWidget';
 import { PendingRatings, POINTS_EACH, pointsText, rateButtonText, rateThanksText } from './rateText';
 import '../OrderInfoPage/orderInfo.css';
 import './rate.css';
@@ -128,6 +128,7 @@ const RatePage = () => {
 
             <section className="oi-card oi-rate rt-form" aria-labelledby="rt-form-title">
               <h2 id="rt-form-title" className="oi-card__title">كيف كانت تجربتك؟</h2>
+              <HonestNote />
               {QUESTIONS.filter((q) => q.type === 'rating').map((q) => (
                 <Stars key={q.name} label={q.label} value={values[q.name] || 0} onChange={(v) => setValues((s) => ({ ...s, [q.name]: v }))} disabled={sending} />
               ))}

@@ -40,6 +40,16 @@ export const Stars = ({ label, value, onChange, disabled }: { label: string, val
   );
 };
 
+// Asked before the stars, so customers rate honestly instead of politely: the office reads every
+// rating to improve, nothing changes for them, and the points come whatever they say (they do: the
+// reward does not look at the stars)
+export const HonestNote = () => (
+  <p className="oi-rate__honest">
+    <span aria-hidden>🤝</span>
+    <span><b>قل رأيك بكل صراحة.</b> نقرأ كل تقييم لنطوّر خدمتنا، ورأيك مهما كان لا يؤثر على تعاملنا معك. ونقاطك تُضاف كاملة سواء كان تقييمك إيجابياً أو سلبياً.</span>
+  </p>
+);
+
 /* After delivery: two star ratings and a few words, sent once */
 const OrderRatingWidget = () => {
   const { id: orderId } = useParams();
@@ -90,6 +100,7 @@ const OrderRatingWidget = () => {
       <h2 id="oi-rate-title" className="oi-card__title">كيف كانت تجربتك؟</h2>
       <p className="oi-muted">استلمت شحنتك. قيّم خدمتنا في أقل من دقيقة.</p>
       {earns && <p className="oi-rate__earn"><Gift size={16} aria-hidden /> قيّم واكسب {pointsText(POINTS_EACH)}</p>}
+      <HonestNote />
 
       {QUESTIONS.filter((q) => q.type === 'rating').map((q) => (
         <Stars
