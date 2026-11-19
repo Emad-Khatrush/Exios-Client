@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { themeColorFor } from '../../utils/themeColor';
 
 const SITE_URL = 'https://www.exioslibya.com';
 const DEFAULT_TITLE = 'اكسيوس | شحن من الصين إلى ليبيا وخدمات الشراء من الصين';
@@ -35,6 +36,14 @@ const SeoManager = () => {
 
   useEffect(() => {
     const publicTitle = PUBLIC_PAGES[pathname];
+
+    // The phone's bar behind the clock takes the colour at the top of this page
+    setMeta(
+      'meta[name="theme-color"]',
+      () => Object.assign(document.createElement('meta'), { name: 'theme-color' }),
+      'content',
+      themeColorFor(pathname)
+    );
     document.title = publicTitle || APP_TITLES[pathname] || 'اكسيوس';
 
     setMeta(
