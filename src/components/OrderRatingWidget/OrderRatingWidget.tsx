@@ -44,7 +44,7 @@ export const Stars = ({ label, value, onChange, disabled }: { label: string, val
 // rating to improve, nothing changes for them, and the points come whatever they say (they do: the
 // reward does not look at the stars)
 export const HonestNote = () => (
-  <p className="oi-rate__honest">
+  <p className="oi-rate__honest" dir="rtl" lang="ar">
     <span aria-hidden>🤝</span>
     <span><b>قل رأيك بكل صراحة.</b> نقرأ كل تقييم لنطوّر خدمتنا، ورأيك مهما كان لا يؤثر على تعاملنا معك. ونقاطك تُضاف كاملة سواء كان تقييمك إيجابياً أو سلبياً.</span>
   </p>

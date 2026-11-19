@@ -993,5 +993,5 @@
 
 .oi-rate__earn { display: inline-flex; align-items: center; gap: 6px; justify-self: start; margin: 0; padding: 4px 12px; border-radius: 999px; background: #fef3c7; color: #92400e; font-size: 0.88rem; font-weight: 800; }
 
-.oi-rate__honest { display: flex; align-items: flex-start; gap: 10px; margin: 0; padding: 10px 12px; border-radius: 12px; background: #eff6ff; color: #1e3a5f; font-size: 0.9rem; line-height: 1.7; }
+.oi-rate__honest { display: flex; align-items: flex-start; gap: 10px; direction: rtl; text-align: right; margin: 0; padding: 10px 12px; border-radius: 12px; background: #eff6ff; color: #1e3a5f; font-size: 0.9rem; line-height: 1.7; }
 .oi-rate__honest b { font-weight: 800; }
