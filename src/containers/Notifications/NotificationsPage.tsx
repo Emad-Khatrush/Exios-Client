@@ -47,11 +47,15 @@ const NotificationsPage = () => {
   const [next, setNext] = useState<string | null>(null);
   const [failed, setFailed] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  // Where the last batch starts: its messages come in one after the other from there, so "older
+  // notifications" plays only the new ones, starting at once instead of after the whole list
+  const [batchFrom, setBatchFrom] = useState(0);
   const marked = useRef(false);
 
   const load = useCallback(() => {
     setFailed(false);
     setItems(null);
+    setBatchFrom(0);
     api.getNotifications()
       .then((res: any) => {
         setItems(Array.isArray(res?.data?.items) ? res.data.items : []);
@@ -72,6 +76,7 @@ const NotificationsPage = () => {
     setLoadingMore(true);
     api.getNotifications(next)
       .then((res: any) => {
+        setBatchFrom(items?.length || 0);
         setItems((list) => [...(list || []), ...(res?.data?.items || [])]);
         setNext(res?.data?.next || null);
       })
@@ -87,6 +92,10 @@ const NotificationsPage = () => {
     if (last && last.key === key) last.items.push(n); else days.push({ key, items: [n] });
   });
   const newCount = (items || []).filter((n) => n.unread).length;
+  // Each message's place in the whole list, for its entrance delay (the first ten step in, the rest
+  // arrive together so a long list never makes the customer wait)
+  const order = new Map((items || []).map((n, i) => [n.id, i]));
+  const delay = (i: number) => ({ ['--nt-d' as any]: `${Math.min(Math.max(i - batchFrom, 0), 10) * 45}ms` });
 
   return (
     <div dir="rtl" lang="ar" className="nt-page w-full px-4 pb-16 pt-6 sm:px-6 lg:px-8 lg:pt-8">
@@ -121,7 +130,7 @@ const NotificationsPage = () => {
 
         {days.map((day) => (
           <section key={day.key} className="nt-day" aria-label={dayLabel(day.key)}>
-            <h2>{dayLabel(day.key)}</h2>
+            <h2 style={delay(order.get(day.items[0].id) ?? 0)}>{dayLabel(day.key)}</h2>
             <ul className="nt-list">
               {day.items.map((n) => {
                 const Icon = iconFor(n.url);
@@ -139,7 +148,7 @@ const NotificationsPage = () => {
                   </>
                 );
                 return (
-                  <li key={n.id}>
+                  <li key={n.id} style={delay(order.get(n.id) ?? 0)}>
                     {open
                       ? <button type="button" className={`nt-item${n.unread ? ' is-unread' : ''}`} onClick={open}>{content}</button>
                       : <div className={`nt-item${n.unread ? ' is-unread' : ''}`}>{content}</div>}

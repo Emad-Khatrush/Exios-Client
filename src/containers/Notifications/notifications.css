@@ -50,3 +50,26 @@ button.nt-item:focus-visible { outline: 2px solid #15803d; outline-offset: 2px; 
 .nt-spin { animation: nt-spin 0.8s linear infinite; }
 @keyframes nt-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .nt-sk, .nt-spin { animation: none; } .nt-item { transition: none; } }
+
+/* Opening the page: the title settles first, then the messages rise into place one after the other
+   (--nt-d, set per message, the first ten only). Loading placeholders wait a beat before showing, so a
+   fast answer never flashes them, and the list or the empty state fades in where they were.
+   Going back to the page skips all of it (html.nav-back in index.css). */
+@media (prefers-reduced-motion: no-preference) {
+  .nt-head { animation: nt-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .nt-day h2 { animation: nt-fade 0.4s ease both; animation-delay: var(--nt-d, 0ms); }
+  .nt-list > li {
+    animation: nt-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--nt-d, 0ms) + 60ms);
+  }
+  .nt-state { animation: nt-rise 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.06s both; }
+  .nt-sk { animation: nt-fade 0.3s ease 0.15s both, nt-pulse 1.4s ease-in-out 0.45s infinite; }
+  /* A new message: its green settles in just after it arrives */
+  /* backwards only: once done, hover and press colours apply as usual */
+  .nt-item.is-unread { animation: nt-new 0.9s ease backwards; animation-delay: calc(var(--nt-d, 0ms) + 260ms); }
+  .nt-item.is-unread .nt-item__new { animation: nt-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both; animation-delay: calc(var(--nt-d, 0ms) + 380ms); }
+}
+@keyframes nt-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes nt-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes nt-new { from { background-color: #fff; border-color: #e6ebe8; } to { background-color: #f0fbf4; border-color: #bbe3c9; } }
+@keyframes nt-pop { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
