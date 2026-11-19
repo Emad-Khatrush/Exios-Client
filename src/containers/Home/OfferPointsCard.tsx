@@ -76,12 +76,17 @@ const OfferPointsCard = ({ offer, levelPct, points }: Props) => {
           style={{ ['--fill' as any]: fill }}
           dir="ltr"
         />
-        <p className="op-calc__result" aria-live="polite">
-          = <b key={calc.now} className="op-calc__now"><bdi dir="ltr">{pointsText(calc.now)}</bdi> نقطة</b> الآن
-          {calc.extra > 0 && <> <span className="op-calc__was">(بدل <s><bdi dir="ltr">{pointsText(calc.before)}</bdi></s>)</span></>}
-        </p>
+        {/* What it comes to: the whole in dollars, big, then the extra the offer adds, in points */}
+        <div className="op-calc__result" aria-live="polite">
+          <span className="op-calc__label">تكسب منها نقاطاً قيمتها</span>
+          <b key={calc.now} className="op-calc__now"><bdi dir="ltr">{usdText(calc.now)}</bdi></b>
+          <small className="op-calc__pts"><bdi dir="ltr">{pointsText(calc.now)}</bdi> نقطة</small>
+        </div>
         {calc.extra > 0 && (
-          <p className="op-calc__extra">تربح <bdi dir="ltr">{pointsText(calc.extra)}</bdi> نقطة إضافية = <bdi dir="ltr">{usdText(calc.extra)}</bdi></p>
+          <p className="op-calc__extra" key={calc.extra}>
+            🔥 <b>+<bdi dir="ltr">{pointsText(calc.extra)}</bdi> نقطة إضافية</b> بفضل العرض
+            <span className="op-calc__was">بدونه <bdi dir="ltr">{pointsText(calc.before)}</bdi> نقطة فقط</span>
+          </p>
         )}
       </div>
 
