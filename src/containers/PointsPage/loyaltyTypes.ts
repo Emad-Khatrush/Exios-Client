@@ -1,6 +1,13 @@
+// A points offer (GET /client/loyalty/promotions): orders created during it earn ×N (spec 2026-11-19)
+export type LoyaltyPromotion = {
+  id: string, name: string, multiplierPct: number, startsAt: string, endsAt: string, state: 'active' | 'upcoming',
+  kinds: ('shipping' | 'purchase' | 'remittance')[], methods: ('air' | 'sea')[], countries: string[],
+};
+// The offer an earned or pending row was multiplied by, when it decided the multiplier
+export type PromotionTag = { id: string, name: string, multiplierPct: number };
 export type LoyaltyKind = 'earn' | 'add' | 'restore' | 'redeem' | 'deduct' | 'expire' | 'revoke';
-export type LoyaltyPending = { orderId: string, orderNumber: string, arKey: string, points: number, waitingFor: 'payment' | 'delivery' | 'processing' };
-export type LoyaltyHistoryRow = { id?: string, kind: LoyaltyKind, points: number, orderId?: string, orderNumber?: string, reason?: string, createdAt: string, month?: string, expiresAt?: string, balanceAfter: number };
+export type LoyaltyPending = { orderId: string, orderNumber: string, arKey: string, points: number, waitingFor: 'payment' | 'delivery' | 'processing', promotion?: PromotionTag };
+export type LoyaltyHistoryRow = { id?: string, kind: LoyaltyKind, points: number, orderId?: string, orderNumber?: string, reason?: string, createdAt: string, month?: string, expiresAt?: string, balanceAfter: number, promotion?: PromotionTag };
 // What a month gained and spent over all its movements of the selected type ('YYYY-MM')
 export type LoyaltyMonth = { month: string, gained: number, spent: number };
 export type LoyaltyHistory = { rows: LoyaltyHistoryRow[], total: number, months?: LoyaltyMonth[] };
@@ -34,7 +41,7 @@ export type LoyaltyResponse = LoyaltySummary & { history: LoyaltyHistory, level?
 // GET /client/order/:id/loyalty
 export type PackagePoints = { earned: number, pending: number, waitingFor: 'payment' | 'delivery' | 'processing' | null };
 export type OrderLoyalty = {
-  earned: number, pending: number, redeemed: number, noPoints: { reason: string } | null,
+  earned: number, pending: number, redeemed: number, noPoints: { reason: string } | null, promotion?: PromotionTag,
   packages?: Record<string, PackagePoints>,
   quote: { balance: number, maxPoints: number, owedCents: number, billedCents: number, usedOnTarget: number },
 };

@@ -201,6 +201,9 @@ export default {
 
   markLevelSeen: () => base.post(`client/loyalty/level/seen`, {}),
 
+  // Points offers running or about to start (orders created during one earn ×N)
+  getLoyaltyPromotions: () => base.get(`client/loyalty/promotions`),
+
   // The customer's wallet: balances, debts, packages on the way, and the movements of one currency
   getWallet: () => base.get(`client/wallet`),
 

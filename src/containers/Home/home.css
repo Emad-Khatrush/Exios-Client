@@ -439,3 +439,4 @@
 .ia-card.is-done .ia-card__icon { background: #dcfce7; color: #15803d; }
 .ia-card__btn:disabled { opacity: 0.7; cursor: progress; }
 .hm-prices__special { display: inline-block; margin-inline-start: 6px; padding: 0 7px; border-radius: 999px; background: #fef3c7; color: #92400e; font-size: 0.72rem; font-style: normal; font-weight: 800; vertical-align: 1px; }
+.hm-points__offer { display: inline-flex; align-items: center; gap: 3px; vertical-align: middle; margin-inline-start: 8px; padding: 1px 8px; border-radius: 999px; background: linear-gradient(120deg, #f97316, #dc2626); color: #fff; font-size: 0.75rem; font-weight: 800; }

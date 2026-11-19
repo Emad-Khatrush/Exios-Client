@@ -7,6 +7,8 @@ import { LoyaltyHistory, LoyaltyHistoryRow, LoyaltyHistoryType, LoyaltyKind, Loy
 import { LevelCard, LevelCelebration, LevelRoute } from './LevelSection';
 import { pointsTerms } from './pointsTerms';
 import { pointsText, usdText } from './pointsFormat';
+import PromotionBanner, { usePromotions } from './PromotionBanner';
+import { timesText } from './promotions';
 import './points.css';
 
 // Each movement in the history: its icon, its tone and its title (with the order number when it has one)
@@ -121,6 +123,7 @@ const PendingSection = ({ pending }: { pending: LoyaltyPending[] }) => {
           <li key={`${p.orderId}-${p.arKey}`} className="pt-pending__row">
             <Link to={`/order/${p.orderId}`} className="pt-link pt-pending__order">طلبية <bdi dir="ltr">{p.orderNumber}</bdi></Link>
             <bdi dir="ltr" className="pt-pts pt-num is-gain">+{pointsText(p.points)}</bdi>
+            {p.promotion && <span className="pr-tag" title={p.promotion.name}>🔥 <bdi dir="ltr">{timesText(p.promotion.multiplierPct)}</bdi></span>}
             <span className={`pt-state is-${p.waitingFor}`}>{WAITING[p.waitingFor] || ''}</span>
           </li>
         ))}
@@ -239,6 +242,7 @@ const HistorySection = ({ initial }: { initial: LoyaltyHistory }) => {
                           <b className="pt-move__title">
                             {kind.title}
                             {r.orderId && r.orderNumber && <> <Link to={`/order/${r.orderId}`} className="pt-link"><bdi dir="ltr">{r.orderNumber}</bdi></Link></>}
+                            {r.promotion && <span className="pr-tag">🔥 {r.promotion.name} <bdi dir="ltr">{timesText(r.promotion.multiplierPct)}</bdi></span>}
                           </b>
                           <small className="pt-move__meta">
                             <span className="pt-move__when">{when.day} <bdi dir="ltr" className="pt-num">{when.time}</bdi></span>
@@ -281,6 +285,7 @@ const PointsPage = () => {
   const [tiers, setTiers] = useState<LoyaltyTier[]>([]);
   const [celebrating, setCelebrating] = useState(false);
   const navigate = useNavigate();
+  const promotions = usePromotions();
 
   const load = useCallback(() => {
     setFailed(false);
@@ -330,6 +335,8 @@ const PointsPage = () => {
 
         {data && (
           <>
+            <PromotionBanner promotions={promotions} />
+
             <section className="pt-balance" aria-label="رصيدك">
               <span className="pt-balance__label"><Gift size={18} aria-hidden /> رصيدك الآن</span>
               <p className="pt-balance__value">

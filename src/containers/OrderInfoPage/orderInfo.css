@@ -989,3 +989,4 @@
 .oi-points__hint { opacity: 0.8; font-size: 0.8rem; }
 .oi-points__note { margin-top: 6px; }
 .oi-points__note a { font-weight: 700; color: inherit; text-decoration: underline; }
+.oi-points__offer { margin: 6px 0 0; padding: 6px 10px; border-radius: 10px; background: #fff1f2; color: #9f1239; font-size: 0.88rem; }

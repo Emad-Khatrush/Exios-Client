@@ -6,11 +6,15 @@ import { dateText } from '../ClientOrders/orderUtils';
 import LevelEmblem from '../PointsPage/LevelEmblem';
 import { LoyaltyResponse } from '../PointsPage/loyaltyTypes';
 import { pointsText, usdText } from '../PointsPage/pointsFormat';
+import { usePromotions } from '../PointsPage/PromotionBanner';
+import { isActive, timesText } from '../PointsPage/promotions';
 
 /* The customer's points balance, linking to the points page. Nothing is shown while it loads or
    if it fails, so the home page never jumps or shows an error for an extra block. */
 const PointsCard = () => {
   const [data, setData] = useState<LoyaltyResponse | null>(null);
+  // A points offer running now: "×2 الآن" on the card (the highest one)
+  const offer = usePromotions().filter((p) => isActive(p)).sort((a, b) => b.multiplierPct - a.multiplierPct)[0];
 
   useEffect(() => {
     let alive = true;
@@ -28,6 +32,7 @@ const PointsCard = () => {
       <span className="hm-points__body">
         <small>
           نقاطي
+          {offer && <span className="hm-points__offer" title={offer.name}>🔥 <bdi dir="ltr">{timesText(offer.multiplierPct)}</bdi> الآن</span>}
           {data.level && (
             <span className="hm-points__level" style={{ ['--lv' as any]: data.level.color }}>
               <LevelEmblem levelKey={data.level.level} rank={data.level.rank} size={18} />{data.level.name}
