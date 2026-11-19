@@ -473,3 +473,14 @@
 .fb-thumb.is-error { cursor: pointer; background: #f4f4f5; }
 .fb-thumb span { padding: 6px; font-size: 11px; font-weight: 700; line-height: 1.4; color: #71717a; text-align: center; }
 @keyframes fb-thumb-pulse { 50% { opacity: 0.6; } }
+
+/* Several orders can be picked: a check box, and each order's tracking numbers */
+.fb-order__check { display: grid; place-items: center; flex: none; width: 22px; height: 22px; border: 2px solid #d4d4d8; border-radius: 7px; color: transparent; background: #fff; transition: background-color 0.15s ease, border-color 0.15s ease; }
+.fb-order.is-active .fb-order__check { border-color: #15803d; background: #15803d; color: #fff; }
+.fb-order:disabled { opacity: 0.5; cursor: not-allowed; }
+.fb-order__kind { margin-inline-start: 6px; color: #71717a; font-size: 0.8rem; font-weight: 600; }
+.fb-order__tracks { display: flex; flex-wrap: wrap; gap: 4px; }
+.fb-order__tracks bdi { padding: 1px 8px; border-radius: 6px; background: #f4f4f5; color: #3f3f46; font-size: 0.8rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.fb-order.is-active .fb-order__tracks bdi { background: #dcfce7; color: #166534; }
+.fb-order__tracks em { color: #71717a; font-size: 0.8rem; font-style: normal; font-weight: 700; }
+.fb-orders__count { display: flex; align-items: center; gap: 12px; margin: 0; color: #166534; font-weight: 700; }

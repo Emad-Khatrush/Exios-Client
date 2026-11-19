@@ -1,7 +1,8 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, ImagePlus, Lightbulb, MessageSquareWarning, RefreshCw, Send, X } from 'lucide-react';
+import { Check, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, ImagePlus, Lightbulb, MessageSquareWarning, RefreshCw, Send, X } from 'lucide-react';
 import api from '../../api';
+import { MAX_ORDERS, MyOrder, orderMatches, toggleOrder } from './complaintOrders';
 import './suggestions.css';
 
 type Kind = 'complaint' | 'suggestion';
@@ -252,51 +253,61 @@ const Composer = ({ f, onUpdated }: { f: Feedback, onUpdated: (f: Feedback) => v
   );
 };
 
-type MyOrder = {
-  _id: string;
-  orderId: string;
-  productName: string;
-  createdAt: string;
-  kind: 'shipping' | 'purchase' | 'remittance';
-  method: string;
-  finished: boolean;
-};
 const orderKind = (o: MyOrder) => (o.kind === 'purchase' ? 'شراء'
   : o.kind === 'remittance' ? 'حوالة'
     : o.method === 'air' ? 'شحن جوي' : o.method === 'sea' ? 'شحن بحري' : 'شحن');
+const TRACKING_SHOWN = 3;
 
-/* The customer's orders as choices; "not about an order" first, so leaving it is a choice too */
-const OrderPicker = ({ orders, value, onChange }: { orders: MyOrder[], value: string, onChange: (id: string) => void }) => {
+/* The customer's orders as choices, several at once, each known by its number and its tracking
+   numbers; "not about an order" first, which clears the choice */
+const OrderPicker = ({ orders, value, onChange }: { orders: MyOrder[], value: string[], onChange: (ids: string[]) => void }) => {
   const [query, setQuery] = useState('');
-  const q = query.trim().toLowerCase();
-  const shown = q ? orders.filter((o) => `${o.orderId} ${o.productName} ${orderKind(o)}`.toLowerCase().includes(q)) : orders;
+  const shown = orders.filter((o) => orderMatches(o, query));
+  const full = value.length >= MAX_ORDERS;
   return (
     <div className="fb-orders">
       {orders.length > 5 && (
-        <input className="fb-orders__search" type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="ابحث برقم الطلبية أو اسم المنتج" aria-label="بحث في طلبياتك" />
+        <input className="fb-orders__search" type="search" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="ابحث برقم الطلبية أو رقم التتبع" aria-label="بحث في طلبياتك" dir="auto" />
       )}
-      <div className="fb-orders__list" role="radiogroup" aria-label="الطلبية">
-        {!q && (
-          <button type="button" role="radio" aria-checked={!value} className={`fb-order ${!value ? 'is-active' : ''}`} onClick={() => onChange('')}>
+      {value.length > 0 && (
+        <p className="fb-orders__count" role="status">
+          اخترت {value.length === 1 ? 'طلبية واحدة' : value.length === 2 ? 'طلبيتين' : `${value.length} طلبيات`}
+          <button type="button" className="fb-link" onClick={() => onChange([])}>إلغاء الاختيار</button>
+        </p>
+      )}
+      <div className="fb-orders__list" role="group" aria-label="الطلبيات">
+        {!query.trim() && (
+          <button type="button" role="checkbox" aria-checked={!value.length} className={`fb-order ${!value.length ? 'is-active' : ''}`} onClick={() => onChange([])}>
             <span className="fb-order__radio" aria-hidden />
             <span className="fb-order__main"><b>ليست عن طلبية معينة</b></span>
           </button>
         )}
-        {shown.map((o) => (
-          <button key={o._id} type="button" role="radio" aria-checked={value === o._id} className={`fb-order ${value === o._id ? 'is-active' : ''}`} onClick={() => onChange(o._id)}>
-            <span className="fb-order__radio" aria-hidden />
-            <span className="fb-order__main">
-              <b><bdi dir="ltr">{o.orderId}</bdi></b>
-              <small>{orderKind(o)}{o.productName ? ` · ${o.productName}` : ''}</small>
-            </span>
-            <span className="fb-order__side">
-              <span className={`fb-order__state ${o.finished ? 'is-done' : ''}`}>{o.finished ? 'مكتملة' : 'جارية'}</span>
-              <small>{fmtDate(o.createdAt)}</small>
-            </span>
-          </button>
-        ))}
-        {q && !shown.length && <p className="fb-orders__none">لا توجد طلبية بهذا الرقم أو الاسم.</p>}
+        {shown.map((o) => {
+          const on = value.includes(o._id);
+          const tracks = o.trackingNumbers || [];
+          return (
+            <button key={o._id} type="button" role="checkbox" aria-checked={on} disabled={!on && full}
+              className={`fb-order is-multi ${on ? 'is-active' : ''}`} onClick={() => onChange(toggleOrder(value, o._id))}>
+              <span className="fb-order__check" aria-hidden><Check size={14} strokeWidth={3} /></span>
+              <span className="fb-order__main">
+                <b><bdi dir="ltr">{o.orderId}</bdi> <small className="fb-order__kind">{orderKind(o)}</small></b>
+                {tracks.length ? (
+                  <span className="fb-order__tracks" aria-label="أرقام التتبع">
+                    {tracks.slice(0, TRACKING_SHOWN).map((t) => <bdi key={t} dir="ltr">{t}</bdi>)}
+                    {tracks.length > TRACKING_SHOWN && <em>+{tracks.length - TRACKING_SHOWN}</em>}
+                  </span>
+                ) : <small>لا يوجد رقم تتبع بعد</small>}
+              </span>
+              <span className="fb-order__side">
+                <span className={`fb-order__state ${o.finished ? 'is-done' : ''}`}>{o.finished ? 'مكتملة' : 'جارية'}</span>
+                <small>{fmtDate(o.createdAt)}</small>
+              </span>
+            </button>
+          );
+        })}
+        {query.trim() && !shown.length && <p className="fb-orders__none">لا توجد طلبية بهذا الرقم أو رقم التتبع.</p>}
       </div>
+      {full && <p className="fb-orders__none">يمكن اختيار {MAX_ORDERS} طلبيات كحد أقصى في الشكوى الواحدة.</p>}
     </div>
   );
 };
@@ -367,7 +378,7 @@ const SuggestionsPage = () => {
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [orderRef, setOrderRef] = useState('');
-  const [orderId, setOrderId] = useState('');
+  const [orderIds, setOrderIds] = useState<string[]>([]);
   const [orders, setOrders] = useState<MyOrder[] | null>(null);
   const [manual, setManual] = useState(false);
   const [sending, setSending] = useState(false);
@@ -419,14 +430,14 @@ const SuggestionsPage = () => {
       const form = new FormData();
       Object.entries({ kind, topic, subject, message }).forEach(([k, v]) => form.append(k, v));
       if (kind === 'complaint') {
-        if (picking && orderId) form.append('order', orderId);
+        if (picking) orderIds.forEach((id) => form.append('orders', id));
         if (!picking && orderRef) form.append('orderRef', orderRef);
         files.forEach((file) => form.append('images', file));
       }
       const created: Feedback = await sendForm('client/feedback', form);
       setSent(created);
       setList((l) => [created, ...l]);
-      setSubject(''); setMessage(''); setOrderRef(''); setOrderId(''); setManual(false); setFiles([]); setTried(false);
+      setSubject(''); setMessage(''); setOrderRef(''); setOrderIds([]); setManual(false); setFiles([]); setTried(false);
     } catch (err) {
       setFormError(errorText(err));
     } finally {
@@ -521,9 +532,9 @@ const SuggestionsPage = () => {
                 )}
                 {kind === 'complaint' && picking && (
                   <fieldset className="mt-6">
-                    <legend className="fb-label">الطلبية <span className="fb-optional">اختر الطلبية التي تخصها الشكوى</span></legend>
-                    <OrderPicker orders={orders!} value={orderId} onChange={setOrderId} />
-                    <button type="button" className="fb-link" onClick={() => { setManual(true); setOrderId(''); }}>الطلبية غير موجودة؟ اكتب رقمها</button>
+                    <legend className="fb-label">الطلبيات <span className="fb-optional">اختر طلبية أو أكثر تخصها الشكوى</span></legend>
+                    <OrderPicker orders={orders!} value={orderIds} onChange={setOrderIds} />
+                    <button type="button" className="fb-link" onClick={() => { setManual(true); setOrderIds([]); }}>الطلبية غير موجودة؟ اكتب رقمها</button>
                   </fieldset>
                 )}
                 {kind === 'complaint' && orders !== null && !picking && (
