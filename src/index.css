@@ -112,17 +112,8 @@ html.nav-back .app-main *::after {
 }
 
 /* The installed app on iPhone (html.ios-app, utils/installApp.ts): the bar behind the clock is white,
-   so the app starts white right under it and fades into its own background, and a soft white fade at
-   the top lets content slide under the bar without a hard edge */
+   so the app starts white right under it and fades into its own background. Content scrolls under the
+   bar as in any iPhone app (a fade over it looked like a blur, owner 2026-11-19). */
 html.ios-app .app-main {
   background: linear-gradient(#ffffff 0, #f2f5f3 140px) local no-repeat, #f2f5f3;
-}
-html.ios-app body::after {
-  content: '';
-  position: fixed;
-  inset: 0 0 auto 0;
-  height: 16px;
-  background: linear-gradient(#ffffff, rgba(255, 255, 255, 0));
-  pointer-events: none;
-  z-index: 30;
 }
