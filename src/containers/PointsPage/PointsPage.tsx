@@ -33,7 +33,7 @@ const ADD_TITLE: Record<string, { icon: LucideIcon, title: string }> = {
   staff: { icon: Gift, title: 'إضافة من المكتب' },
   reearn: { icon: Undo2, title: 'رجوع نقاط طلبية بعد سدادها' },
 };
-const kindOf = (r: { kind: string, source?: string | null }) => {
+const kindOf = (r: { kind: string, source?: string | null, reason?: string }) => {
   const base = KIND[r.kind as keyof typeof KIND] || { icon: Plus, tone: 'gain' as const, title: r.kind };
   if (r.kind === 'add' && r.source && ADD_TITLE[r.source]) return { ...base, ...ADD_TITLE[r.source] };
   if (r.kind === 'revoke' && r.source?.startsWith('invite')) return { ...base, title: 'سحب مكافأة دعوة' };
