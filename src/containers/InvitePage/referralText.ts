@@ -14,6 +14,9 @@ export type Referrals = {
   sharePoints: number, sharePerUsd: number, ambassadorSharePoints: number, ambassadorTitle: string, ambassadorAt: string | null, months: number, qualified: number, friendsPaidUsd: number, steps: Step[], friends: Friend[], totalPoints: number,
 } | { off: true };
 
+// Every new account without an inviter gets this at sign-up (invited: the welcome gift instead, never both)
+export const SIGNUP_GIFT_POINTS = 100;
+
 // 100 points = $1
 export const usd = (points: number) => {
   const v = (Number(points) || 0) / 100;

@@ -18,7 +18,7 @@ import PhoneField from '../../components/PhoneField/PhoneField';
 import Picker from '../../components/Picker/Picker';
 import { DEFAULT_COUNTRY, phoneForServer, phoneProblem } from '../../utils/phone';
 import { passwordStrength as strength } from '../../utils/password';
-import { cleanCode, forgetCode, savedCode, usd } from '../InvitePage/referralText';
+import { SIGNUP_GIFT_POINTS, cleanCode, forgetCode, savedCode, usd } from '../InvitePage/referralText';
 import logo from '../../../public/images/exios-logo.png';
 import '../Login/login.css';
 import './register.css';
@@ -303,10 +303,15 @@ const Register = () => {
           <h1>أنشئ حسابك</h1>
           <p className="lg-lead">ثلاث خطوات قصيرة، وتحصل على كود عميل وعنوان باسمك في مخازننا.</p>
 
-          {refOk && (
+          {refOk ? (
             <p className="rg-gift" role="status">
               <Gift size={18} aria-hidden />
               <span>دعاك <b><bdi>{refInfo?.name}</bdi></b> · تحصل على هدية {usd(refInfo?.welcomePoints || 0)} لأول فاتورة شحن أو شراء</span>
+            </p>
+          ) : (
+            <p className="rg-gift">
+              <Gift size={18} aria-hidden />
+              <span>هدية <b>{SIGNUP_GIFT_POINTS} نقطة</b> ({usd(SIGNUP_GIFT_POINTS)}) عند فتح حسابك، لأول فاتورة شحن أو شراء</span>
             </p>
           )}
 
