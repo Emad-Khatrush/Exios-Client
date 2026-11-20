@@ -542,12 +542,13 @@ const Register = () => {
                       <input
                         type="checkbox"
                         checked={terms}
-                        onChange={(e) => { setTerms(e.target.checked); if (errors.terms) setErrors((x) => ({ ...x, terms: undefined })); }}
+                        // Ticking opens the terms: they are agreed to from the dialog's «أوافق»; unticking is direct
+                        onChange={(e) => { if (e.target.checked) setTermsOpen(true); else setTerms(false); }}
                         {...aria('terms')}
                       />
                       <span className="rg-terms__box" aria-hidden><Check size={14} strokeWidth={3} /></span>
                       <span>
-                        قرأت <button type="button" className="rg-terms__link" onClick={() => setTermsOpen(true)}>شروط وسياسات اكسيوس</button> وأوافق عليها
+                        قرأت <button type="button" className="rg-terms__link" onClick={(e) => { e.preventDefault(); setTermsOpen(true); }}>شروط وسياسات اكسيوس</button> وأوافق عليها
                       </span>
                     </label>
                     {err('terms')}
@@ -611,7 +612,7 @@ const Register = () => {
               <span className="rg-grow" />
               <button type="button" className="rg-prev" onClick={() => setTermsOpen(false)}>إغلاق</button>
               <button type="button" className="lg-submit" onClick={() => { setTerms(true); setErrors((x) => ({ ...x, terms: undefined })); setTermsOpen(false); }}>
-                <Check size={18} aria-hidden /> أوافق
+                <Check size={18} aria-hidden /> قرأتها وأوافق
               </button>
             </div>
           </div>
