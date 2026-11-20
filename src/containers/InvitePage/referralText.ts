@@ -8,6 +8,8 @@ export type Friend = {
   paidUsd: number, leftUsd: number,
   // Rewards from this friend still waiting their 24 hours
   heldPoints: number,
+  // Why its rewards wait beyond the 24 hours: the friend's passport not verified yet, or the office's review
+  waiting?: 'passport' | 'review' | null,
 };
 // A step needs both: that many friends who reached the big reward, and that much paid by all friends
 export type Step = { friends: number, usd: number, points: number, title?: string, ambassador?: boolean, reached: boolean };
@@ -81,6 +83,10 @@ export function friendStatusText(f: Friend, qualifyUsd: number, now = Date.now()
   if (f.status === 'ended') return { text: 'انتهت سنة الحصة', tone: 'muted' };
   return { text: `تكسب من شحنه · باقي ${monthsText(monthsLeft(f.shareEndsAt as string, now))}`, tone: 'live' };
 }
+
+// Why a friend's rewards wait (shown under their status), or null
+export const waitingText = (waiting?: Friend['waiting']) => (waiting === 'passport' ? 'مكافآتك منه تنتظر توثيق جوازه'
+  : waiting === 'review' ? 'مكافآتك منه قيد مراجعة المكتب' : null);
 
 export const homeInviteText = (firstPoints: number) => ({
   title: `ادعُ صديقك واكسب ${usd(firstPoints)}`,

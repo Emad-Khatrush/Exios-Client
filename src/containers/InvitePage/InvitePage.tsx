@@ -4,7 +4,7 @@ import { Award, BadgeCheck, Check, ChevronDown, Copy, Gift, HandCoins, RefreshCw
 import { TbBrandWhatsapp } from 'react-icons/tb';
 import api from '../../api';
 import { useCopy } from '../../utils/useCopy';
-import { Friend, Referrals, SIGNUP_GIFT_POINTS, friendStatusText, headline, nextStepText, pointsNum, shareMessage, usd } from './referralText';
+import { Friend, Referrals, SIGNUP_GIFT_POINTS, waitingText, friendStatusText, headline, nextStepText, pointsNum, shareMessage, usd } from './referralText';
 import './invite.css';
 
 const dayText = (d: string) => new Date(d).toLocaleDateString('ar-LY-u-nu-latn', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -165,6 +165,7 @@ const InvitePage = () => {
                   <span className="iv-friends__main">
                     <b>{f.name}</b>
                     <small className={`is-${status.tone}`}>{status.text}</small>
+                    {waitingText(f.waiting) && <small className="is-wait">{waitingText(f.waiting)}</small>}
                     <small>سجّل {dayText(f.joinedAt)}</small>
                   </span>
                   {(f.points > 0 || f.heldPoints > 0) && (
@@ -188,6 +189,7 @@ const InvitePage = () => {
           <li>تكسب <bdi>{pointsNum(data.firstPoints)}</bdi> نقطة (<bdi>{usd(data.firstPoints)}</bdi>) عندما يصل مجموع ما دفعه صديقك <bdi>{data.qualifyUsd}$</bdi>، ولو على عدة طلبيات.</li>
           <li>من تلك اللحظة ولمدة {data.months} شهراً تكسب {data.sharePoints} نقاط عن كل <bdi>{data.sharePerUsd}$</bdi> يدفعها صديقك ({data.ambassadorSharePoints} نقطة إذا كنت سفيراً). نقاط صديقك لا تنقص شيئاً.</li>
           <li>كل مكافأة من الدعوة تُضاف لرصيدك بعد {data.holdHours} ساعة من دفع صديقك. إذا عُدّلت طلبيته أو أُلغيت خلالها تُلغى المكافأة، وإذا أُلغيت بعد إضافتها تُسحب.</li>
+          <li>تُعطى مكافآت صديقك بعد توثيق جوازه في المكتب. وقد تراجع الإدارة الدعوة قبل إعطاء مكافآتها، والمكافآت الإضافية تُعطى بعد موافقة المكتب.</li>
           <li>المكافآت الإضافية تحتاج الشرطين معاً: عدد الأصدقاء الذين وصلوا <bdi>{data.qualifyUsd}$</bdi>، ومجموع ما دفعه كل أصدقائك: {data.steps.map((s) => `${s.friends} أصدقاء و${pointsNum(s.usd)}$ = ${pointsNum(s.points)} نقطة`).join('، ')}. كل مكافأة مرة واحدة.</li>
           <li>يُحسب ما يدفعه صديقك من فواتير الشحن والشراء المدفوعة بالكامل (والشحن بعد استلام الطرد). الطلبيات الملغاة لا تُحسب، وحوالات Alipay تُحسب بنصف قيمتها.</li>
           <li>حصتك من أصدقائك فقط ترفع عضويتك، مثل نقاط شحنك. مكافأة <bdi>{data.qualifyUsd}$</bdi> والمكافآت الإضافية نقاط للاستعمال فقط ولا تُحسب في العضوية. صلاحية كل النقاط حسب مستوى عضويتك.</li>
