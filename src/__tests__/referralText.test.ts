@@ -61,3 +61,20 @@ describe('invite a friend: what the customer reads', () => {
     expect(savedCode(2000)).toBe('');
   });
 });
+
+describe('the record of rewards: what each row says', () => {
+  const { kindText, historyNoteText } = require('../containers/InvitePage/referralText');
+  it('the kind', () => {
+    expect(kindText({ kind: 'first', step: null })).toBe('مكافأة الدعوة');
+    expect(kindText({ kind: 'share', step: null })).toBe('حصتك من شحنه');
+    expect(kindText({ kind: 'step', step: { friends: 10, usd: 10000, title: 'سفير Exios' } })).toBe('مكافأة 10 أصدقاء ولقب «سفير Exios»');
+  });
+  it('where it stands', () => {
+    const now = new Date('2026-11-20T10:00:00Z').getTime();
+    expect(historyNoteText({ state: 'pending', note: 'hold', releaseAt: '2026-11-20T15:00:00Z', grantedAt: null }, 24, now)).toBe('تُضاف بعد 5 ساعات');
+    expect(historyNoteText({ state: 'pending', note: 'passport', releaseAt: null, grantedAt: null }, 24, now)).toBe('تنتظر توثيق جواز صديقك');
+    expect(historyNoteText({ state: 'pending', note: 'review', releaseAt: null, grantedAt: null }, 24, now)).toBe('قيد مراجعة المكتب');
+    expect(historyNoteText({ state: 'canceled', note: 'عُدّلت طلبية الصديق أو أُلغيت', releaseAt: null, grantedAt: null }, 24, now)).toBe('أُلغيت: عُدّلت طلبية الصديق أو أُلغيت');
+    expect(historyNoteText({ state: 'granted', note: null, releaseAt: null, grantedAt: '2026-11-18T10:00:00Z' }, 24, now)).toBe('أُضيفت لرصيدك 18 نوفمبر');
+  });
+});

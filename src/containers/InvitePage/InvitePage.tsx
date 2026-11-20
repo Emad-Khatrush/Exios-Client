@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Award, BadgeCheck, Check, ChevronDown, Copy, Gift, HandCoins, RefreshCw, Repeat, ScrollText, Share2, Trophy, UserPlus, Users } from 'lucide-react';
+import { Award, BadgeCheck, Check, ChevronDown, ChevronLeft, Copy, Gift, HandCoins, RefreshCw, Repeat, ScrollText, Share2, Trophy, UserPlus, Users } from 'lucide-react';
 import { TbBrandWhatsapp } from 'react-icons/tb';
 import api from '../../api';
 import { useCopy } from '../../utils/useCopy';
@@ -145,7 +145,7 @@ const InvitePage = () => {
 
       <section className="iv-card" aria-labelledby="iv-friends">
         <div className="iv-card__head">
-          <h2 id="iv-friends"><Users size={19} aria-hidden /> أصدقائي</h2>
+          <h2 id="iv-friends"><Users size={19} aria-hidden /> أصدقائي <Link to="/invite/history" className="iv-history-link">السجل الكامل</Link></h2>
           {(data.totalPoints > 0 || data.heldPoints > 0) && (
             <span className="iv-pills">
               {data.totalPoints > 0 && <span className="iv-pill iv-pill--gold">كسبت {pointsNum(data.totalPoints)} نقطة</span>}
@@ -161,6 +161,7 @@ const InvitePage = () => {
               const status = friendStatusText(f, data.qualifyUsd);
               return (
                 <li key={f.id}>
+                  <Link to={`/invite/history?friend=${f.id}`} className="iv-friends__link" aria-label={`ما كسبته من ${f.name}`}>
                   <span className="iv-friends__avatar" aria-hidden>{f.name.charAt(0)}</span>
                   <span className="iv-friends__main">
                     <b>{f.name}</b>
@@ -174,6 +175,8 @@ const InvitePage = () => {
                       {f.heldPoints > 0 && <small className="iv-friends__held"><bdi dir="ltr">+{pointsNum(f.heldPoints)}</bdi> بعد {data.holdHours} ساعة</small>}
                     </span>
                   )}
+                  <ChevronLeft size={18} aria-hidden className="iv-friends__go" />
+                  </Link>
                 </li>
               );
             })}

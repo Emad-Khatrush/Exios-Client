@@ -88,6 +88,43 @@ export function friendStatusText(f: Friend, qualifyUsd: number, now = Date.now()
 export const waitingText = (waiting?: Friend['waiting']) => (waiting === 'passport' ? 'مكافآتك منه تنتظر توثيق جوازه'
   : waiting === 'review' ? 'مكافآتك منه قيد مراجعة المكتب' : null);
 
+// ---- The record of rewards (GET client/referrals/history) ----
+export type HistoryItem = {
+  id: string, kind: 'first' | 'share' | 'step', points: number, countsForLevel: boolean,
+  state: 'granted' | 'pending' | 'canceled',
+  // pending: 'hold' (its 24 hours), 'passport', 'review', 'soon'; canceled: the reason in words
+  note: string | null, releaseAt: string | null, at: string, grantedAt: string | null, canceledAt: string | null,
+  friend: { id: string, name: string } | null, orderNumber: string | null, paidUsd: number | null,
+  step: { friends: number, usd: number, title: string | null } | null,
+};
+export type HistoryFriend = {
+  id: string, name: string, joinedAt: string, status: FriendStatus, paidUsd: number, leftUsd: number,
+  qualifiedAt: string | null, shareEndsAt: string | null, orders: number, waiting: 'passport' | 'review' | null,
+};
+export type HistoryResponse = {
+  off: boolean, items: HistoryItem[], page: number, pages: number, total: number,
+  totals: { granted: number, pending: number, canceled: number }, friend: HistoryFriend | null, holdHours: number, qualifyUsd: number,
+};
+
+// What a reward is
+export const kindText = (i: Pick<HistoryItem, 'kind' | 'step'>) => (i.kind === 'first' ? 'مكافأة الدعوة'
+  : i.kind === 'share' ? 'حصتك من شحنه'
+    : `مكافأة ${i.step?.friends ?? ''} أصدقاء${i.step?.title ? ` ولقب «${i.step.title}»` : ''}`);
+
+const hoursLeft = (until: string, now: number) => Math.max(Math.ceil((new Date(until).getTime() - now) / 3600000), 1);
+const hoursText = (h: number) => (h === 1 ? 'ساعة' : h === 2 ? 'ساعتين' : h <= 10 ? `${h} ساعات` : `${h} ساعة`);
+const shortDay = (d: string) => new Date(d).toLocaleDateString('ar-LY-u-nu-latn', { day: 'numeric', month: 'long' });
+
+// Where a reward stands, in words
+export function historyNoteText(i: Pick<HistoryItem, 'state' | 'note' | 'releaseAt' | 'grantedAt'>, holdHours: number, now = Date.now()) {
+  if (i.state === 'granted') return i.grantedAt ? `أُضيفت لرصيدك ${shortDay(i.grantedAt)}` : 'أُضيفت لرصيدك';
+  if (i.state === 'canceled') return i.note ? `أُلغيت: ${i.note}` : 'أُلغيت';
+  if (i.note === 'hold' && i.releaseAt) return `تُضاف بعد ${hoursText(hoursLeft(i.releaseAt, now))}`;
+  if (i.note === 'passport') return 'تنتظر توثيق جواز صديقك';
+  if (i.note === 'review') return 'قيد مراجعة المكتب';
+  return `تُضاف خلال ساعة (بعد مهلة ${holdHours} ساعة)`;
+}
+
 export const homeInviteText = (firstPoints: number) => ({
   title: `ادعُ صديقك واكسب ${usd(firstPoints)}`,
   sub: 'وتكسب من كل شحنة له لمدة سنة كاملة',

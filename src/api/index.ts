@@ -219,6 +219,9 @@ export default {
   // Invite a friend: the customer's code, rewards and friends; and the sign-up page's check of a code
   getReferrals: () => base.get(`client/referrals`),
 
+  // Every reward from the customer's friends (or one friend's), page by page
+  getReferralHistory: (q: { friend?: string, status?: string, page?: number }) => base.get(`client/referrals/history`, q),
+
   checkReferralCode: (code: string) => base.get(`referrals/check/${encodeURIComponent(code)}`),
 
   // Points offers running or about to start (orders created during one earn ×N)

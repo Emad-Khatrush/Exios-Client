@@ -38,6 +38,7 @@ const NotificationsPage = lazyPage(() => import('./containers/Notifications/Noti
 const RatePage = lazyPage(() => import('./containers/RatePage/RatePage'));
 const InvitePage = lazyPage(() => import('./containers/InvitePage/InvitePage'));
 const RefLink = lazyPage(() => import('./containers/InvitePage/RefLink'));
+const InviteHistory = lazyPage(() => import('./containers/InvitePage/InviteHistory'));
 
 declare const process: {
   env: Record<string, string | undefined>;
@@ -92,6 +93,7 @@ const App = () => {
               <Route path='/notifications' element={<NotificationsPage />} />
               <Route path='/rate' element={<RatePage />} />
               <Route path='/invite' element={<InvitePage />} />
+              <Route path='/invite/history' element={<InviteHistory />} />
               <Route path='/settings' element={<SettingsPage />} />
               <Route path='/contact-us' element={<ContactUs />} />
               <Route path='/terms-privacy' element={<TermsAndPrivacy />} />
