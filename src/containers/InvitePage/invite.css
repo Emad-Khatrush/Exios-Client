@@ -1,104 +1,138 @@
-/* «ادعُ أصدقاءك»: the hero with the code and the WhatsApp button, how it works, the ladder and the friends */
-.iv-page { color: #1f2a24; }
-.iv-hero { position: relative; overflow: hidden; margin-bottom: 14px; padding: 24px 18px 18px; border-radius: 24px; background: linear-gradient(150deg, #14532d, #15803d 60%, #22a355); color: #fff; text-align: center; box-shadow: 0 18px 40px -24px rgba(20, 83, 45, 0.9); }
-.iv-hero::after { content: ''; position: absolute; inset: auto -40px -60px auto; width: 180px; height: 180px; border-radius: 50%; background: rgba(255, 255, 255, 0.07); pointer-events: none; }
-.iv-hero__icon { display: inline-grid; place-items: center; width: 54px; height: 54px; margin-bottom: 10px; border-radius: 18px; background: rgba(255, 255, 255, 0.16); }
-.iv-hero h1 { margin: 0 auto; max-width: 22ch; font-size: clamp(1.35rem, 4.6vw, 1.85rem); font-weight: 800; line-height: 1.45; }
-.iv-hero p { margin: 8px auto 0; max-width: 46ch; color: #d9f5e2; font-size: 0.92rem; line-height: 1.8; }
-.iv-code { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 16px auto 0; padding: 10px 12px; max-width: 320px; border: 1.5px dashed rgba(255, 255, 255, 0.5); border-radius: 16px; background: rgba(0, 0, 0, 0.12); }
-.iv-code span { color: #c7ecd3; font-size: 0.82rem; font-weight: 700; }
-.iv-code b { font-size: 1.45rem; font-weight: 800; letter-spacing: 0.18em; }
-.iv-code button { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: #fff; color: #15803d; }
-.iv-actions { display: grid; gap: 8px; margin-top: 14px; }
-.iv-actions__row { display: flex; gap: 8px; }
-.iv-actions__row > * { flex: 1; }
-.iv-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 16px; border-radius: 14px; background: #15803d; color: #fff; font-weight: 800; text-decoration: none; }
-.iv-btn--wa { min-height: 54px; background: #25d366; color: #0b3d1f; font-size: 1.05rem; box-shadow: 0 10px 22px -12px rgba(0, 0, 0, 0.5); }
-.iv-hero .iv-btn--ghost { border: 1px solid rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.1); color: #fff; }
-.iv-btn--ghost { border: 1px solid #d7e1db; background: #fff; color: #15803d; }
-.iv-card { margin-bottom: 14px; padding: 16px; border: 1px solid #e6ebe8; border-radius: 20px; background: #fff; }
-.iv-card h2 { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 1.05rem; font-weight: 800; }
-.iv-card__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
-.iv-card__head h2 { margin: 0; }
-.iv-pill { padding: 2px 10px; border-radius: 999px; background: #ecf6ef; color: #15803d; font-size: 0.8rem; font-weight: 800; white-space: nowrap; }
-.iv-pill--gold { background: #fef3c7; color: #92400e; }
-.iv-how { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
-/* One step a row: the icon, then a title and one short line; a line joins the icons */
-.iv-how li { position: relative; display: flex; align-items: center; gap: 12px; min-height: 42px; }
-.iv-how li + li::before { content: ''; position: absolute; inset-inline-start: 20px; bottom: 100%; width: 2px; height: 14px; background: #d6eadc; }
-.iv-how li > span { display: grid; place-items: center; flex: none; width: 42px; height: 42px; border-radius: 14px; background: #ecf6ef; color: #15803d; }
-/* The text takes the rest of the row and starts at the icon (right), whatever numbers it holds */
-.iv-how li > div { flex: 1; min-width: 0; direction: rtl; text-align: right; }
-.iv-how b { display: block; font-weight: 800; line-height: 1.5; }
-.iv-how small { display: block; margin-top: 1px; color: #66736b; font-size: 0.84rem; line-height: 1.5; }
-.iv-bar { height: 10px; margin-bottom: 12px; overflow: hidden; border-radius: 999px; background: #eef2ef; }
-.iv-bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #f59e0b, #fbbf24); transition: width 0.6s ease; }
-.iv-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
-.iv-steps li { display: grid; justify-items: center; gap: 6px; padding: 10px 6px; border: 1px solid #e6ebe8; border-radius: 16px; text-align: center; }
-.iv-steps li.is-on { border-color: #fcd34d; background: #fffbeb; }
-.iv-steps b { display: block; font-size: 0.9rem; font-weight: 800; }
-.iv-steps small { display: block; color: #66736b; font-size: 0.76rem; line-height: 1.5; }
-.iv-steps .iv-steps__pts { color: #92400e; font-weight: 700; }
-.iv-steps__n { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #f4f4f5; color: #3f3f46; font-weight: 800; }
-.iv-steps li.is-on .iv-steps__n { background: #f59e0b; color: #fff; }
-.iv-next { margin: 12px 0 0; color: #92400e; font-size: 0.88rem; font-weight: 700; text-align: center; }
-.iv-empty { margin: 0; padding: 18px 8px; color: #66736b; text-align: center; line-height: 1.7; }
-.iv-friends { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
-.iv-friends li { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid #eef2ef; border-radius: 16px; }
-.iv-friends__avatar { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 50%; background: #ecf6ef; color: #15803d; font-weight: 800; }
-.iv-friends__main { display: grid; flex: 1; gap: 2px; min-width: 0; }
-.iv-friends__main b { font-weight: 800; }
-.iv-friends__main small { color: #8a958f; font-size: 0.8rem; }
-.iv-friends__main small.is-live { color: #15803d; font-weight: 700; }
-.iv-friends__main small.is-wait { color: #b45309; font-weight: 700; }
-.iv-friends__pts { padding: 2px 10px; border-radius: 999px; background: #fef3c7; color: #92400e; font-size: 0.85rem; font-style: normal; font-weight: 800; }
-.iv-fine { margin: 4px 4px 0; color: #8a958f; font-size: 0.8rem; line-height: 1.7; text-align: center; }
-.iv-fine a { color: #15803d; font-weight: 700; }
-.iv-state { display: grid; justify-items: center; gap: 10px; padding: 36px 16px; border: 1px dashed #d7e1db; border-radius: 20px; background: #fff; text-align: center; }
-.iv-state p { margin: 0; color: #66736b; }
-.iv-sk { height: 320px; border-radius: 24px; background: linear-gradient(90deg, #eef2ef, #f7f9f8, #eef2ef); background-size: 200% 100%; animation: iv-sk 1.2s linear infinite; }
-@keyframes iv-sk { to { background-position: -200% 0; } }
-@media (max-width: 380px) { .iv-steps { grid-template-columns: 1fr; } .iv-steps li { grid-template-columns: auto 1fr; justify-items: start; text-align: start; } }
-@media (prefers-reduced-motion: reduce) { .iv-sk { animation: none; } .iv-bar span { transition: none; } }
-/* The ambassador: a badge in the hero, and what the step gives */
-.iv-amb { display: inline-flex; align-items: center; gap: 6px; margin: 0 auto 10px; padding: 4px 12px; border-radius: 999px; background: #fef3c7; color: #92400e; font-size: 0.85rem; font-weight: 800; }
-.iv-hero .iv-amb { display: flex; width: fit-content; }
-.iv-steps .iv-steps__amb { color: #15803d; font-weight: 700; }
-/* «سفير Exios»: how to get it and what it gives */
-.iv-ambcard { border-color: #fde68a; background: linear-gradient(180deg, #fffbeb, #fff 60%); }
-.iv-ambcard.is-on { border-color: #f59e0b; }
-.iv-ambcard__head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
-.iv-ambcard__head h2 { margin: 0; }
-.iv-ambcard__head p { margin: 2px 0 0; color: #92400e; font-size: 0.86rem; }
-.iv-ambcard__icon { display: grid; place-items: center; flex: none; width: 48px; height: 48px; border-radius: 16px; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; box-shadow: 0 10px 22px -12px rgba(245, 158, 11, 0.9); }
-.iv-ambcard h3 { margin: 14px 0 8px; color: #1f2a24; font-size: 0.92rem; font-weight: 800; }
-.iv-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; direction: rtl; text-align: right; }
-.iv-list li { display: flex; align-items: flex-start; gap: 8px; font-size: 0.9rem; line-height: 1.7; }
-.iv-list li svg { flex: none; margin-top: 4px; color: #d97706; }
-.iv-list b { font-weight: 800; }
+/* «ادعُ صديقك»: an invite designed as what Exios ships, a shipping label from the customer to a friend.
+   Only the label is bold; everything under it is quiet: plain sections on the page, one green, amber
+   for points, indigo for what waits. */
+.iv-page {
+  --iv-green: #15803d; --iv-ink: #123524; --iv-text: #1f2a24; --iv-muted: #66736b; --iv-faint: #98a49d;
+  --iv-line: #e3e9e5; --iv-soft: #eef4f0; --iv-amber: #b45309; --iv-amber-soft: #fef3c7; --iv-wait: #4338ca;
+  color: var(--iv-text);
+}
+.iv-page :focus-visible { outline: 2px solid var(--iv-green); outline-offset: 2px; border-radius: 8px; }
+.iv-title { margin: 0 0 14px; font-size: clamp(1.5rem, 4.4vw, 1.9rem); font-weight: 800; }
 
-/* The rules, folded */
-.iv-terms { padding: 0; }
-.iv-terms summary { display: flex; align-items: center; gap: 8px; padding: 14px 16px; font-weight: 800; cursor: pointer; list-style: none; }
+/* ---- The label ---- */
+.ivl { position: relative; overflow: hidden; border: 1.5px solid var(--iv-ink); border-radius: 14px; background: #fff; color: var(--iv-ink); box-shadow: 0 1px 0 var(--iv-ink), 0 18px 34px -26px rgba(18, 53, 36, 0.6); }
+.ivl__band { display: flex; align-items: center; gap: 10px; padding: 9px 14px; background: var(--iv-ink); color: #fff; }
+.ivl__band b { font-size: 1.05rem; font-weight: 800; letter-spacing: 0.02em; }
+.ivl__band > span { color: #cfe3d6; font-size: 0.85rem; font-weight: 600; }
+.ivl__amb { display: inline-flex; align-items: center; gap: 4px; margin-inline-start: auto; padding: 1px 9px; border-radius: 999px; background: #fbbf24; color: #3b2a05 !important; font-weight: 800 !important; }
+.ivl__parties { display: grid; grid-template-columns: 1fr 1fr; }
+.ivl__parties > div { display: grid; align-content: start; gap: 2px; padding: 14px; }
+.ivl__parties > div + div { border-inline-start: 1.5px solid var(--iv-ink); }
+.ivl__parties small { color: var(--iv-muted); font-size: 0.78rem; font-weight: 700; }
+.ivl__parties b { font-size: 1.15rem; font-weight: 800; line-height: 1.4; }
+.ivl__parties span { color: var(--iv-muted); font-size: 0.82rem; line-height: 1.6; }
+/* The tear line, with the two notches a label has where it is perforated */
+.ivl__tear { position: relative; height: 0; border-top: 2px dashed #b9c8be; }
+.ivl__tear::before, .ivl__tear::after { content: ''; position: absolute; top: -9px; width: 16px; height: 16px; border: 1.5px solid var(--iv-ink); border-radius: 50%; background: #f3f6f4; }
+.ivl__tear::before { inset-inline-start: -9px; }
+.ivl__tear::after { inset-inline-end: -9px; }
+.ivl__code { min-width: 0; padding: 12px 14px 14px; }
+.ivl__code small { color: var(--iv-muted); font-size: 0.78rem; font-weight: 700; }
+.ivl__code-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ivl__code-row b { font-size: clamp(1.9rem, 8vw, 2.4rem); font-weight: 800; letter-spacing: 0.16em; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.ivl__code-row button { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; border: 1.5px solid var(--iv-ink); border-radius: 10px; background: #fff; color: var(--iv-ink); font-weight: 800; }
+.ivl__code-row button:hover { background: var(--iv-soft); }
+.ivl__bars { display: flex; align-items: stretch; gap: 1px; width: 100%; max-width: 100%; height: 30px; margin-top: 8px; overflow: hidden; direction: ltr; contain: inline-size; }
+.ivl__bars span { flex: none; background: var(--iv-ink); }
+
+/* ---- Sending ---- */
+.iv-send { display: grid; gap: 8px; margin: 12px 0 22px; }
+.iv-send__row { display: flex; gap: 8px; }
+.iv-send__row > * { flex: 1; }
+.iv-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 16px; border-radius: 12px; background: var(--iv-green); color: #fff; font-weight: 800; text-decoration: none; }
+.iv-btn--wa { min-height: 56px; background: #25d366; color: #073b1c; font-size: 1.08rem; }
+.iv-btn--wa:hover { background: #1fc25c; }
+.iv-btn--ghost { border: 1px solid var(--iv-line); background: #fff; color: var(--iv-ink); }
+.iv-btn--ghost:hover { border-color: #c9d6cd; }
+
+/* ---- Earnings ---- */
+.iv-earn { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; padding: 14px 16px; border-radius: 14px; background: var(--iv-ink); color: #fff; text-decoration: none; }
+.iv-earn small { display: block; color: #b9d3c2; font-size: 0.8rem; font-weight: 600; }
+.iv-earn__main b { font-size: 1.6rem; font-weight: 800; line-height: 1.2; }
+.iv-earn__main b span { font-size: 0.95rem; font-weight: 700; }
+.iv-earn__held { padding-inline-start: 16px; border-inline-start: 1px solid rgba(255, 255, 255, 0.2); }
+.iv-earn__held b { color: #c7d2fe; font-size: 1.15rem; font-weight: 800; }
+.iv-earn__go { display: inline-flex; align-items: center; gap: 2px; margin-inline-start: auto; color: #fff; font-size: 0.9rem; font-weight: 700; }
+
+/* ---- Sections: plain, on the page ---- */
+.iv-sec { margin-bottom: 24px; }
+.iv-sec__head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.iv-sec__head h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 1.1rem; font-weight: 800; }
+.iv-sec__link { color: var(--iv-green); font-size: 0.88rem; font-weight: 700; }
+.iv-count { padding: 0 8px; border-radius: 999px; background: var(--iv-soft); color: var(--iv-green); font-size: 0.82rem; }
+.iv-empty { margin: 0; padding: 18px 14px; border: 1px dashed #cfdbd3; border-radius: 14px; color: var(--iv-muted); line-height: 1.8; text-align: center; }
+
+/* Friends */
+.iv-friends { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.iv-friend { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--iv-line); border-radius: 14px; background: #fff; color: inherit; text-decoration: none; }
+.iv-friend:hover { border-color: #c9d6cd; }
+.iv-friend__avatar { display: grid; place-items: center; flex: none; width: 42px; height: 42px; border-radius: 50%; background: var(--iv-soft); color: var(--iv-green); font-weight: 800; }
+.iv-friend__main { display: grid; flex: 1; gap: 3px; min-width: 0; direction: rtl; text-align: right; }
+.iv-friend__main b { font-weight: 800; }
+.iv-friend__main small { color: var(--iv-faint); font-size: 0.8rem; line-height: 1.5; }
+.iv-friend__main small.is-live { color: var(--iv-green); font-weight: 700; }
+.iv-friend__main small.is-wait { color: var(--iv-amber); font-weight: 700; }
+.iv-friend__track { display: block; height: 6px; max-width: 220px; overflow: hidden; border-radius: 999px; background: #edf1ee; }
+.iv-friend__track span { display: block; height: 100%; border-radius: inherit; background: var(--iv-green); }
+.iv-friend__side { display: grid; justify-items: end; gap: 2px; flex: none; }
+.iv-friend__side b { color: var(--iv-amber); font-weight: 800; }
+.iv-friend__side small { color: var(--iv-wait); font-size: 0.76rem; font-weight: 700; white-space: nowrap; }
+.iv-friend__side small:only-child { color: var(--iv-faint); font-weight: 600; }
+.iv-friend__go { flex: none; color: #b3beb7; }
+
+/* How an invite travels: a tracking line */
+.iv-track { position: relative; display: grid; gap: 16px; margin: 0; padding: 0 0 0; padding-inline-start: 30px; list-style: none; counter-reset: stage; direction: rtl; text-align: right; }
+.iv-track::before { content: ''; position: absolute; top: 8px; bottom: 8px; inset-inline-start: 10px; width: 2px; background: repeating-linear-gradient(to bottom, var(--iv-green) 0 6px, transparent 6px 11px); }
+.iv-track li { position: relative; display: grid; gap: 1px; counter-increment: stage; }
+.iv-track li::before { content: counter(stage); position: absolute; top: 1px; inset-inline-start: -30px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 2px solid var(--iv-green); color: var(--iv-green); font-size: 0.75rem; font-weight: 800; }
+.iv-track li:last-child::before { background: var(--iv-green); color: #fff; }
+.iv-track b { font-weight: 800; line-height: 1.5; }
+.iv-track span { color: var(--iv-muted); font-size: 0.86rem; line-height: 1.6; }
+
+/* Extra rewards: one route of stops */
+.iv-route__lead { margin: 0 0 12px; color: var(--iv-amber); font-size: 0.9rem; font-weight: 700; line-height: 1.7; }
+.iv-route { position: relative; display: grid; gap: 14px; margin: 0; padding: 0; padding-inline-start: 30px; list-style: none; direction: rtl; text-align: right; }
+.iv-route::before { content: ''; position: absolute; top: 10px; bottom: 10px; inset-inline-start: 10px; width: 2px; background: var(--iv-line); }
+.iv-stop { position: relative; }
+.iv-stop__dot { position: absolute; top: 3px; inset-inline-start: -30px; display: grid; place-items: center; width: 22px; height: 22px; border: 2px solid #c9d6cd; border-radius: 50%; background: #fff; color: #fff; }
+.iv-stop.is-done .iv-stop__dot { border-color: var(--iv-green); background: var(--iv-green); }
+.iv-stop.is-next .iv-stop__dot { border-color: var(--iv-amber); box-shadow: 0 0 0 4px var(--iv-amber-soft); }
+.iv-stop.is-amb .iv-stop__dot { border-color: #d97706; background: #fbbf24; color: #3b2a05; }
+.iv-stop__body { padding: 12px 14px; border: 1px solid var(--iv-line); border-radius: 14px; background: #fff; }
+.iv-stop.is-done .iv-stop__body { background: #f6faf7; }
+.iv-stop.is-amb .iv-stop__body { border-color: #f3d27a; background: #fffbeb; }
+.iv-stop__title { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.iv-stop__title b { font-weight: 800; }
+.iv-stop__prize { color: var(--iv-amber); font-weight: 800; white-space: nowrap; }
+.iv-stop__needs { display: grid; gap: 3px; margin-top: 8px; }
+.iv-stop__needs > span { display: block; height: 6px; overflow: hidden; border-radius: 999px; background: #edf1ee; }
+.iv-stop__needs > span i { display: block; height: 100%; border-radius: inherit; background: var(--iv-amber); }
+.iv-stop__needs small { margin-bottom: 4px; color: var(--iv-muted); font-size: 0.78rem; }
+.iv-stop__perks { display: grid; gap: 2px; margin: 8px 0 0; padding: 0; padding-inline-start: 16px; color: #78350f; font-size: 0.84rem; line-height: 1.7; }
+.iv-route__note { margin: 10px 0 0; color: var(--iv-faint); font-size: 0.8rem; }
+
+/* Rules, folded */
+.iv-terms { margin-top: 8px; border-top: 1px solid var(--iv-line); }
+.iv-terms summary { display: flex; align-items: center; gap: 8px; padding: 14px 2px; color: var(--iv-muted); font-weight: 700; cursor: pointer; list-style: none; }
 .iv-terms summary::-webkit-details-marker { display: none; }
 .iv-terms summary span { flex: 1; }
-.iv-terms__chev { color: #66736b; transition: transform 0.2s ease; }
+.iv-terms__chev { transition: transform 0.2s ease; }
 .iv-terms[open] .iv-terms__chev { transform: rotate(180deg); }
-.iv-terms ol { display: grid; gap: 8px; margin: 0; padding: 0 16px 4px; padding-inline-start: 34px; direction: rtl; text-align: right; color: #3f4a44; font-size: 0.86rem; line-height: 1.8; }
-.iv-terms__link { display: inline-block; margin: 8px 16px 14px; color: #15803d; font-size: 0.86rem; font-weight: 700; }
-@media (prefers-reduced-motion: reduce) { .iv-terms__chev { transition: none; } }
-/* Rewards waiting their 24 hours */
-.iv-pills { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
-.iv-pill--wait { background: #eef2ff; color: #3730a3; }
-.iv-friends__side { display: grid; justify-items: end; gap: 3px; }
-.iv-friends__held { color: #4f46e5; font-size: 0.76rem; font-weight: 700; white-space: nowrap; }
-/* A friend opens their record */
-.iv-friends li:has(> .iv-friends__link) { padding: 0; }
-.iv-friends__link { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 12px; border-radius: 16px; color: inherit; text-decoration: none; }
-.iv-friends__link:hover { background: #f7faf8; }
-.iv-friends__go { flex: none; color: #98a49d; }
-.iv-history-link { margin-inline-start: auto; color: #15803d; font-size: 0.85rem; font-weight: 700; }
-.iv-card h2 .iv-history-link { display: inline; }
+.iv-terms ol { display: grid; gap: 8px; margin: 0; padding: 0 0 4px; padding-inline-start: 22px; direction: rtl; text-align: right; color: #3f4a44; font-size: 0.86rem; line-height: 1.8; }
+.iv-terms__link { display: inline-block; margin: 8px 0 4px; color: var(--iv-green); font-size: 0.86rem; font-weight: 700; }
+
+/* States */
+.iv-state { display: grid; justify-items: center; gap: 10px; padding: 36px 16px; border: 1px dashed #cfdbd3; border-radius: 16px; text-align: center; }
+.iv-state p { margin: 0; color: var(--iv-muted); }
+.iv-sk { height: 300px; border-radius: 14px; background: linear-gradient(90deg, #eef2ef, #f7f9f8, #eef2ef); background-size: 200% 100%; animation: iv-sk 1.2s linear infinite; }
+@keyframes iv-sk { to { background-position: -200% 0; } }
+
+@media (max-width: 380px) {
+  .ivl__parties { grid-template-columns: 1fr; }
+  .ivl__parties > div + div { border-inline-start: 0; border-top: 1.5px solid var(--iv-ink); }
+  .iv-earn { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) { .iv-sk { animation: none; } .iv-terms__chev { transition: none; } }
 
 /* «سجل مكافآت الدعوة» */
 .ih-back { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 10px; color: #15803d; font-weight: 700; text-decoration: none; }
@@ -139,3 +173,7 @@
 .ih-item.is-canceled .ih-item__pts bdi { text-decoration: line-through; color: #71717a; }
 .ih-item__pts small { color: #98a49d; font-size: 0.72rem; font-weight: 600; }
 .ih-more { width: 100%; margin-top: 12px; }
+
+/* Shared with the record page: its friend summary card and avatar */
+.iv-card { margin-bottom: 14px; padding: 16px; border: 1px solid #e3e9e5; border-radius: 14px; background: #fff; }
+.iv-friends__avatar { display: grid; place-items: center; flex: none; width: 42px; height: 42px; border-radius: 50%; background: #eef4f0; color: #15803d; font-weight: 800; }

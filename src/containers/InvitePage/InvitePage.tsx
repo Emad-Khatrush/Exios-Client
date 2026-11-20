@@ -1,17 +1,24 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Award, BadgeCheck, Check, ChevronDown, ChevronLeft, Copy, Gift, HandCoins, RefreshCw, Repeat, ScrollText, Share2, Trophy, UserPlus, Users } from 'lucide-react';
+import { Award, Check, ChevronDown, ChevronLeft, Copy, RefreshCw, ScrollText, Share2 } from 'lucide-react';
 import { TbBrandWhatsapp } from 'react-icons/tb';
 import api from '../../api';
 import { useCopy } from '../../utils/useCopy';
-import { Friend, Referrals, SIGNUP_GIFT_POINTS, waitingText, friendStatusText, headline, nextStepText, pointsNum, shareMessage, usd } from './referralText';
+import { Friend, Referrals, SIGNUP_GIFT_POINTS, Step, waitingText, friendStatusText, nextStepText, pointsNum, shareMessage, usd } from './referralText';
 import './invite.css';
 
-const dayText = (d: string) => new Date(d).toLocaleDateString('ar-LY-u-nu-latn', { day: 'numeric', month: 'long', year: 'numeric' });
+const dayText = (d: string) => new Date(d).toLocaleDateString('ar-LY-u-nu-latn', { day: 'numeric', month: 'long' });
 
-/* «ادعُ أصدقاءك»: the customer's code and link, a WhatsApp button with a ready message, the ladder of
-   extra rewards and every friend with where they stand. Rewards (spec 2026-11-20): the friend gets a
-   welcome gift; the inviter a big reward once the friend has paid $50, then a share for a year. */
+// The bars of the barcode under the code: drawn from the code itself, so each customer's is their own
+const barsOf = (code: string) => Array.from(`${code}EXIOS${code}`).flatMap((c, i) => {
+  const v = c.charCodeAt(0) + i * 7;
+  return [1 + (v % 3), 1 + ((v >> 2) % 2)];
+});
+
+/* «ادعُ صديقك», designed as what Exios ships: the invite is a shipping label from the customer to a
+   friend (what each side gets, the code as its tracking number), sent on WhatsApp. Below it the
+   customer's earnings and friends, how an invite travels (a tracking line), and one route of extra
+   rewards ending at «سفير Exios». Rules: spec 2026-11-20 in Exios-Api. */
 const InvitePage = () => {
   const [data, setData] = useState<Referrals | null>(null);
   const [failed, setFailed] = useState(false);
@@ -35,11 +42,12 @@ const InvitePage = () => {
     return page(
       <div className="iv-state" role="alert">
         <b>تعذّر تحميل صفحة الدعوة</b>
+        <p>تحقق من اتصالك ثم أعد المحاولة.</p>
         <button type="button" className="iv-btn iv-btn--ghost" onClick={load}><RefreshCw size={16} aria-hidden /> إعادة المحاولة</button>
       </div>,
     );
   }
-  if (!data) return page(<div className="iv-sk" aria-busy="true" />);
+  if (!data) return page(<div className="iv-sk" aria-busy="true" aria-label="جارٍ التحميل" />);
   if (data.off) {
     return page(
       <div className="iv-state">
@@ -54,153 +62,203 @@ const InvitePage = () => {
   const message = shareMessage(link, data.welcomePoints);
   const canShare = typeof navigator !== 'undefined' && typeof (navigator as any).share === 'function';
   const share = () => { (navigator as any).share({ title: 'Exios', text: message }).catch(() => undefined); };
-  const next = nextStepText(data.qualified, data.friendsPaidUsd, data.steps);
-  const top = data.steps[data.steps.length - 1];
-  // The step that makes an ambassador (the last one)
-  const amb = data.steps.find((s) => s.ambassador);
-  const progress = Math.min(data.qualified / top.friends, 1);
-  // An ambassador earns the higher share from then on
   const sharePoints = data.ambassadorAt ? data.ambassadorSharePoints : data.sharePoints;
+  const hasFriends = data.friends.length > 0;
+  const nextStep = data.steps.find((s) => !s.reached);
+  const next = nextStepText(data.qualified, data.friendsPaidUsd, data.steps);
+
+  const label = (
+    <section className="ivl" aria-label="بطاقة دعوتك">
+      <div className="ivl__band">
+        <b>Exios</b>
+        <span>بطاقة دعوة</span>
+        {data.ambassadorAt && <span className="ivl__amb"><Award size={14} aria-hidden /> {data.ambassadorTitle}</span>}
+      </div>
+      <div className="ivl__parties">
+        <div>
+          <small>إلى صديقك</small>
+          <b><bdi>{usd(data.welcomePoints)}</bdi> هدية</b>
+          <span>لأول فاتورة شحن أو شراء</span>
+        </div>
+        <div>
+          <small>لك أنت</small>
+          <b><bdi>{usd(data.firstPoints)}</bdi> عن كل صديق</b>
+          <span>ثم {sharePoints} نقاط عن كل <bdi>{data.sharePerUsd}$</bdi> يدفعها لمدة سنة</span>
+        </div>
+      </div>
+      <div className="ivl__tear" aria-hidden />
+      <div className="ivl__code">
+        <small>كود الدعوة</small>
+        <div className="ivl__code-row">
+          <b dir="ltr">{data.code}</b>
+          <button type="button" onClick={() => copy('code', data.code)} aria-label="انسخ الكود">
+            {copied === 'code' ? <><Check size={16} aria-hidden /> نُسخ</> : <><Copy size={16} aria-hidden /> نسخ</>}
+          </button>
+        </div>
+        <div className="ivl__bars" aria-hidden>
+          {barsOf(data.code).map((w, i) => <span key={i} style={{ width: `${w * 2}px`, opacity: i % 2 ? 0 : 1 }} />)}
+        </div>
+      </div>
+    </section>
+  );
+
+  const sendRow = (
+    <div className="iv-send">
+      <a className="iv-btn iv-btn--wa" href={`https://wa.me/?text=${encodeURIComponent(message)}`} target="_blank" rel="noreferrer">
+        <TbBrandWhatsapp size={22} aria-hidden /> أرسل الدعوة على واتساب
+      </a>
+      <div className="iv-send__row">
+        <button type="button" className="iv-btn iv-btn--ghost" onClick={() => copy('link', link)}>
+          {copied === 'link' ? <><Check size={17} aria-hidden /> نُسخ الرابط</> : <><Copy size={17} aria-hidden /> نسخ الرابط</>}
+        </button>
+        {canShare && <button type="button" className="iv-btn iv-btn--ghost" onClick={share}><Share2 size={17} aria-hidden /> مشاركة</button>}
+      </div>
+    </div>
+  );
+
+  const earnings = hasFriends && (
+    <Link to="/invite/history" className="iv-earn">
+      <span className="iv-earn__main">
+        <small>كسبت من أصدقائك</small>
+        <b>{pointsNum(data.totalPoints)} <span>نقطة</span></b>
+      </span>
+      {data.heldPoints > 0 && (
+        <span className="iv-earn__held">
+          <small>تنتظر</small>
+          <b>{pointsNum(data.heldPoints)}</b>
+        </span>
+      )}
+      <span className="iv-earn__go">السجل <ChevronLeft size={16} aria-hidden /></span>
+    </Link>
+  );
+
+  const friends = (
+    <section className="iv-sec" aria-labelledby="iv-friends">
+      <div className="iv-sec__head">
+        <h2 id="iv-friends">أصدقائي {hasFriends && <span className="iv-count">{data.friends.length}</span>}</h2>
+        {hasFriends && <Link to="/invite/history" className="iv-sec__link">السجل الكامل</Link>}
+      </div>
+      {!hasFriends ? (
+        <p className="iv-empty">لم يسجّل أحد بدعوتك بعد. أرسل رابطك لأول صديق، وستراه هنا فور تسجيله.</p>
+      ) : (
+        <ul className="iv-friends">
+          {data.friends.map((f: Friend) => {
+            const status = friendStatusText(f, data.qualifyUsd);
+            const toGo = f.status === 'joined' ? Math.min(f.paidUsd / data.qualifyUsd, 1) : null;
+            const wait = waitingText(f.waiting);
+            return (
+              <li key={f.id}>
+                <Link to={`/invite/history?friend=${f.id}`} className="iv-friend" aria-label={`ما كسبته من ${f.name}`}>
+                  <span className="iv-friend__avatar" aria-hidden>{f.name.charAt(0)}</span>
+                  <span className="iv-friend__main">
+                    <b>{f.name}</b>
+                    <small className={`is-${status.tone}`}>{status.text}</small>
+                    {toGo !== null && (
+                      <span className="iv-friend__track" role="progressbar" aria-label={`دفع ${f.paidUsd}$ من ${data.qualifyUsd}$`}
+                        aria-valuemin={0} aria-valuemax={data.qualifyUsd} aria-valuenow={Math.min(f.paidUsd, data.qualifyUsd)}>
+                        <span style={{ width: `${Math.max(toGo * 100, 3)}%` }} />
+                      </span>
+                    )}
+                    {wait && <small className="is-wait">{wait}</small>}
+                  </span>
+                  <span className="iv-friend__side">
+                    {f.points > 0 && <b><bdi dir="ltr">+{pointsNum(f.points)}</bdi></b>}
+                    {f.heldPoints > 0 && <small><bdi dir="ltr">+{pointsNum(f.heldPoints)}</bdi> تنتظر</small>}
+                    {!f.points && !f.heldPoints && <small>منذ {dayText(f.joinedAt)}</small>}
+                  </span>
+                  <ChevronLeft size={18} aria-hidden className="iv-friend__go" />
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
+  );
+
+  // How an invite travels, as a shipment's tracking line: it really is a sequence
+  const how = (
+    <section className="iv-sec" aria-labelledby="iv-how">
+      <div className="iv-sec__head"><h2 id="iv-how">كيف تصل مكافأتك؟</h2></div>
+      <ol className="iv-track">
+        <li><b>ترسل رابطك لصديق</b><span>على واتساب، أو يكتب كودك عند التسجيل</span></li>
+        <li><b>يسجّل ويأخذ <bdi>{usd(data.welcomePoints)}</bdi> هدية</b><span>{pointsNum(data.welcomePoints)} نقطة في حسابه فوراً</span></li>
+        <li><b>يصل مجموع ما يدفعه <bdi>{data.qualifyUsd}$</bdi></b><span>تأخذ <bdi>{usd(data.firstPoints)}</bdi>، ولو دفعها على عدة طلبيات</span></li>
+        <li><b>كل <bdi>{data.sharePerUsd}$</bdi> يدفعها بعدها</b><span>{sharePoints} نقاط لك لمدة سنة، وترفع عضويتك</span></li>
+      </ol>
+    </section>
+  );
+
+  // The extra rewards as one route; the last stop is the ambassador, with what it gives
+  const stop = (s: Step) => {
+    const friendsPct = Math.min(data.qualified / s.friends, 1);
+    const usdPct = Math.min(data.friendsPaidUsd / s.usd, 1);
+    const isNext = nextStep?.friends === s.friends;
+    return (
+      <li key={s.friends} className={`iv-stop${s.reached ? ' is-done' : ''}${isNext ? ' is-next' : ''}${s.ambassador ? ' is-amb' : ''}`}>
+        <span className="iv-stop__dot" aria-hidden>{s.reached ? <Check size={14} strokeWidth={3} /> : s.ambassador ? <Award size={14} /> : null}</span>
+        <div className="iv-stop__body">
+          <div className="iv-stop__title">
+            <b>{s.ambassador ? `«${s.title}»` : `${s.friends} أصدقاء`}</b>
+            <span className="iv-stop__prize"><bdi dir="ltr">+{pointsNum(s.points)}</bdi> نقطة</span>
+          </div>
+          {!s.reached && (
+            <div className="iv-stop__needs">
+              <span><i style={{ width: `${friendsPct * 100}%` }} /></span>
+              <small>{Math.min(data.qualified, s.friends)} من {s.friends} أصدقاء وصلوا <bdi>{data.qualifyUsd}$</bdi></small>
+              <span><i style={{ width: `${usdPct * 100}%` }} /></span>
+              <small><bdi dir="ltr">{pointsNum(Math.min(data.friendsPaidUsd, s.usd))}$</bdi> من <bdi dir="ltr">{pointsNum(s.usd)}$</bdi> دفعها أصدقاؤك</small>
+            </div>
+          )}
+          {s.ambassador && (
+            <ul className="iv-stop__perks">
+              <li>حصتك ترتفع إلى {data.ambassadorSharePoints} نقطة عن كل <bdi>{data.sharePerUsd}$</bdi></li>
+              <li>شارة «{s.title}» بجانب اسمك</li>
+            </ul>
+          )}
+        </div>
+      </li>
+    );
+  };
+  const route = (
+    <section className="iv-sec" aria-labelledby="iv-route">
+      <div className="iv-sec__head"><h2 id="iv-route">مكافآت إضافية</h2></div>
+      {data.ambassadorAt
+        ? <p className="iv-route__lead">أنت سفير Exios: تكسب {data.ambassadorSharePoints} نقطة عن كل <bdi>{data.sharePerUsd}$</bdi> يدفعها أصدقاؤك.</p>
+        : next && <p className="iv-route__lead">{next}</p>}
+      <ol className="iv-route">{data.steps.map(stop)}</ol>
+      <p className="iv-route__note">تُعطى بعد موافقة المكتب، وتُحسب فيها الأصدقاء بجوازات موثّقة.</p>
+    </section>
+  );
+
+  const terms = (
+    <details className="iv-terms">
+      <summary><ScrollText size={18} aria-hidden /> <span>الشروط والتفاصيل</span> <ChevronDown size={18} aria-hidden className="iv-terms__chev" /></summary>
+      <ol>
+        <li>صديقك يحصل على <bdi>{pointsNum(data.welcomePoints)}</bdi> نقطة (<bdi>{usd(data.welcomePoints)}</bdi>) عندما يسجّل برابطك أو يكتب كودك عند التسجيل، بدل هدية الحساب الجديد (<bdi>{SIGNUP_GIFT_POINTS}</bdi> نقطة)، ولا تجتمع الهديتان.</li>
+        <li>إذا نسي صديقك الكود، يستطيع المكتب إضافته خلال 7 أيام من فتح حسابه فقط.</li>
+        <li>تكسب <bdi>{pointsNum(data.firstPoints)}</bdi> نقطة (<bdi>{usd(data.firstPoints)}</bdi>) عندما يصل مجموع ما دفعه صديقك <bdi>{data.qualifyUsd}$</bdi>، ولو على عدة طلبيات.</li>
+        <li>من تلك اللحظة ولمدة {data.months} شهراً تكسب {data.sharePoints} نقاط عن كل <bdi>{data.sharePerUsd}$</bdi> يدفعها صديقك ({data.ambassadorSharePoints} نقطة إذا كنت سفيراً). نقاط صديقك لا تنقص شيئاً.</li>
+        <li>كل مكافأة من الدعوة تُضاف لرصيدك بعد {data.holdHours} ساعة من دفع صديقك. إذا عُدّلت طلبيته أو أُلغيت خلالها تُلغى المكافأة، وإذا أُلغيت بعد إضافتها تُسحب.</li>
+        <li>تُعطى مكافآت صديقك بعد توثيق جوازه في المكتب. وقد تراجع الإدارة الدعوة قبل إعطاء مكافآتها، والمكافآت الإضافية تُعطى بعد موافقة المكتب.</li>
+        <li>المكافآت الإضافية تحتاج الشرطين معاً: عدد الأصدقاء الذين وصلوا <bdi>{data.qualifyUsd}$</bdi>، ومجموع ما دفعه كل أصدقائك: {data.steps.map((s) => `${s.friends} أصدقاء و${pointsNum(s.usd)}$ = ${pointsNum(s.points)} نقطة`).join('، ')}. كل مكافأة مرة واحدة.</li>
+        <li>يُحسب ما يدفعه صديقك من فواتير الشحن والشراء المدفوعة بالكامل (والشحن بعد استلام الطرد). الطلبيات الملغاة لا تُحسب، وحوالات Alipay تُحسب بنصف قيمتها.</li>
+        <li>حصتك من أصدقائك فقط ترفع عضويتك، مثل نقاط شحنك. مكافأة <bdi>{data.qualifyUsd}$</bdi> والمكافآت الإضافية نقاط للاستعمال فقط ولا تُحسب في العضوية. صلاحية كل النقاط حسب مستوى عضويتك.</li>
+        <li>تُستعمل النقاط عند الدفع في المكتب، حتى 20% من الفاتورة (100 نقطة = <bdi>1$</bdi>).</li>
+        <li>لا تُقبل دعوة نفسك أو الحسابات المكررة. يحق للمكتب إلغاء أي دعوة مخالفة وخصم ما أُعطي منها.</li>
+      </ol>
+      <Link to="/points" className="iv-terms__link">نقاطي وسجلها</Link>
+    </details>
+  );
 
   return page(
     <>
-      <header className="iv-hero">
-        <span className="iv-hero__icon" aria-hidden><UserPlus size={26} /></span>
-        {data.ambassadorAt && <span className="iv-amb"><Award size={16} aria-hidden /> {data.ambassadorTitle} · {data.ambassadorSharePoints} نقطة عن كل {data.sharePerUsd}$</span>}
-        <h1>{headline(data.firstPoints)}</h1>
-        <p>صديقك يأخذ هدية {usd(data.welcomePoints)}، وأنت تكسب {usd(data.firstPoints)} عندما يصل مجموع ما يدفعه {data.qualifyUsd}$ ولو على عدة طلبيات، ثم {sharePoints} نقاط عن كل {data.sharePerUsd}$ يدفعها لمدة {data.months} شهراً.</p>
-
-        <div className="iv-code">
-          <span>كود دعوتك</span>
-          <b dir="ltr">{data.code}</b>
-          <button type="button" onClick={() => copy('code', data.code)} aria-label="انسخ الكود">
-            {copied === 'code' ? <Check size={18} aria-hidden /> : <Copy size={18} aria-hidden />}
-          </button>
-        </div>
-
-        <div className="iv-actions">
-          <a className="iv-btn iv-btn--wa" href={`https://wa.me/?text=${encodeURIComponent(message)}`} target="_blank" rel="noreferrer">
-            <TbBrandWhatsapp size={22} aria-hidden /> أرسل الدعوة على واتساب
-          </a>
-          <div className="iv-actions__row">
-            <button type="button" className="iv-btn iv-btn--ghost" onClick={() => copy('link', link)}>
-              {copied === 'link' ? <><Check size={17} aria-hidden /> نُسخ الرابط</> : <><Copy size={17} aria-hidden /> انسخ الرابط</>}
-            </button>
-            {canShare && <button type="button" className="iv-btn iv-btn--ghost" onClick={share}><Share2 size={17} aria-hidden /> مشاركة</button>}
-          </div>
-        </div>
-      </header>
-
-      <section className="iv-card" aria-labelledby="iv-how">
-        <h2 id="iv-how">كيف تكسب؟</h2>
-        <ol className="iv-how" dir="rtl">
-          <li><span aria-hidden><Share2 size={20} /></span><div><b>أرسل رابطك لصديق</b><small>على واتساب، أو أعطه كودك ليكتبه عند التسجيل</small></div></li>
-          <li><span aria-hidden><Gift size={20} /></span><div><b>صديقك يأخذ <bdi>{usd(data.welcomePoints)}</bdi> هدية</b><small>{pointsNum(data.welcomePoints)} نقطة لأول فاتورة شحن أو شراء</small></div></li>
-          <li><span aria-hidden><HandCoins size={20} /></span><div><b>تكسب <bdi>{usd(data.firstPoints)}</bdi></b><small>عندما يصل مجموع ما يدفعه صديقك <bdi>{data.qualifyUsd}$</bdi></small></div></li>
-          <li><span aria-hidden><Repeat size={20} /></span><div><b>ثم {sharePoints} نقاط عن كل <bdi>{data.sharePerUsd}$</bdi></b><small>من كل ما يدفعه صديقك لمدة سنة، وترفع عضويتك</small></div></li>
-        </ol>
-      </section>
-
-      <section className="iv-card" aria-labelledby="iv-steps">
-        <div className="iv-card__head">
-          <h2 id="iv-steps"><Trophy size={19} aria-hidden /> مكافآت إضافية</h2>
-          <span className="iv-pill">{data.qualified} {data.qualified === 1 ? 'صديق' : 'أصدقاء'} · <bdi dir="ltr">{pointsNum(data.friendsPaidUsd)}$</bdi></span>
-        </div>
-        <div className="iv-bar" role="progressbar" aria-valuemin={0} aria-valuemax={top.friends} aria-valuenow={Math.min(data.qualified, top.friends)}>
-          <span style={{ width: `${progress * 100}%` }} />
-        </div>
-        <ul className="iv-steps">
-          {data.steps.map((s) => (
-            <li key={s.friends} className={s.reached ? 'is-on' : ''}>
-              <span className="iv-steps__n">{s.reached ? <Check size={15} strokeWidth={3} aria-hidden /> : s.friends}</span>
-              <span><b>{s.friends} أصدقاء</b><small>ومدفوعاتهم {pointsNum(s.usd)}$</small><small className="iv-steps__pts">+{pointsNum(s.points)} نقطة{s.title ? ` · لقب «${s.title}»` : ''}</small>{s.ambassador && <small className="iv-steps__amb">وحصتك تصير {data.ambassadorSharePoints} نقطة عن كل {data.sharePerUsd}$</small>}</span>
-            </li>
-          ))}
-        </ul>
-        {next && <p className="iv-next">{next}</p>}
-      </section>
-
-      {amb && (
-        <section className={`iv-card iv-ambcard${data.ambassadorAt ? ' is-on' : ''}`} aria-labelledby="iv-amb-title">
-          <div className="iv-ambcard__head">
-            <span className="iv-ambcard__icon" aria-hidden><Award size={26} /></span>
-            <div>
-              <h2 id="iv-amb-title">لقب «{data.ambassadorTitle}»</h2>
-              <p>{data.ambassadorAt ? 'أنت سفير Exios. شكراً لأنك تنشرنا.' : 'أعلى درجة في الدعوات، لمن يجلب لنا عملاء حقيقيين.'}</p>
-            </div>
-          </div>
-          <h3>كيف تحصل عليه؟</h3>
-          <ul className="iv-list">
-            <li><Check size={16} aria-hidden /><span><b>{amb.friends} أصدقاء</b> وصل مجموع ما دفعه كل واحد منهم <bdi>{data.qualifyUsd}$</bdi></span></li>
-            <li><Check size={16} aria-hidden /><span>ومجموع ما دفعه كل أصدقائك معاً <b><bdi>{pointsNum(amb.usd)}$</bdi></b></span></li>
-          </ul>
-          <h3>ماذا تستفيد؟</h3>
-          <ul className="iv-list">
-            <li><Repeat size={16} aria-hidden /><span>حصتك ترتفع من {data.sharePoints} إلى <b>{data.ambassadorSharePoints} نقطة عن كل <bdi>{data.sharePerUsd}$</bdi></b> يدفعها أصدقاؤك، من يوم حصولك على اللقب</span></li>
-            <li><Gift size={16} aria-hidden /><span>مكافأة <b>{pointsNum(amb.points)} نقطة</b> (<bdi>{usd(amb.points)}</bdi>) مرة واحدة</span></li>
-            <li><BadgeCheck size={16} aria-hidden /><span>شارة «{data.ambassadorTitle}» بجانب اسمك في التطبيق، ويراها موظفو المكتب</span></li>
-          </ul>
-        </section>
-      )}
-
-      <section className="iv-card" aria-labelledby="iv-friends">
-        <div className="iv-card__head">
-          <h2 id="iv-friends"><Users size={19} aria-hidden /> أصدقائي <Link to="/invite/history" className="iv-history-link">السجل الكامل</Link></h2>
-          {(data.totalPoints > 0 || data.heldPoints > 0) && (
-            <span className="iv-pills">
-              {data.totalPoints > 0 && <span className="iv-pill iv-pill--gold">كسبت {pointsNum(data.totalPoints)} نقطة</span>}
-              {data.heldPoints > 0 && <span className="iv-pill iv-pill--wait">{pointsNum(data.heldPoints)} بعد {data.holdHours} ساعة</span>}
-            </span>
-          )}
-        </div>
-        {!data.friends.length ? (
-          <p className="iv-empty">لم يسجّل أحد بدعوتك بعد. أرسل رابطك لأول صديق الآن.</p>
-        ) : (
-          <ul className="iv-friends">
-            {data.friends.map((f: Friend) => {
-              const status = friendStatusText(f, data.qualifyUsd);
-              return (
-                <li key={f.id}>
-                  <Link to={`/invite/history?friend=${f.id}`} className="iv-friends__link" aria-label={`ما كسبته من ${f.name}`}>
-                  <span className="iv-friends__avatar" aria-hidden>{f.name.charAt(0)}</span>
-                  <span className="iv-friends__main">
-                    <b>{f.name}</b>
-                    <small className={`is-${status.tone}`}>{status.text}</small>
-                    {waitingText(f.waiting) && <small className="is-wait">{waitingText(f.waiting)}</small>}
-                    <small>سجّل {dayText(f.joinedAt)}</small>
-                  </span>
-                  {(f.points > 0 || f.heldPoints > 0) && (
-                    <span className="iv-friends__side">
-                      {f.points > 0 && <em className="iv-friends__pts"><bdi dir="ltr">+{pointsNum(f.points)}</bdi></em>}
-                      {f.heldPoints > 0 && <small className="iv-friends__held"><bdi dir="ltr">+{pointsNum(f.heldPoints)}</bdi> بعد {data.holdHours} ساعة</small>}
-                    </span>
-                  )}
-                  <ChevronLeft size={18} aria-hidden className="iv-friends__go" />
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
-
-      <details className="iv-card iv-terms">
-        <summary><ScrollText size={19} aria-hidden /> <span>الشروط والتفاصيل</span> <ChevronDown size={18} aria-hidden className="iv-terms__chev" /></summary>
-        <ol>
-          <li>صديقك يحصل على <bdi>{pointsNum(data.welcomePoints)}</bdi> نقطة (<bdi>{usd(data.welcomePoints)}</bdi>) عندما يسجّل برابطك أو يكتب كودك عند التسجيل، بدل هدية الحساب الجديد (<bdi>{SIGNUP_GIFT_POINTS}</bdi> نقطة)، ولا تجتمع الهديتان.</li>
-          <li>إذا نسي صديقك الكود، يستطيع المكتب إضافته خلال 7 أيام من فتح حسابه فقط.</li>
-          <li>تكسب <bdi>{pointsNum(data.firstPoints)}</bdi> نقطة (<bdi>{usd(data.firstPoints)}</bdi>) عندما يصل مجموع ما دفعه صديقك <bdi>{data.qualifyUsd}$</bdi>، ولو على عدة طلبيات.</li>
-          <li>من تلك اللحظة ولمدة {data.months} شهراً تكسب {data.sharePoints} نقاط عن كل <bdi>{data.sharePerUsd}$</bdi> يدفعها صديقك ({data.ambassadorSharePoints} نقطة إذا كنت سفيراً). نقاط صديقك لا تنقص شيئاً.</li>
-          <li>كل مكافأة من الدعوة تُضاف لرصيدك بعد {data.holdHours} ساعة من دفع صديقك. إذا عُدّلت طلبيته أو أُلغيت خلالها تُلغى المكافأة، وإذا أُلغيت بعد إضافتها تُسحب.</li>
-          <li>تُعطى مكافآت صديقك بعد توثيق جوازه في المكتب. وقد تراجع الإدارة الدعوة قبل إعطاء مكافآتها، والمكافآت الإضافية تُعطى بعد موافقة المكتب.</li>
-          <li>المكافآت الإضافية تحتاج الشرطين معاً: عدد الأصدقاء الذين وصلوا <bdi>{data.qualifyUsd}$</bdi>، ومجموع ما دفعه كل أصدقائك: {data.steps.map((s) => `${s.friends} أصدقاء و${pointsNum(s.usd)}$ = ${pointsNum(s.points)} نقطة`).join('، ')}. كل مكافأة مرة واحدة.</li>
-          <li>يُحسب ما يدفعه صديقك من فواتير الشحن والشراء المدفوعة بالكامل (والشحن بعد استلام الطرد). الطلبيات الملغاة لا تُحسب، وحوالات Alipay تُحسب بنصف قيمتها.</li>
-          <li>حصتك من أصدقائك فقط ترفع عضويتك، مثل نقاط شحنك. مكافأة <bdi>{data.qualifyUsd}$</bdi> والمكافآت الإضافية نقاط للاستعمال فقط ولا تُحسب في العضوية. صلاحية كل النقاط حسب مستوى عضويتك.</li>
-          <li>تُستعمل النقاط عند الدفع في المكتب، حتى 20% من الفاتورة (100 نقطة = <bdi>1$</bdi>).</li>
-          <li>لا تُقبل دعوة نفسك أو الحسابات المكررة. يحق للمكتب إلغاء أي دعوة مخالفة وخصم ما أُعطي منها.</li>
-        </ol>
-        <Link to="/points" className="iv-terms__link">نقاطي وسجلها</Link>
-      </details>
+      <h1 className="iv-title">ادعُ صديقك</h1>
+      {label}
+      {sendRow}
+      {/* Someone with friends sees what they earned first; someone new, how it works */}
+      {hasFriends ? <>{earnings}{friends}{route}{how}</> : <>{how}{friends}{route}</>}
+      {terms}
     </>,
   );
 };
