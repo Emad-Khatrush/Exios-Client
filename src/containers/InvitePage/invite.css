@@ -27,9 +27,10 @@
 .iv-how li { position: relative; display: flex; align-items: center; gap: 12px; min-height: 42px; }
 .iv-how li + li::before { content: ''; position: absolute; inset-inline-start: 20px; bottom: 100%; width: 2px; height: 14px; background: #d6eadc; }
 .iv-how li > span { display: grid; place-items: center; flex: none; width: 42px; height: 42px; border-radius: 14px; background: #ecf6ef; color: #15803d; }
-.iv-how li > div { display: grid; gap: 1px; min-width: 0; }
-.iv-how b { font-weight: 800; line-height: 1.5; }
-.iv-how small { color: #66736b; font-size: 0.84rem; line-height: 1.5; }
+/* The text takes the rest of the row and starts at the icon (right), whatever numbers it holds */
+.iv-how li > div { flex: 1; min-width: 0; direction: rtl; text-align: right; }
+.iv-how b { display: block; font-weight: 800; line-height: 1.5; }
+.iv-how small { display: block; margin-top: 1px; color: #66736b; font-size: 0.84rem; line-height: 1.5; }
 .iv-bar { height: 10px; margin-bottom: 12px; overflow: hidden; border-radius: 999px; background: #eef2ef; }
 .iv-bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #f59e0b, #fbbf24); transition: width 0.6s ease; }
 .iv-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
