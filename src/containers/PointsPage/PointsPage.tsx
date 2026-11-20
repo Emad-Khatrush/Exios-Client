@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ChevronDown, CircleMinus, Clock, Coins, Gift, LucideIcon, Plus, Rocket, ShoppingBag, TriangleAlert, Undo2 } from 'lucide-react';
+import { Award, ChevronDown, CircleMinus, Clock, Coins, Gift, LucideIcon, Plus, Rocket, ShoppingBag, Star, TriangleAlert, Undo2, UserPlus } from 'lucide-react';
 import api from '../../api';
 import { dateText, relativeDay, timeText } from '../ClientOrders/orderUtils';
 import { LoyaltyHistory, LoyaltyHistoryRow, LoyaltyHistoryType, LoyaltyKind, LoyaltyMonth, LoyaltyPending, LoyaltyResponse, LoyaltyTier } from './loyaltyTypes';
@@ -20,6 +20,24 @@ const KIND: Record<LoyaltyKind, { icon: LucideIcon, tone: 'gain' | 'spend' | 'lo
   deduct: { icon: CircleMinus, tone: 'spend', title: 'خصم من المكتب' },
   expire: { icon: Clock, tone: 'loss', title: 'انتهت صلاحية النقاط' },
   revoke: { icon: CircleMinus, tone: 'loss', title: 'سحب نقاط طلبية ملغاة' },
+};
+
+// An addition's title by where it came from (the server's `source`); one from the office by default
+const ADD_TITLE: Record<string, { icon: LucideIcon, title: string }> = {
+  invite: { icon: UserPlus, title: 'مكافأة دعوة صديق' },
+  'invite-step': { icon: Award, title: 'مكافأة إضافية للدعوات' },
+  'invite-welcome': { icon: Gift, title: 'هدية الانضمام بدعوة صديق' },
+  signup: { icon: Gift, title: 'هدية فتح الحساب' },
+  level: { icon: Award, title: 'هدية الترقية' },
+  rating: { icon: Star, title: 'مكافأة تقييم الخدمة' },
+  staff: { icon: Gift, title: 'إضافة من المكتب' },
+};
+const kindOf = (r: { kind: string, source?: string | null }) => {
+  const base = KIND[r.kind as keyof typeof KIND] || { icon: Plus, tone: 'gain' as const, title: r.kind };
+  if (r.kind === 'add' && r.source && ADD_TITLE[r.source]) return { ...base, ...ADD_TITLE[r.source] };
+  if (r.kind === 'revoke' && r.source?.startsWith('invite')) return { ...base, title: 'سحب مكافأة دعوة' };
+  if (r.kind === 'revoke' && r.source) return { ...base, title: 'سحب نقاط' };
+  return base;
 };
 
 // When a movement happened, short: "اليوم", "أمس", else "dd/mm", and the time
@@ -232,7 +250,7 @@ const HistorySection = ({ initial }: { initial: LoyaltyHistory }) => {
                 </h3>
                 <ul className="pt-moves">
                   {month.rows.map(({ row: r, index }) => {
-                    const kind = KIND[r.kind] || { icon: Plus, tone: 'gain', title: r.kind };
+                    const kind = kindOf(r);
                     const Icon = kind.icon;
                     const gain = GAINS.includes(r.kind);
                     const when = whenText(r.createdAt);

@@ -9,7 +9,9 @@ export type LoyaltyPromotion = {
 export type PromotionTag = { id: string, name: string, multiplierPct: number };
 export type LoyaltyKind = 'earn' | 'add' | 'restore' | 'redeem' | 'deduct' | 'expire' | 'revoke';
 export type LoyaltyPending = { orderId: string, orderNumber: string, arKey: string, points: number, waitingFor: 'payment' | 'delivery' | 'processing', promotion?: PromotionTag };
-export type LoyaltyHistoryRow = { id?: string, kind: LoyaltyKind, points: number, orderId?: string, orderNumber?: string, reason?: string, createdAt: string, month?: string, expiresAt?: string, balanceAfter: number, promotion?: PromotionTag };
+// Where an addition (or what a take-back or expiry took) came from, sent by the server
+export type LoyaltySource = 'invite' | 'invite-welcome' | 'invite-step' | 'signup' | 'level' | 'rating' | 'staff' | null;
+export type LoyaltyHistoryRow = { id?: string, kind: LoyaltyKind, points: number, orderId?: string, orderNumber?: string, reason?: string, source?: LoyaltySource, createdAt: string, month?: string, expiresAt?: string, balanceAfter: number, promotion?: PromotionTag };
 // What a month gained and spent over all its movements of the selected type ('YYYY-MM')
 export type LoyaltyMonth = { month: string, gained: number, spent: number };
 export type LoyaltyHistory = { rows: LoyaltyHistoryRow[], total: number, months?: LoyaltyMonth[] };
