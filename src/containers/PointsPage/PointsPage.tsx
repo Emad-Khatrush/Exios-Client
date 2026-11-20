@@ -31,12 +31,15 @@ const ADD_TITLE: Record<string, { icon: LucideIcon, title: string }> = {
   level: { icon: Award, title: 'هدية الترقية' },
   rating: { icon: Star, title: 'مكافأة تقييم الخدمة' },
   staff: { icon: Gift, title: 'إضافة من المكتب' },
+  reearn: { icon: Undo2, title: 'رجوع نقاط طلبية بعد سدادها' },
 };
 const kindOf = (r: { kind: string, source?: string | null }) => {
   const base = KIND[r.kind as keyof typeof KIND] || { icon: Plus, tone: 'gain' as const, title: r.kind };
   if (r.kind === 'add' && r.source && ADD_TITLE[r.source]) return { ...base, ...ADD_TITLE[r.source] };
   if (r.kind === 'revoke' && r.source?.startsWith('invite')) return { ...base, title: 'سحب مكافأة دعوة' };
   if (r.kind === 'revoke' && r.source) return { ...base, title: 'سحب نقاط' };
+  // A paid invoice owed again: its points wait until it is paid (the reason says so)
+  if (r.kind === 'revoke' && r.reason) return { ...base, title: 'سحب نقاط طلبية مؤقتاً' };
   return base;
 };
 
