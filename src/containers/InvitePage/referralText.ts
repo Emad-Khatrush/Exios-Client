@@ -20,6 +20,8 @@ export type Referrals = {
 
 // Every new account without an inviter gets this at sign-up (invited: the welcome gift instead, never both)
 export const SIGNUP_GIFT_POINTS = 100;
+// The inviter's reward per friend (shown on the home card; the invite page reads it from the server)
+export const INVITE_REWARD_POINTS = 500;
 
 // 100 points = $1
 export const usd = (points: number) => {

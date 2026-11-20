@@ -24,7 +24,7 @@ import { officeFor, whatsappLink } from '../../constants/contact';
 import { useCopy } from '../../utils/useCopy';
 import { withSpecialPrices } from '../../utils/specialPrices';
 import { homeCardText } from '../RatePage/rateText';
-import { homeInviteText } from '../InvitePage/referralText';
+import { INVITE_REWARD_POINTS, homeInviteText } from '../InvitePage/referralText';
 import './home.css';
 
 type Counts = { activeOrders: number, readyForReceivement: number, receivedOrders: number, totalPaidInvoices: number };
@@ -184,7 +184,7 @@ const Home = () => {
         {!account?.loyaltyOff && (
           <Link to="/invite" className="hm-invite">
             <span className="hm-invite__icon" aria-hidden><UserPlus size={22} /></span>
-            <span className="hm-invite__text"><b>{homeInviteText(1000).title}</b><small>{homeInviteText(1000).sub}</small></span>
+            <span className="hm-invite__text"><b>{homeInviteText(INVITE_REWARD_POINTS).title}</b><small>{homeInviteText(INVITE_REWARD_POINTS).sub}</small></span>
             <span className="hm-invite__go">ادعُ الآن <ArrowLeft size={16} aria-hidden /></span>
           </Link>
         )}
