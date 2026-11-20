@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Award, Check, Copy, Gift, HandCoins, RefreshCw, Share2, Trophy, UserPlus, Users } from 'lucide-react';
+import { Award, Check, Copy, Gift, HandCoins, RefreshCw, Repeat, Share2, Trophy, UserPlus, Users } from 'lucide-react';
 import { TbBrandWhatsapp } from 'react-icons/tb';
 import api from '../../api';
 import { useCopy } from '../../utils/useCopy';
@@ -92,9 +92,10 @@ const InvitePage = () => {
       <section className="iv-card" aria-labelledby="iv-how">
         <h2 id="iv-how">كيف تكسب؟</h2>
         <ol className="iv-how">
-          <li><span aria-hidden><Share2 size={20} /></span><div><b>أرسل رابطك لصديق</b><small>أو أعطه الكود ليكتبه عند التسجيل</small></div></li>
-          <li><span aria-hidden><Gift size={20} /></span><div><b>صديقك يأخذ {usd(data.welcomePoints)} هدية</b><small>{pointsNum(data.welcomePoints)} نقطة يستعملها في أول فاتورة شحن أو شراء</small></div></li>
-          <li><span aria-hidden><HandCoins size={20} /></span><div><b>تكسب {usd(data.firstPoints)} ثم من كل شحنة له</b><small>عندما يصل مجموع ما يدفعه {data.qualifyUsd}$، ثم {sharePoints} نقاط عن كل {data.sharePerUsd}$ لمدة سنة. ونقاطك ترفع عضويتك</small></div></li>
+          <li><span aria-hidden><Share2 size={20} /></span><div><b>أرسل رابطك لصديق</b><small>على واتساب، أو أعطه كودك ليكتبه عند التسجيل</small></div></li>
+          <li><span aria-hidden><Gift size={20} /></span><div><b>صديقك يأخذ {usd(data.welcomePoints)} هدية</b><small>{pointsNum(data.welcomePoints)} نقطة لأول فاتورة شحن أو شراء</small></div></li>
+          <li><span aria-hidden><HandCoins size={20} /></span><div><b>تكسب {usd(data.firstPoints)}</b><small>عندما يصل مجموع ما يدفعه صديقك {data.qualifyUsd}$</small></div></li>
+          <li><span aria-hidden><Repeat size={20} /></span><div><b>ثم {sharePoints} نقاط عن كل {data.sharePerUsd}$</b><small>من كل ما يدفعه صديقك لمدة سنة، وترفع عضويتك</small></div></li>
         </ol>
       </section>
 
