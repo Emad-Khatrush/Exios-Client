@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Award, BadgeCheck, Check, ChevronDown, ChevronLeft, Copy, Gift, HandCoins, RefreshCw, Repeat, ScrollText, Share2, Trophy, UserPlus, Users } from 'lucide-react';
+import { BadgeCheck, Check, ChevronDown, ChevronLeft, Copy, Crown, Gift, HandCoins, RefreshCw, Repeat, ScrollText, Share2, Trophy, UserPlus, Users } from 'lucide-react';
 import { TbBrandWhatsapp } from 'react-icons/tb';
 import api from '../../api';
 import { useCopy } from '../../utils/useCopy';
-import { Friend, Referrals, SIGNUP_GIFT_POINTS, waitingText, friendStatusText, headline, nextStepText, pointsNum, shareMessage, usd } from './referralText';
+import { Friend, Referrals, SIGNUP_GIFT_POINTS, waitingText, friendStatusText, headline, nextStepText, pointsNum, pointsPhrase, shareMessage, usd } from './referralText';
 import './invite.css';
 
 const dayText = (d: string) => new Date(d).toLocaleDateString('ar-LY-u-nu-latn', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -66,9 +66,17 @@ const InvitePage = () => {
     <>
       <header className="iv-hero">
         <span className="iv-hero__icon" aria-hidden><UserPlus size={26} /></span>
-        {data.ambassadorAt && <span className="iv-amb"><Award size={16} aria-hidden /> {data.ambassadorTitle} · {data.ambassadorSharePoints} نقطة عن كل {data.sharePerUsd}$</span>}
+        {/* Each part isolated: the Latin name and the numbers no longer swap places with the Arabic */}
+        {data.ambassadorAt && (
+          <span className="iv-amb">
+            <Crown size={16} aria-hidden />
+            <span><bdi>{data.ambassadorTitle}</bdi></span>
+            <span className="iv-amb__sep" aria-hidden />
+            <span><bdi>{pointsPhrase(data.ambassadorSharePoints)}</bdi> عن كل <bdi dir="ltr">{data.sharePerUsd}$</bdi></span>
+          </span>
+        )}
         <h1>{headline(data.firstPoints)}</h1>
-        <p>صديقك يأخذ هدية {usd(data.welcomePoints)}، وأنت تكسب {usd(data.firstPoints)} عندما يصل مجموع ما يدفعه {data.qualifyUsd}$ ولو على عدة طلبيات، ثم {sharePoints} نقاط عن كل {data.sharePerUsd}$ يدفعها لمدة {data.months} شهراً.</p>
+        <p>صديقك يأخذ هدية {usd(data.welcomePoints)}، وأنت تكسب {usd(data.firstPoints)} عندما يصل مجموع ما يدفعه {data.qualifyUsd}$ ولو على عدة طلبيات، ثم <bdi>{pointsPhrase(sharePoints)}</bdi> عن كل <bdi dir="ltr">{data.sharePerUsd}$</bdi> يدفعها لمدة {data.months} شهراً.</p>
 
         <div className="iv-code">
           <span>كود دعوتك</span>
@@ -97,7 +105,7 @@ const InvitePage = () => {
           <li><span aria-hidden><Share2 size={20} /></span><div><b>أرسل رابطك لصديق</b><small>على واتساب، أو أعطه كودك ليكتبه عند التسجيل</small></div></li>
           <li><span aria-hidden><Gift size={20} /></span><div><b>صديقك يأخذ <bdi>{usd(data.welcomePoints)}</bdi> هدية</b><small>{pointsNum(data.welcomePoints)} نقطة لأول فاتورة شحن أو شراء</small></div></li>
           <li><span aria-hidden><HandCoins size={20} /></span><div><b>تكسب <bdi>{usd(data.firstPoints)}</bdi></b><small>عندما يصل مجموع ما يدفعه صديقك <bdi>{data.qualifyUsd}$</bdi></small></div></li>
-          <li><span aria-hidden><Repeat size={20} /></span><div><b>ثم {sharePoints} نقاط عن كل <bdi>{data.sharePerUsd}$</bdi></b><small>من كل ما يدفعه صديقك لمدة سنة، وترفع عضويتك</small></div></li>
+          <li><span aria-hidden><Repeat size={20} /></span><div><b>ثم <bdi>{pointsPhrase(sharePoints)}</bdi> عن كل <bdi dir="ltr">{data.sharePerUsd}$</bdi></b><small>من كل ما يدفعه صديقك لمدة سنة، وترفع عضويتك</small></div></li>
         </ol>
       </section>
 
@@ -123,12 +131,25 @@ const InvitePage = () => {
       {amb && (
         <section className={`iv-card iv-ambcard${data.ambassadorAt ? ' is-on' : ''}`} aria-labelledby="iv-amb-title">
           <div className="iv-ambcard__head">
-            <span className="iv-ambcard__icon" aria-hidden><Award size={26} /></span>
+            <span className="iv-ambcard__icon" aria-hidden><Crown size={26} /></span>
             <div>
-              <h2 id="iv-amb-title">لقب «{data.ambassadorTitle}»</h2>
-              <p>{data.ambassadorAt ? 'أنت سفير Exios. شكراً لأنك تنشرنا.' : 'أعلى درجة في الدعوات، لمن يجلب لنا عملاء حقيقيين.'}</p>
+              <h2 id="iv-amb-title">{data.ambassadorAt ? <>مبروك، أنت <bdi>{data.ambassadorTitle}</bdi></> : <>لقب «<bdi>{data.ambassadorTitle}</bdi>»</>}</h2>
+              <p>{data.ambassadorAt
+                ? <>حصلت عليه في {new Date(data.ambassadorAt).toLocaleDateString('ar-LY-u-nu-latn', { day: 'numeric', month: 'long', year: 'numeric' })}. شكراً لأنك تنشر Exios.</>
+                : 'أعلى درجة في الدعوات، لمن يجلب لنا عملاء حقيقيين.'}</p>
             </div>
           </div>
+          {data.ambassadorAt ? (
+            <>
+              <h3>مميزاتك الآن</h3>
+              <ul className="iv-list">
+                <li><Repeat size={16} aria-hidden /><span>حصتك <b><bdi>{pointsPhrase(data.ambassadorSharePoints)}</bdi> عن كل <bdi dir="ltr">{data.sharePerUsd}$</bdi></b> يدفعها أصدقاؤك، بدل <bdi>{pointsPhrase(data.sharePoints)}</bdi></span></li>
+                <li><Gift size={16} aria-hidden /><span>حصلت على مكافأة <b><bdi>{pointsPhrase(amb.points)}</bdi></b> (<bdi dir="ltr">{usd(amb.points)}</bdi>)</span></li>
+                <li><BadgeCheck size={16} aria-hidden /><span>شارة «<bdi>{data.ambassadorTitle}</bdi>» بجانب اسمك في التطبيق، ويراها موظفو المكتب</span></li>
+              </ul>
+            </>
+          ) : (
+          <>
           <h3>كيف تحصل عليه؟</h3>
           <ul className="iv-list">
             <li><Check size={16} aria-hidden /><span><b>{amb.friends} أصدقاء</b> وصل مجموع ما دفعه كل واحد منهم <bdi>{data.qualifyUsd}$</bdi></span></li>
@@ -136,10 +157,12 @@ const InvitePage = () => {
           </ul>
           <h3>ماذا تستفيد؟</h3>
           <ul className="iv-list">
-            <li><Repeat size={16} aria-hidden /><span>حصتك ترتفع من {data.sharePoints} إلى <b>{data.ambassadorSharePoints} نقطة عن كل <bdi>{data.sharePerUsd}$</bdi></b> يدفعها أصدقاؤك، من يوم حصولك على اللقب</span></li>
-            <li><Gift size={16} aria-hidden /><span>مكافأة <b>{pointsNum(amb.points)} نقطة</b> (<bdi>{usd(amb.points)}</bdi>) مرة واحدة</span></li>
-            <li><BadgeCheck size={16} aria-hidden /><span>شارة «{data.ambassadorTitle}» بجانب اسمك في التطبيق، ويراها موظفو المكتب</span></li>
+            <li><Repeat size={16} aria-hidden /><span>حصتك ترتفع من <bdi>{pointsPhrase(data.sharePoints)}</bdi> إلى <b><bdi>{pointsPhrase(data.ambassadorSharePoints)}</bdi> عن كل <bdi dir="ltr">{data.sharePerUsd}$</bdi></b> يدفعها أصدقاؤك، من يوم حصولك على اللقب</span></li>
+            <li><Gift size={16} aria-hidden /><span>مكافأة <b><bdi>{pointsPhrase(amb.points)}</bdi></b> (<bdi dir="ltr">{usd(amb.points)}</bdi>) مرة واحدة</span></li>
+            <li><BadgeCheck size={16} aria-hidden /><span>شارة «<bdi>{data.ambassadorTitle}</bdi>» بجانب اسمك في التطبيق، ويراها موظفو المكتب</span></li>
           </ul>
+          </>
+          )}
         </section>
       )}
 
@@ -190,7 +213,7 @@ const InvitePage = () => {
           <li>صديقك يحصل على <bdi>{pointsNum(data.welcomePoints)}</bdi> نقطة (<bdi>{usd(data.welcomePoints)}</bdi>) عندما يسجّل برابطك أو يكتب كودك عند التسجيل، بدل هدية الحساب الجديد (<bdi>{SIGNUP_GIFT_POINTS}</bdi> نقطة)، ولا تجتمع الهديتان.</li>
           <li>إذا نسي صديقك الكود، يستطيع المكتب إضافته خلال 7 أيام من فتح حسابه فقط.</li>
           <li>تكسب <bdi>{pointsNum(data.firstPoints)}</bdi> نقطة (<bdi>{usd(data.firstPoints)}</bdi>) عندما يصل مجموع ما دفعه صديقك <bdi>{data.qualifyUsd}$</bdi>، ولو على عدة طلبيات.</li>
-          <li>من تلك اللحظة ولمدة {data.months} شهراً تكسب {data.sharePoints} نقاط عن كل <bdi>{data.sharePerUsd}$</bdi> يدفعها صديقك ({data.ambassadorSharePoints} نقطة إذا كنت سفيراً). نقاط صديقك لا تنقص شيئاً.</li>
+          <li>من تلك اللحظة ولمدة {data.months} شهراً تكسب <bdi>{pointsPhrase(data.sharePoints)}</bdi> عن كل <bdi dir="ltr">{data.sharePerUsd}$</bdi> يدفعها صديقك (<bdi>{pointsPhrase(data.ambassadorSharePoints)}</bdi> إذا كنت سفيراً). نقاط صديقك لا تنقص شيئاً.</li>
           <li>كل مكافأة من الدعوة تُضاف لرصيدك بعد {data.holdHours} ساعة من دفع صديقك. إذا عُدّلت طلبيته أو أُلغيت خلالها تُلغى المكافأة، وإذا أُلغيت بعد إضافتها تُسحب.</li>
           <li>تُعطى مكافآت صديقك بعد توثيق جوازه في المكتب. وقد تراجع الإدارة الدعوة قبل إعطاء مكافآتها، والمكافآت الإضافية تُعطى بعد موافقة المكتب.</li>
           <li>المكافآت الإضافية تحتاج الشرطين معاً: عدد الأصدقاء الذين وصلوا <bdi>{data.qualifyUsd}$</bdi>، ومجموع ما دفعه كل أصدقائك: {data.steps.map((s) => `${s.friends} أصدقاء و${pointsNum(s.usd)}$ = ${pointsNum(s.points)} نقطة`).join('، ')}. كل مكافأة مرة واحدة.</li>

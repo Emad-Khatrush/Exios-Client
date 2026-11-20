@@ -170,3 +170,10 @@
 @keyframes iv-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes iv-pop { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
 @keyframes iv-grow { from { transform: scaleX(0); } to { transform: none; } }
+/* The ambassador's crown: gold, with a soft ring; the hero badge's parts sit apart, each in its own direction */
+.iv-amb { gap: 7px; padding: 5px 14px; background: linear-gradient(135deg, #fde68a, #fbbf24); color: #5b3a00; box-shadow: 0 6px 16px -10px rgba(180, 120, 0, 0.9); }
+.iv-amb svg { color: #92400e; }
+.iv-amb__sep { width: 4px; height: 4px; border-radius: 50%; background: #92400e; opacity: 0.6; }
+.iv-ambcard__icon { width: 52px; height: 52px; border-radius: 50%; background: radial-gradient(circle at 30% 25%, #fef3c7, #f59e0b 55%, #b45309); box-shadow: 0 0 0 4px #fff7e0, 0 10px 22px -12px rgba(180, 83, 9, 0.9); }
+.iv-ambcard.is-on { border-color: #f5c451; background: linear-gradient(180deg, #fff6d8, #fff 70%); }
+.iv-ambcard.is-on h2 { color: #7c4a03; }

@@ -29,6 +29,13 @@ export const usd = (points: number) => {
   return `${Number.isInteger(v) ? v : v.toFixed(2)}$`;
 };
 export const pointsNum = (n: number) => Math.round(Number(n) || 0).toLocaleString('en-US');
+// "15 نقطة", "10 نقاط", "نقطتان": the word follows the number, as Arabic counts
+export const pointsPhrase = (n: number) => {
+  const v = Math.round(Number(n) || 0);
+  if (v === 1) return 'نقطة واحدة';
+  if (v === 2) return 'نقطتان';
+  return `${pointsNum(v)} ${v >= 3 && v <= 10 ? 'نقاط' : 'نقطة'}`;
+};
 
 // ---- The code a shared link carries (/r/CODE), kept for the sign-up page ----
 const KEY = 'exios:referral';
