@@ -306,7 +306,7 @@ const Register = () => {
           {refOk && (
             <p className="rg-gift" role="status">
               <Gift size={18} aria-hidden />
-              <span>دعاك <b>{refInfo?.name}</b> · تحصل على هدية {usd(refInfo?.welcomePoints || 0)} على أول فاتورة شحن</span>
+              <span>دعاك <b><bdi>{refInfo?.name}</bdi></b> · تحصل على هدية {usd(refInfo?.welcomePoints || 0)} على أول فاتورة شحن</span>
             </p>
           )}
 
@@ -529,7 +529,7 @@ const Register = () => {
                             onChange={(e) => setRefCode(e.target.value.toUpperCase())} placeholder="ABC234" aria-describedby="rg-ref-note" />
                         </div>
                         <p id="rg-ref-note" className="rg-hint">
-                          {refOk ? <>✓ دعاك <b>{refInfo?.name}</b>، وتحصل على {usd(refInfo?.welcomePoints || 0)} هدية</>
+                          {refOk ? <>✓ دعاك <b><bdi>{refInfo?.name}</bdi></b>، وتحصل على {usd(refInfo?.welcomePoints || 0)} هدية</>
                             : refInfo && refInfo.code === cleanCode(refCode) ? 'هذا الكود غير صحيح. تأكد منه أو اتركه فارغاً.'
                               : 'اكتب الكود الذي أرسله لك صديقك، أو اتركه فارغاً.'}
                         </p>
