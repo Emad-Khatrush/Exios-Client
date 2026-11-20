@@ -14,7 +14,7 @@ export type User = {
   passportVerification?: PassportVerification
   // Set when staff switched this customer's loyalty points off: the app hides the points
   loyaltyOff?: { at: string }
-  // Invite a friend: when the customer became «سفير Exios» (a badge in the menus)
+  // Invite a friend: when the customer became «سفير إكسيوس» (a badge in the menus)
   referral?: { ambassadorAt?: string }
   // The customer's own shipping prices, set by staff (utils/specialPrices.ts)
   specialPrices?: import('../utils/specialPrices').SpecialPrices

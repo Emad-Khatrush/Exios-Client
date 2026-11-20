@@ -273,7 +273,7 @@ const Sidebar = ({ account, open, setOpen }: Props) => {
               {verified
                 ? <span className="sb-account__verified"><BadgeCheck size={14} aria-hidden /> حساب موثّق</span>
                 : account?.city && <span>{account.city}</span>}
-              {account?.referral?.ambassadorAt && !account?.loyaltyOff && <span className="sb-account__amb"><Crown size={14} aria-hidden /> سفير <bdi>Exios</bdi></span>}
+              {account?.referral?.ambassadorAt && !account?.loyaltyOff && <span className="sb-account__amb"><Crown size={14} aria-hidden /> سفير إكسيوس</span>}
             </div>
           </div>
 

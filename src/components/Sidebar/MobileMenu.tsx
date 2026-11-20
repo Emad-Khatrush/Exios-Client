@@ -80,7 +80,7 @@ const MobileMenu = ({ open, onClose, account, badges }: Props) => {
             <span className="mm-profile__name">
               <b>{name}</b>
               {verified ? <small><BadgeCheck size={14} aria-hidden /> حساب موثّق</small> : <small>إعدادات الحساب</small>}
-              {account?.referral?.ambassadorAt && !account?.loyaltyOff && <small className="mm-amb"><Crown size={14} aria-hidden /> سفير <bdi>Exios</bdi></small>}
+              {account?.referral?.ambassadorAt && !account?.loyaltyOff && <small className="mm-amb"><Crown size={14} aria-hidden /> سفير إكسيوس</small>}
             </span>
             <ChevronLeft size={20} aria-hidden className="mm-profile__go" />
           </NavLink>

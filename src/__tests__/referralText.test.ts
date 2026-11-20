@@ -12,7 +12,7 @@ const store = new Map<string, string>();
 
 const steps = [
   { friends: 3, usd: 1000, points: 1000, reached: false },
-  { friends: 5, usd: 3000, points: 2000, title: 'سفير Exios', reached: false },
+  { friends: 5, usd: 3000, points: 2000, title: 'سفير إكسيوس', reached: false },
   { friends: 10, usd: 6000, points: 5000, reached: false },
 ];
 
@@ -36,8 +36,8 @@ describe('invite a friend: what the customer reads', () => {
     expect(nextStepText(0, 0, steps)).toBe('باقي 3 أصدقاء و1,000$ من مدفوعات أصدقائك على 1,000 نقطة إضافية');
     expect(nextStepText(3, 600, steps)).toBe('باقي 400$ من مدفوعات أصدقائك على 1,000 نقطة إضافية');
     const first = [{ ...steps[0], reached: true }, steps[1], steps[2]];
-    expect(nextStepText(4, 3200, first)).toBe('باقي صديق واحد على 2,000 نقطة إضافية ولقب «سفير Exios»');
-    expect(nextStepText(3, 1000, first)).toBe('باقي صديقان و2,000$ من مدفوعات أصدقائك على 2,000 نقطة إضافية ولقب «سفير Exios»');
+    expect(nextStepText(4, 3200, first)).toBe('باقي صديق واحد على 2,000 نقطة إضافية ولقب «سفير إكسيوس»');
+    expect(nextStepText(3, 1000, first)).toBe('باقي صديقان و2,000$ من مدفوعات أصدقائك على 2,000 نقطة إضافية ولقب «سفير إكسيوس»');
     expect(nextStepText(10, 6000, steps.map((s) => ({ ...s, reached: true })))).toBeNull();
   });
 
@@ -67,7 +67,7 @@ describe('the record of rewards: what each row says', () => {
   it('the kind', () => {
     expect(kindText({ kind: 'first', step: null })).toBe('مكافأة الدعوة');
     expect(kindText({ kind: 'share', step: null })).toBe('حصتك من شحنه');
-    expect(kindText({ kind: 'step', step: { friends: 10, usd: 10000, title: 'سفير Exios' } })).toBe('مكافأة 10 أصدقاء ولقب «سفير Exios»');
+    expect(kindText({ kind: 'step', step: { friends: 10, usd: 10000, title: 'سفير إكسيوس' } })).toBe('مكافأة 10 أصدقاء ولقب «سفير إكسيوس»');
   });
   it('where it stands', () => {
     const now = new Date('2026-11-20T10:00:00Z').getTime();

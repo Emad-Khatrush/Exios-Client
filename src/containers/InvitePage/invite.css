@@ -65,7 +65,7 @@
 .iv-amb { display: inline-flex; align-items: center; gap: 6px; margin: 0 auto 10px; padding: 4px 12px; border-radius: 999px; background: #fef3c7; color: #92400e; font-size: 0.85rem; font-weight: 800; }
 .iv-hero .iv-amb { display: flex; width: fit-content; }
 .iv-steps .iv-steps__amb { color: #15803d; font-weight: 700; }
-/* «سفير Exios»: how to get it and what it gives */
+/* «سفير إكسيوس»: how to get it and what it gives */
 .iv-ambcard { border-color: #fde68a; background: linear-gradient(180deg, #fffbeb, #fff 60%); }
 .iv-ambcard.is-on { border-color: #f59e0b; }
 .iv-ambcard__head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
