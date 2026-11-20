@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Award, Check, Copy, Gift, HandCoins, RefreshCw, Repeat, Share2, Trophy, UserPlus, Users } from 'lucide-react';
+import { Award, BadgeCheck, Check, ChevronDown, Copy, Gift, HandCoins, RefreshCw, Repeat, ScrollText, Share2, Trophy, UserPlus, Users } from 'lucide-react';
 import { TbBrandWhatsapp } from 'react-icons/tb';
 import api from '../../api';
 import { useCopy } from '../../utils/useCopy';
-import { Friend, Referrals, friendStatusText, headline, nextStepText, pointsNum, shareMessage, usd } from './referralText';
+import { Friend, Referrals, SIGNUP_GIFT_POINTS, friendStatusText, headline, nextStepText, pointsNum, shareMessage, usd } from './referralText';
 import './invite.css';
 
 const dayText = (d: string) => new Date(d).toLocaleDateString('ar-LY-u-nu-latn', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -56,6 +56,8 @@ const InvitePage = () => {
   const share = () => { (navigator as any).share({ title: 'Exios', text: message }).catch(() => undefined); };
   const next = nextStepText(data.qualified, data.friendsPaidUsd, data.steps);
   const top = data.steps[data.steps.length - 1];
+  // The step that makes an ambassador (the last one)
+  const amb = data.steps.find((s) => s.ambassador);
   const progress = Math.min(data.qualified / top.friends, 1);
   // An ambassador earns the higher share from then on
   const sharePoints = data.ambassadorAt ? data.ambassadorSharePoints : data.sharePoints;
@@ -118,6 +120,29 @@ const InvitePage = () => {
         {next && <p className="iv-next">{next}</p>}
       </section>
 
+      {amb && (
+        <section className={`iv-card iv-ambcard${data.ambassadorAt ? ' is-on' : ''}`} aria-labelledby="iv-amb-title">
+          <div className="iv-ambcard__head">
+            <span className="iv-ambcard__icon" aria-hidden><Award size={26} /></span>
+            <div>
+              <h2 id="iv-amb-title">لقب «{data.ambassadorTitle}»</h2>
+              <p>{data.ambassadorAt ? 'أنت سفير Exios. شكراً لأنك تنشرنا.' : 'أعلى درجة في الدعوات، لمن يجلب لنا عملاء حقيقيين.'}</p>
+            </div>
+          </div>
+          <h3>كيف تحصل عليه؟</h3>
+          <ul className="iv-list">
+            <li><Check size={16} aria-hidden /><span><b>{amb.friends} أصدقاء</b> وصل مجموع ما دفعه كل واحد منهم <bdi>{data.qualifyUsd}$</bdi></span></li>
+            <li><Check size={16} aria-hidden /><span>ومجموع ما دفعه كل أصدقائك معاً <b><bdi>{pointsNum(amb.usd)}$</bdi></b></span></li>
+          </ul>
+          <h3>ماذا تستفيد؟</h3>
+          <ul className="iv-list">
+            <li><Repeat size={16} aria-hidden /><span>حصتك ترتفع من {data.sharePoints} إلى <b>{data.ambassadorSharePoints} نقطة عن كل <bdi>{data.sharePerUsd}$</bdi></b> يدفعها أصدقاؤك، من يوم حصولك على اللقب</span></li>
+            <li><Gift size={16} aria-hidden /><span>مكافأة <b>{pointsNum(amb.points)} نقطة</b> (<bdi>{usd(amb.points)}</bdi>) مرة واحدة</span></li>
+            <li><BadgeCheck size={16} aria-hidden /><span>شارة «{data.ambassadorTitle}» بجانب اسمك في التطبيق، ويراها موظفو المكتب</span></li>
+          </ul>
+        </section>
+      )}
+
       <section className="iv-card" aria-labelledby="iv-friends">
         <div className="iv-card__head">
           <h2 id="iv-friends"><Users size={19} aria-hidden /> أصدقائي</h2>
@@ -145,7 +170,21 @@ const InvitePage = () => {
         )}
       </section>
 
-      <p className="iv-fine">تُحسب المكافأة من طلبيات صديقك المدفوعة فعلاً. لا تُقبل دعوة نفسك أو حسابات مكررة، ويحق للمكتب إلغاء أي دعوة مخالفة. <Link to="/points">نقاطي</Link></p>
+      <details className="iv-card iv-terms">
+        <summary><ScrollText size={19} aria-hidden /> <span>الشروط والتفاصيل</span> <ChevronDown size={18} aria-hidden className="iv-terms__chev" /></summary>
+        <ol>
+          <li>صديقك يحصل على <bdi>{pointsNum(data.welcomePoints)}</bdi> نقطة (<bdi>{usd(data.welcomePoints)}</bdi>) عندما يسجّل برابطك أو يكتب كودك عند التسجيل، بدل هدية الحساب الجديد (<bdi>{SIGNUP_GIFT_POINTS}</bdi> نقطة)، ولا تجتمع الهديتان.</li>
+          <li>إذا نسي صديقك الكود، يستطيع المكتب إضافته خلال 7 أيام من فتح حسابه فقط.</li>
+          <li>تكسب <bdi>{pointsNum(data.firstPoints)}</bdi> نقطة (<bdi>{usd(data.firstPoints)}</bdi>) عندما يصل مجموع ما دفعه صديقك <bdi>{data.qualifyUsd}$</bdi>، ولو على عدة طلبيات.</li>
+          <li>من تلك اللحظة ولمدة {data.months} شهراً تكسب {data.sharePoints} نقاط عن كل <bdi>{data.sharePerUsd}$</bdi> يدفعها صديقك ({data.ambassadorSharePoints} نقطة إذا كنت سفيراً). نقاط صديقك لا تنقص شيئاً.</li>
+          <li>المكافآت الإضافية تحتاج الشرطين معاً: عدد الأصدقاء الذين وصلوا <bdi>{data.qualifyUsd}$</bdi>، ومجموع ما دفعه كل أصدقائك: {data.steps.map((s) => `${s.friends} أصدقاء و${pointsNum(s.usd)}$ = ${pointsNum(s.points)} نقطة`).join('، ')}. كل مكافأة مرة واحدة.</li>
+          <li>يُحسب ما يدفعه صديقك من فواتير الشحن والشراء المدفوعة بالكامل (والشحن بعد استلام الطرد). الطلبيات الملغاة لا تُحسب، وحوالات Alipay تُحسب بنصف قيمتها.</li>
+          <li>نقاط الدعوة ترفع عضويتك مثل نقاط شحنك، وصلاحيتها حسب مستوى عضويتك.</li>
+          <li>تُستعمل النقاط عند الدفع في المكتب، حتى 20% من الفاتورة (100 نقطة = <bdi>1$</bdi>).</li>
+          <li>لا تُقبل دعوة نفسك أو الحسابات المكررة. يحق للمكتب إلغاء أي دعوة مخالفة وخصم ما أُعطي منها.</li>
+        </ol>
+        <Link to="/points" className="iv-terms__link">نقاطي وسجلها</Link>
+      </details>
     </>,
   );
 };
