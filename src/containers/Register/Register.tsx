@@ -26,13 +26,17 @@ import './register.css';
 type Step = 0 | 1 | 2;
 const STEPS = ['بياناتك', 'كلمة المرور', 'توثيق الهوية'];
 
-type Field = 'firstName' | 'lastName' | 'email' | 'phone' | 'city' | 'password' | 'repeatedPassword' | 'passport' | 'terms';
+type Field = 'firstName' | 'lastName' | 'email' | 'phone' | 'city' | 'password' | 'repeatedPassword' | 'passport' | 'passportNo' | 'terms';
 type Errors = Partial<Record<Field, string>>;
 
 const MAX_UPLOAD = 10 * 1024 * 1024; // the server's limit
 
 const EMAIL_TAKEN = 'هذا البريد مسجّل من قبل. سجّل الدخول به، أو استعمل بريداً آخر.';
 const PHONE_TAKEN = 'هذا الرقم مسجّل في حساب آخر. سجّل الدخول به، أو اكتب رقماً آخر.';
+const PASSPORT_TAKEN = 'هذا الجواز مسجّل بحساب آخر. سجّل الدخول بحسابك، أو تواصل مع المكتب.';
+// The passport number as the server stores it: letters and digits, upper case, 6 to 12 of them
+const cleanPassportNo = (v: string) => v.toUpperCase().replace(/[^A-Z0-9]/g, '');
+const passportNoOk = (v: string) => /^[A-Z0-9]{6,12}$/.test(cleanPassportNo(v));
 
 const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
 
@@ -80,6 +84,11 @@ const Register = () => {
   const [passport, setPassport] = useState<File | null>(null);
   const [preview, setPreview] = useState('');
   const [preparing, setPreparing] = useState(false);
+  // The passport number: read from the photo when possible, then confirmed by the customer
+  const [passportNo, setPassportNo] = useState('');
+  const [passportRead, setPassportRead] = useState('');
+  const [readingNo, setReadingNo] = useState(false);
+  const [passportNoOkTicked, setPassportNoOkTicked] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
@@ -147,7 +156,22 @@ const Register = () => {
     }
     setPassport(ready);
     setPreview(URL.createObjectURL(ready));
-    setErrors((x) => ({ ...x, passport: undefined }));
+    setErrors((x) => ({ ...x, passport: undefined, passportNo: undefined }));
+    // Read the number from the photo; when it cannot be read the customer types it
+    setPassportNo('');
+    setPassportRead('');
+    setPassportNoOkTicked(false);
+    setReadingNo(true);
+    try {
+      const res: any = await api.readPassportNumber(ready);
+      const number = cleanPassportNo(res?.data?.number || '');
+      if (number) {
+        setPassportNo(number);
+        setPassportRead(number);
+        if (res.data.taken) setErrors((x) => ({ ...x, passportNo: PASSPORT_TAKEN }));
+      }
+    } catch { /* typed by hand */ }
+    setReadingNo(false);
   };
 
   const onDrop = (e: DragEvent) => {
@@ -159,6 +183,9 @@ const Register = () => {
   const removePassport = () => {
     setPassport(null);
     setPreview('');
+    setPassportNo('');
+    setPassportRead('');
+    setPassportNoOkTicked(false);
     if (fileRef.current) fileRef.current.value = '';
     if (cameraRef.current) cameraRef.current.value = '';
   };
@@ -182,6 +209,8 @@ const Register = () => {
     }
     if (s === 2) {
       if (!passport) e.passport = 'ارفع صورة جواز سفرك.';
+      else if (!passportNoOk(passportNo)) e.passportNo = 'اكتب رقم جواز سفرك كما هو في الجواز.';
+      else if (!passportNoOkTicked) e.passportNo = 'قارن الرقم بجوازك، ثم ضع علامة التأكيد.';
       if (!terms) e.terms = 'وافق على الشروط لإنشاء الحساب.';
     }
     return e;
@@ -240,6 +269,8 @@ const Register = () => {
       body.append('isAgreeToTermsOfCompany', 'true');
       body.append('termsVersion', TERMS_VERSION);
       body.append('passportImage', passport as File);
+      body.append('passportNumber', cleanPassportNo(passportNo));
+      if (passportRead) body.append('passportNumberRead', passportRead);
       if (refOk) {
         body.append('referralCode', cleanCode(refCode));
         body.append('referralSource', cleanCode(refCode) === linkCode ? 'link' : 'code');
@@ -262,7 +293,9 @@ const Register = () => {
       if (code === 'user-exist') { setStep(0); showErrors({ email: EMAIL_TAKEN }); return; }
       if (code === 'phone-exist') { setStep(0); showErrors({ phone: PHONE_TAKEN }); return; }
       if (code === 'password-not-match') { setStep(1); showErrors({ repeatedPassword: 'كلمتا المرور غير متطابقتين.' }); return; }
-      if (code === 'passport-image-required' || code === 'passport-upload-failed') { showErrors({ passport: apiErrorsTypes[code] }); return; }
+      if (code === 'passport-image-required' || code === 'passport-upload-failed' || code === 'passport-image-type') { showErrors({ passport: apiErrorsTypes[code] }); return; }
+      if (code === 'passport-exist') { showErrors({ passportNo: PASSPORT_TAKEN }); return; }
+      if (code === 'passport-number-required') { showErrors({ passportNo: apiErrorsTypes[code] }); return; }
       if (!code && !err?.data) { setProblem('تعذر الاتصال. تأكد من الإنترنت ثم حاول مرة أخرى.'); return; }
       setProblem(apiErrorsTypes[code] || 'لم يُنشأ الحساب. حاول مرة أخرى بعد قليل، أو راسلنا على واتساب.');
     }
@@ -521,6 +554,53 @@ const Register = () => {
                     {err('passport')}
                     <p className="rg-private"><ShieldCheck size={16} aria-hidden /> يراها فريق التوثيق فقط، لنتأكد أن الحساب لك. نراجعها عادة خلال يوم عمل.</p>
                   </div>
+
+                  {passport && (
+                    <div className="lg-field rg-pno">
+                      <label htmlFor="rg-passportNo" className="rg-label">رقم جواز السفر</label>
+                      {readingNo ? (
+                        <p className="rg-pno__reading"><Loader2 size={18} className="lg-spin" aria-hidden /> نقرأ رقم الجواز من الصورة…</p>
+                      ) : (
+                        <>
+                          <div className={`lg-input ${errors.passportNo ? 'is-invalid' : ''}`}>
+                            <FileText size={18} className="lg-input__icon" aria-hidden />
+                            <input
+                              id="rg-passportNo"
+                              dir="ltr"
+                              value={passportNo}
+                              maxLength={14}
+                              autoCapitalize="characters"
+                              autoComplete="off"
+                              spellCheck={false}
+                              placeholder="AB1234567"
+                              onChange={(e) => {
+                                setPassportNo(e.target.value.toUpperCase());
+                                setPassportNoOkTicked(false);
+                                if (errors.passportNo) setErrors((x) => ({ ...x, passportNo: undefined }));
+                              }}
+                              {...aria('passportNo')}
+                            />
+                          </div>
+                          <p className="rg-hint">
+                            {passportRead && cleanPassportNo(passportNo) === passportRead
+                              ? 'قرأناه من صورتك. قارنه بجوازك حرفاً حرفاً، وصحّحه إن لزم.'
+                              : 'اكتبه كما هو في صفحة البيانات بجوازك.'}
+                          </p>
+                          <label className="rg-terms rg-pno__ok">
+                            <input
+                              type="checkbox"
+                              checked={passportNoOkTicked}
+                              disabled={!passportNoOk(passportNo)}
+                              onChange={(e) => { setPassportNoOkTicked(e.target.checked); if (errors.passportNo) setErrors((x) => ({ ...x, passportNo: undefined })); }}
+                            />
+                            <span className="rg-terms__box" aria-hidden><Check size={14} strokeWidth={3} /></span>
+                            <span>تأكدت أن رقم الجواز <bdi dir="ltr">{cleanPassportNo(passportNo) || '—'}</bdi> صحيح</span>
+                          </label>
+                          {err('passportNo')}
+                        </>
+                      )}
+                    </div>
+                  )}
 
                   <div className="lg-field">
                     {!refOpen ? (

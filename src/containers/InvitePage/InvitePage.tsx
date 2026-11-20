@@ -146,7 +146,12 @@ const InvitePage = () => {
       <section className="iv-card" aria-labelledby="iv-friends">
         <div className="iv-card__head">
           <h2 id="iv-friends"><Users size={19} aria-hidden /> أصدقائي</h2>
-          {data.totalPoints > 0 && <span className="iv-pill iv-pill--gold">كسبت {pointsNum(data.totalPoints)} نقطة</span>}
+          {(data.totalPoints > 0 || data.heldPoints > 0) && (
+            <span className="iv-pills">
+              {data.totalPoints > 0 && <span className="iv-pill iv-pill--gold">كسبت {pointsNum(data.totalPoints)} نقطة</span>}
+              {data.heldPoints > 0 && <span className="iv-pill iv-pill--wait">{pointsNum(data.heldPoints)} بعد {data.holdHours} ساعة</span>}
+            </span>
+          )}
         </div>
         {!data.friends.length ? (
           <p className="iv-empty">لم يسجّل أحد بدعوتك بعد. أرسل رابطك لأول صديق الآن.</p>
@@ -162,7 +167,12 @@ const InvitePage = () => {
                     <small className={`is-${status.tone}`}>{status.text}</small>
                     <small>سجّل {dayText(f.joinedAt)}</small>
                   </span>
-                  {f.points > 0 && <em className="iv-friends__pts"><bdi dir="ltr">+{pointsNum(f.points)}</bdi></em>}
+                  {(f.points > 0 || f.heldPoints > 0) && (
+                    <span className="iv-friends__side">
+                      {f.points > 0 && <em className="iv-friends__pts"><bdi dir="ltr">+{pointsNum(f.points)}</bdi></em>}
+                      {f.heldPoints > 0 && <small className="iv-friends__held"><bdi dir="ltr">+{pointsNum(f.heldPoints)}</bdi> بعد {data.holdHours} ساعة</small>}
+                    </span>
+                  )}
                 </li>
               );
             })}
@@ -177,6 +187,7 @@ const InvitePage = () => {
           <li>إذا نسي صديقك الكود، يستطيع المكتب إضافته خلال 7 أيام من فتح حسابه فقط.</li>
           <li>تكسب <bdi>{pointsNum(data.firstPoints)}</bdi> نقطة (<bdi>{usd(data.firstPoints)}</bdi>) عندما يصل مجموع ما دفعه صديقك <bdi>{data.qualifyUsd}$</bdi>، ولو على عدة طلبيات.</li>
           <li>من تلك اللحظة ولمدة {data.months} شهراً تكسب {data.sharePoints} نقاط عن كل <bdi>{data.sharePerUsd}$</bdi> يدفعها صديقك ({data.ambassadorSharePoints} نقطة إذا كنت سفيراً). نقاط صديقك لا تنقص شيئاً.</li>
+          <li>كل مكافأة من الدعوة تُضاف لرصيدك بعد {data.holdHours} ساعة من دفع صديقك. إذا عُدّلت طلبيته أو أُلغيت خلالها تُلغى المكافأة، وإذا أُلغيت بعد إضافتها تُسحب.</li>
           <li>المكافآت الإضافية تحتاج الشرطين معاً: عدد الأصدقاء الذين وصلوا <bdi>{data.qualifyUsd}$</bdi>، ومجموع ما دفعه كل أصدقائك: {data.steps.map((s) => `${s.friends} أصدقاء و${pointsNum(s.usd)}$ = ${pointsNum(s.points)} نقطة`).join('، ')}. كل مكافأة مرة واحدة.</li>
           <li>يُحسب ما يدفعه صديقك من فواتير الشحن والشراء المدفوعة بالكامل (والشحن بعد استلام الطرد). الطلبيات الملغاة لا تُحسب، وحوالات Alipay تُحسب بنصف قيمتها.</li>
           <li>حصتك من أصدقائك فقط ترفع عضويتك، مثل نقاط شحنك. مكافأة <bdi>{data.qualifyUsd}$</bdi> والمكافآت الإضافية نقاط للاستعمال فقط ولا تُحسب في العضوية. صلاحية كل النقاط حسب مستوى عضويتك.</li>

@@ -269,3 +269,8 @@
 .rg-ref-open { display: inline-flex; align-items: center; gap: 6px; padding: 0; background: none; color: var(--lg-brand, #15803d); font-size: 0.88rem; font-weight: 700; }
 .rg-label small { color: var(--lg-muted, #66736b); font-weight: 500; }
 #rg-ref { letter-spacing: 0.12em; font-weight: 700; }
+/* The passport number: read from the photo, then confirmed */
+.rg-pno__reading { display: flex; align-items: center; gap: 8px; margin: 4px 0 0; color: var(--lg-muted, #66736b); font-size: 0.9rem; }
+#rg-passportNo { letter-spacing: 0.1em; font-weight: 700; }
+.rg-pno__ok { margin-top: 6px; }
+.rg-pno__ok bdi { font-weight: 800; letter-spacing: 0.06em; }

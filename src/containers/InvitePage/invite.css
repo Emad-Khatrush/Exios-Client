@@ -87,3 +87,8 @@
 .iv-terms ol { display: grid; gap: 8px; margin: 0; padding: 0 16px 4px; padding-inline-start: 34px; direction: rtl; text-align: right; color: #3f4a44; font-size: 0.86rem; line-height: 1.8; }
 .iv-terms__link { display: inline-block; margin: 8px 16px 14px; color: #15803d; font-size: 0.86rem; font-weight: 700; }
 @media (prefers-reduced-motion: reduce) { .iv-terms__chev { transition: none; } }
+/* Rewards waiting their 24 hours */
+.iv-pills { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.iv-pill--wait { background: #eef2ff; color: #3730a3; }
+.iv-friends__side { display: grid; justify-items: end; gap: 3px; }
+.iv-friends__held { color: #4f46e5; font-size: 0.76rem; font-weight: 700; white-space: nowrap; }

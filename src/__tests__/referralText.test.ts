@@ -43,7 +43,7 @@ describe('invite a friend: what the customer reads', () => {
 
   it('each friend\'s status', () => {
     const now = new Date('2026-11-20').getTime();
-    const base = { id: '1', name: 'أحمد م.', joinedAt: '2026-11-01', qualifiedAt: null, shareEndsAt: null, points: 0, paidUsd: 0, leftUsd: 200 };
+    const base = { id: '1', name: 'أحمد م.', joinedAt: '2026-11-01', qualifiedAt: null, shareEndsAt: null, points: 0, heldPoints: 0, paidUsd: 0, leftUsd: 200 };
     expect(friendStatusText({ ...base, status: 'joined' }, 200, now).text).toBe('سجّل · مكافأتك عندما يصل مجموع ما يدفعه 200$');
     expect(friendStatusText({ ...base, status: 'joined', paidUsd: 80, leftUsd: 120 }, 200, now).text).toBe('دفع 80$ · باقي 120$ على مكافأتك');
     expect(friendStatusText({ ...base, status: 'sharing', shareEndsAt: '2027-06-20' }, 50, now).text).toBe('تكسب من شحنه · باقي 7 أشهر');

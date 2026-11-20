@@ -145,6 +145,13 @@ export default {
 
   createClientAccount: (formData: FormData) => sendMultipart(`account/create`, 'POST', formData),
 
+  // Sign-up: the passport number read from the photo, for the customer to confirm ({ number | null, checked, taken })
+  readPassportNumber: (file: File) => {
+    const body = new FormData();
+    body.append('passportImage', file);
+    return sendMultipart(`account/passport/read`, 'POST', body);
+  },
+
   // Whether an email or phone already has an account, asked on the first sign-up step
   checkSignupAvailability: (body: { email: string, phone: string }) => base.post(`account/check`, body),
 

@@ -6,12 +6,14 @@ export type Friend = {
   id: string, name: string, joinedAt: string, status: FriendStatus, qualifiedAt: string | null, shareEndsAt: string | null, points: number,
   // What the friend paid in total, and what is left before the inviter's big reward
   paidUsd: number, leftUsd: number,
+  // Rewards from this friend still waiting their 24 hours
+  heldPoints: number,
 };
 // A step needs both: that many friends who reached the big reward, and that much paid by all friends
 export type Step = { friends: number, usd: number, points: number, title?: string, ambassador?: boolean, reached: boolean };
 export type Referrals = {
   off: false, code: string, path: string, welcomePoints: number, firstPoints: number, qualifyUsd: number,
-  sharePoints: number, sharePerUsd: number, ambassadorSharePoints: number, ambassadorTitle: string, ambassadorAt: string | null, months: number, qualified: number, friendsPaidUsd: number, steps: Step[], friends: Friend[], totalPoints: number,
+  sharePoints: number, sharePerUsd: number, ambassadorSharePoints: number, ambassadorTitle: string, ambassadorAt: string | null, months: number, qualified: number, friendsPaidUsd: number, steps: Step[], friends: Friend[], totalPoints: number, heldPoints: number, holdHours: number,
 } | { off: true };
 
 // Every new account without an inviter gets this at sign-up (invited: the welcome gift instead, never both)
