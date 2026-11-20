@@ -106,11 +106,11 @@ const InviteHistory = () => {
 
         {!!items.length && (
           <ul className="ih-list">
-            {items.map((i) => {
+            {items.map((i, n) => {
               const KindIcon = KIND_ICON[i.kind];
               const StateIcon = STATE_ICON[i.state];
               return (
-                <li key={i.id} className={`ih-item is-${i.state}`}>
+                <li key={i.id} className={`ih-item is-${i.state}`} style={{ ['--iv-d' as any]: `${Math.min(Math.max(n - (page - 1) * 30, 0), 10) * 45}ms` }}>
                   <span className="ih-item__icon" aria-hidden><KindIcon size={19} /></span>
                   <div className="ih-item__main">
                     <b>{kindText(i)}</b>

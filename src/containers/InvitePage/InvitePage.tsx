@@ -157,10 +157,10 @@ const InvitePage = () => {
           <p className="iv-empty">لم يسجّل أحد بدعوتك بعد. أرسل رابطك لأول صديق الآن.</p>
         ) : (
           <ul className="iv-friends">
-            {data.friends.map((f: Friend) => {
+            {data.friends.map((f: Friend, i: number) => {
               const status = friendStatusText(f, data.qualifyUsd);
               return (
-                <li key={f.id}>
+                <li key={f.id} style={{ ['--iv-d' as any]: `${Math.min(i, 10) * 45}ms` }}>
                   <Link to={`/invite/history?friend=${f.id}`} className="iv-friends__link" aria-label={`ما كسبته من ${f.name}`}>
                   <span className="iv-friends__avatar" aria-hidden>{f.name.charAt(0)}</span>
                   <span className="iv-friends__main">

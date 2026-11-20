@@ -140,3 +140,33 @@
 .ih-item.is-canceled .ih-item__pts bdi { text-decoration: line-through; color: #71717a; }
 .ih-item__pts small { color: #98a49d; font-size: 0.72rem; font-weight: 600; }
 .ih-more { width: 100%; margin-top: 12px; }
+/* Opening the page, as the other pages do: the green card settles first, its icon and code a beat
+   after, then each section rises in order and the friends one after another (--iv-d, the first ten
+   only); the progress bar fills from its start. Loading placeholders wait a beat so a fast answer
+   never flashes them. Going back to the page skips all of it (html.nav-back in index.css). */
+@media (prefers-reduced-motion: no-preference) {
+  .iv-hero { animation: iv-rise 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .iv-hero__icon { animation: iv-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both; }
+  .iv-code { animation: iv-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both; }
+  .iv-actions { animation: iv-fade 0.45s ease 0.28s both; }
+  .iv-page .iv-card { animation: iv-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .iv-page .mx-auto > .iv-card:nth-of-type(1) { animation-delay: 0.12s; }
+  .iv-page .mx-auto > .iv-card:nth-of-type(2) { animation-delay: 0.18s; }
+  .iv-page .mx-auto > .iv-card:nth-of-type(3) { animation-delay: 0.24s; }
+  .iv-page .mx-auto > .iv-card:nth-of-type(4) { animation-delay: 0.3s; }
+  .iv-page .mx-auto > .iv-card:nth-of-type(n+5), .iv-page .mx-auto > details.iv-card { animation-delay: 0.36s; }
+  .iv-friends > li { animation: iv-rise 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: calc(var(--iv-d, 0ms) + 260ms); }
+  .iv-bar span { transform-origin: right; animation: iv-grow 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.35s both; }
+  .iv-state { animation: iv-rise 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.06s both; }
+  .iv-sk { animation: iv-fade 0.3s ease 0.15s both, iv-sk 1.2s linear 0.45s infinite; }
+  /* The record page */
+  .ih-back, .ih-head { animation: iv-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .ih-friend { animation: iv-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both; }
+  .ih-totals { animation: iv-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.14s both; }
+  .ih-filters { animation: iv-fade 0.4s ease 0.2s both; }
+  .ih-list > li { animation: iv-rise 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: calc(var(--iv-d, 0ms) + 240ms); }
+}
+@keyframes iv-rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes iv-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes iv-pop { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
+@keyframes iv-grow { from { transform: scaleX(0); } to { transform: none; } }
