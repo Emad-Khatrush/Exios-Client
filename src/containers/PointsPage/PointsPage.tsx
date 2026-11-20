@@ -32,6 +32,7 @@ const ADD_TITLE: Record<string, { icon: LucideIcon, title: string }> = {
   rating: { icon: Star, title: 'مكافأة تقييم الخدمة' },
   staff: { icon: Gift, title: 'إضافة من المكتب' },
   reearn: { icon: Undo2, title: 'رجوع نقاط طلبية بعد سدادها' },
+  moved: { icon: Plus, title: 'نقاط طلبية نُقلت إلى حسابك' },
 };
 const kindOf = (r: { kind: string, source?: string | null, reason?: string }) => {
   const base = KIND[r.kind as keyof typeof KIND] || { icon: Plus, tone: 'gain' as const, title: r.kind };
@@ -39,6 +40,8 @@ const kindOf = (r: { kind: string, source?: string | null, reason?: string }) =>
   if (r.kind === 'revoke' && r.source?.startsWith('invite')) return { ...base, title: 'سحب مكافأة دعوة' };
   if (r.kind === 'revoke' && r.source) return { ...base, title: 'سحب نقاط' };
   // A paid invoice owed again: its points wait until it is paid (the reason says so)
+  // An order moved to another customer took its points with it; a paid invoice owed again: they wait
+  if (r.kind === 'revoke' && r.reason === 'نُقلت الطلبية لعميل آخر') return { ...base, title: 'نقاط طلبية نُقلت لعميل آخر' };
   if (r.kind === 'revoke' && r.reason) return { ...base, title: 'سحب نقاط طلبية مؤقتاً' };
   return base;
 };
