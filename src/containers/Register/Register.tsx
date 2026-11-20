@@ -306,7 +306,7 @@ const Register = () => {
           {refOk && (
             <p className="rg-gift" role="status">
               <Gift size={18} aria-hidden />
-              <span>دعاك <b><bdi>{refInfo?.name}</bdi></b> · تحصل على هدية {usd(refInfo?.welcomePoints || 0)} على أول فاتورة شحن</span>
+              <span>دعاك <b><bdi>{refInfo?.name}</bdi></b> · تحصل على هدية {usd(refInfo?.welcomePoints || 0)} لأول فاتورة شحن أو شراء</span>
             </p>
           )}
 

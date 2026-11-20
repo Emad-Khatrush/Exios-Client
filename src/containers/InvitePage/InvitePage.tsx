@@ -54,7 +54,7 @@ const InvitePage = () => {
   const message = shareMessage(link, data.welcomePoints);
   const canShare = typeof navigator !== 'undefined' && typeof (navigator as any).share === 'function';
   const share = () => { (navigator as any).share({ title: 'Exios', text: message }).catch(() => undefined); };
-  const next = nextStepText(data.qualified, data.steps);
+  const next = nextStepText(data.qualified, data.friendsPaidUsd, data.steps);
   const top = data.steps[data.steps.length - 1];
   const progress = Math.min(data.qualified / top.friends, 1);
 
@@ -63,7 +63,7 @@ const InvitePage = () => {
       <header className="iv-hero">
         <span className="iv-hero__icon" aria-hidden><UserPlus size={26} /></span>
         <h1>{headline(data.firstPoints)}</h1>
-        <p>صديقك يأخذ هدية {usd(data.welcomePoints)}، وأنت تكسب {usd(data.firstPoints)} عندما يدفع {data.qualifyUsd}$ من شحناته، ثم {data.sharePerTwenty} نقاط عن كل 20$ يشحنها لمدة {data.months} شهراً.</p>
+        <p>صديقك يأخذ هدية {usd(data.welcomePoints)}، وأنت تكسب {usd(data.firstPoints)} عندما يصل مجموع ما يدفعه {data.qualifyUsd}$ ولو على عدة طلبيات، ثم {data.sharePoints} نقاط عن كل {data.sharePerUsd}$ يدفعها لمدة {data.months} شهراً.</p>
 
         <div className="iv-code">
           <span>كود دعوتك</span>
@@ -90,15 +90,15 @@ const InvitePage = () => {
         <h2 id="iv-how">كيف تكسب؟</h2>
         <ol className="iv-how">
           <li><span aria-hidden><Share2 size={20} /></span><div><b>أرسل رابطك لصديق</b><small>أو أعطه الكود ليكتبه عند التسجيل</small></div></li>
-          <li><span aria-hidden><Gift size={20} /></span><div><b>صديقك يأخذ {usd(data.welcomePoints)} هدية</b><small>{pointsNum(data.welcomePoints)} نقطة تُخصم من فاتورة شحنه</small></div></li>
-          <li><span aria-hidden><HandCoins size={20} /></span><div><b>تكسب {usd(data.firstPoints)} ثم من كل شحنة له</b><small>عندما يدفع {data.qualifyUsd}$، ثم حصتك لمدة سنة. ونقاطك ترفع عضويتك</small></div></li>
+          <li><span aria-hidden><Gift size={20} /></span><div><b>صديقك يأخذ {usd(data.welcomePoints)} هدية</b><small>{pointsNum(data.welcomePoints)} نقطة يستعملها في أول فاتورة شحن أو شراء</small></div></li>
+          <li><span aria-hidden><HandCoins size={20} /></span><div><b>تكسب {usd(data.firstPoints)} ثم من كل شحنة له</b><small>عندما يصل مجموع ما يدفعه {data.qualifyUsd}$، ثم {data.sharePoints} نقاط عن كل {data.sharePerUsd}$ لمدة سنة. ونقاطك ترفع عضويتك</small></div></li>
         </ol>
       </section>
 
       <section className="iv-card" aria-labelledby="iv-steps">
         <div className="iv-card__head">
           <h2 id="iv-steps"><Trophy size={19} aria-hidden /> مكافآت إضافية</h2>
-          <span className="iv-pill">{data.qualified} {data.qualified === 1 ? 'صديق دفع' : 'أصدقاء دفعوا'}</span>
+          <span className="iv-pill">{data.qualified} {data.qualified === 1 ? 'صديق' : 'أصدقاء'} · <bdi dir="ltr">{pointsNum(data.friendsPaidUsd)}$</bdi></span>
         </div>
         <div className="iv-bar" role="progressbar" aria-valuemin={0} aria-valuemax={top.friends} aria-valuenow={Math.min(data.qualified, top.friends)}>
           <span style={{ width: `${progress * 100}%` }} />
@@ -107,7 +107,7 @@ const InvitePage = () => {
           {data.steps.map((s) => (
             <li key={s.friends} className={s.reached ? 'is-on' : ''}>
               <span className="iv-steps__n">{s.reached ? <Check size={15} strokeWidth={3} aria-hidden /> : s.friends}</span>
-              <span><b>{s.friends} أصدقاء</b><small>+{pointsNum(s.points)} نقطة{s.title ? ` · لقب «${s.title}»` : ''}</small></span>
+              <span><b>{s.friends} أصدقاء</b><small>ومدفوعاتهم {pointsNum(s.usd)}$</small><small className="iv-steps__pts">+{pointsNum(s.points)} نقطة{s.title ? ` · لقب «${s.title}»` : ''}</small></span>
             </li>
           ))}
         </ul>
@@ -141,7 +141,7 @@ const InvitePage = () => {
         )}
       </section>
 
-      <p className="iv-fine">تُحسب المكافأة بعد أن يدفع صديقك طلبياته فعلاً. لا تُقبل دعوة نفسك أو حسابات مكررة، ويحق للمكتب إلغاء أي دعوة مخالفة. <Link to="/points">نقاطي</Link></p>
+      <p className="iv-fine">تُحسب المكافأة من طلبيات صديقك المدفوعة فعلاً. لا تُقبل دعوة نفسك أو حسابات مكررة، ويحق للمكتب إلغاء أي دعوة مخالفة. <Link to="/points">نقاطي</Link></p>
     </>,
   );
 };
