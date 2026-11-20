@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Check, Copy, Gift, HandCoins, RefreshCw, Share2, Trophy, UserPlus, Users } from 'lucide-react';
+import { Award, Check, Copy, Gift, HandCoins, RefreshCw, Share2, Trophy, UserPlus, Users } from 'lucide-react';
 import { TbBrandWhatsapp } from 'react-icons/tb';
 import api from '../../api';
 import { useCopy } from '../../utils/useCopy';
@@ -57,13 +57,16 @@ const InvitePage = () => {
   const next = nextStepText(data.qualified, data.friendsPaidUsd, data.steps);
   const top = data.steps[data.steps.length - 1];
   const progress = Math.min(data.qualified / top.friends, 1);
+  // An ambassador earns the higher share from then on
+  const sharePoints = data.ambassadorAt ? data.ambassadorSharePoints : data.sharePoints;
 
   return page(
     <>
       <header className="iv-hero">
         <span className="iv-hero__icon" aria-hidden><UserPlus size={26} /></span>
+        {data.ambassadorAt && <span className="iv-amb"><Award size={16} aria-hidden /> {data.ambassadorTitle} · {data.ambassadorSharePoints} نقطة عن كل {data.sharePerUsd}$</span>}
         <h1>{headline(data.firstPoints)}</h1>
-        <p>صديقك يأخذ هدية {usd(data.welcomePoints)}، وأنت تكسب {usd(data.firstPoints)} عندما يصل مجموع ما يدفعه {data.qualifyUsd}$ ولو على عدة طلبيات، ثم {data.sharePoints} نقاط عن كل {data.sharePerUsd}$ يدفعها لمدة {data.months} شهراً.</p>
+        <p>صديقك يأخذ هدية {usd(data.welcomePoints)}، وأنت تكسب {usd(data.firstPoints)} عندما يصل مجموع ما يدفعه {data.qualifyUsd}$ ولو على عدة طلبيات، ثم {sharePoints} نقاط عن كل {data.sharePerUsd}$ يدفعها لمدة {data.months} شهراً.</p>
 
         <div className="iv-code">
           <span>كود دعوتك</span>
@@ -91,7 +94,7 @@ const InvitePage = () => {
         <ol className="iv-how">
           <li><span aria-hidden><Share2 size={20} /></span><div><b>أرسل رابطك لصديق</b><small>أو أعطه الكود ليكتبه عند التسجيل</small></div></li>
           <li><span aria-hidden><Gift size={20} /></span><div><b>صديقك يأخذ {usd(data.welcomePoints)} هدية</b><small>{pointsNum(data.welcomePoints)} نقطة يستعملها في أول فاتورة شحن أو شراء</small></div></li>
-          <li><span aria-hidden><HandCoins size={20} /></span><div><b>تكسب {usd(data.firstPoints)} ثم من كل شحنة له</b><small>عندما يصل مجموع ما يدفعه {data.qualifyUsd}$، ثم {data.sharePoints} نقاط عن كل {data.sharePerUsd}$ لمدة سنة. ونقاطك ترفع عضويتك</small></div></li>
+          <li><span aria-hidden><HandCoins size={20} /></span><div><b>تكسب {usd(data.firstPoints)} ثم من كل شحنة له</b><small>عندما يصل مجموع ما يدفعه {data.qualifyUsd}$، ثم {sharePoints} نقاط عن كل {data.sharePerUsd}$ لمدة سنة. ونقاطك ترفع عضويتك</small></div></li>
         </ol>
       </section>
 
@@ -107,7 +110,7 @@ const InvitePage = () => {
           {data.steps.map((s) => (
             <li key={s.friends} className={s.reached ? 'is-on' : ''}>
               <span className="iv-steps__n">{s.reached ? <Check size={15} strokeWidth={3} aria-hidden /> : s.friends}</span>
-              <span><b>{s.friends} أصدقاء</b><small>ومدفوعاتهم {pointsNum(s.usd)}$</small><small className="iv-steps__pts">+{pointsNum(s.points)} نقطة{s.title ? ` · لقب «${s.title}»` : ''}</small></span>
+              <span><b>{s.friends} أصدقاء</b><small>ومدفوعاتهم {pointsNum(s.usd)}$</small><small className="iv-steps__pts">+{pointsNum(s.points)} نقطة{s.title ? ` · لقب «${s.title}»` : ''}</small>{s.ambassador && <small className="iv-steps__amb">وحصتك تصير {data.ambassadorSharePoints} نقطة عن كل {data.sharePerUsd}$</small>}</span>
             </li>
           ))}
         </ul>

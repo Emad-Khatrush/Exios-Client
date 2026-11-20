@@ -56,3 +56,7 @@
 @keyframes iv-sk { to { background-position: -200% 0; } }
 @media (max-width: 380px) { .iv-steps { grid-template-columns: 1fr; } .iv-steps li { grid-template-columns: auto 1fr; justify-items: start; text-align: start; } }
 @media (prefers-reduced-motion: reduce) { .iv-sk { animation: none; } .iv-bar span { transition: none; } }
+/* The ambassador: a badge in the hero, and what the step gives */
+.iv-amb { display: inline-flex; align-items: center; gap: 6px; margin: 0 auto 10px; padding: 4px 12px; border-radius: 999px; background: #fef3c7; color: #92400e; font-size: 0.85rem; font-weight: 800; }
+.iv-hero .iv-amb { display: flex; width: fit-content; }
+.iv-steps .iv-steps__amb { color: #15803d; font-weight: 700; }

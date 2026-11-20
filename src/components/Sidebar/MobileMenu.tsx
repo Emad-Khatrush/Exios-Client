@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { NavLink } from 'react-router-dom';
-import { BadgeCheck, Check, ChevronLeft, Copy, LogOut, Settings, X } from 'lucide-react';
+import { Award, BadgeCheck, Check, ChevronLeft, Copy, LogOut, Settings, X } from 'lucide-react';
 import { User } from '../../models';
 import { routeGroups } from '../PrivateRoute/routes';
 import { useCopy } from '../../utils/useCopy';
@@ -80,6 +80,7 @@ const MobileMenu = ({ open, onClose, account, badges }: Props) => {
             <span className="mm-profile__name">
               <b>{name}</b>
               {verified ? <small><BadgeCheck size={14} aria-hidden /> حساب موثّق</small> : <small>إعدادات الحساب</small>}
+              {account?.referral?.ambassadorAt && !account?.loyaltyOff && <small className="mm-amb"><Award size={14} aria-hidden /> سفير Exios</small>}
             </span>
             <ChevronLeft size={20} aria-hidden className="mm-profile__go" />
           </NavLink>

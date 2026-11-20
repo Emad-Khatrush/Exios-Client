@@ -152,6 +152,7 @@
 }
 .sb-account__name span { font-size: 0.78rem; font-weight: 600; color: var(--sb-muted); }
 .sb-account__name .sb-account__verified { display: inline-flex; align-items: center; gap: 4px; color: var(--sb-brand); }
+.sb-account__name .sb-account__amb { display: inline-flex; align-items: center; gap: 4px; width: fit-content; padding: 0 7px; border-radius: 999px; background: #fef3c7; color: #92400e; font-weight: 800; }
 
 /* The code: tap to copy */
 .sb-code {

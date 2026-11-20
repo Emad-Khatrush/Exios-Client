@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { BadgeCheck, Check, Copy, House, LogOut, Package, Settings, Tags, Warehouse } from 'lucide-react';
+import { Award, BadgeCheck, Check, Copy, House, LogOut, Package, Settings, Tags, Warehouse } from 'lucide-react';
 import logo from '../../../public/images/exios-logo.png';
 import api from '../../api';
 import { User } from '../../models';
@@ -273,6 +273,7 @@ const Sidebar = ({ account, open, setOpen }: Props) => {
               {verified
                 ? <span className="sb-account__verified"><BadgeCheck size={14} aria-hidden /> حساب موثّق</span>
                 : account?.city && <span>{account.city}</span>}
+              {account?.referral?.ambassadorAt && !account?.loyaltyOff && <span className="sb-account__amb"><Award size={14} aria-hidden /> سفير Exios</span>}
             </div>
           </div>
 

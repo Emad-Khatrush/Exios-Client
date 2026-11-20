@@ -221,3 +221,5 @@
   .mm-head, .mm-body > *, .mm.is-open :is(.mm-head, .mm-body > *) { opacity: 1; transform: none; transition: none; }
   .mm-tile { transition: none; }
 }
+/* Invite a friend: the ambassador badge under the name */
+.mm-profile__name small.mm-amb { display: inline-flex; align-items: center; gap: 4px; width: fit-content; margin-top: 3px; padding: 1px 8px; border-radius: 999px; background: #fef3c7; color: #92400e; font-weight: 800; }
