@@ -358,6 +358,9 @@
 .pt-member { display: grid; gap: 8px; margin-top: 12px; }
 .pt-member__row { display: flex; align-items: center; gap: 8px; color: #3f3f46; font-size: 0.9rem; font-weight: 600; }
 .pt-member__row svg { flex: none; color: var(--lv); }
+/* Raised by the office: a quiet note, so points below the level are not a surprise */
+.pt-member__office { align-items: flex-start; padding: 10px 12px; border-radius: 12px; background: #f4f4f5; color: #3f3f46; font-weight: 500; line-height: 1.7; }
+.pt-member__office svg { margin-top: 3px; }
 .pt-member__state {
   display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px; border-radius: 14px;
   background: #fef3c7; color: #92400e; font-size: 0.88rem; font-weight: 600; line-height: 1.75;

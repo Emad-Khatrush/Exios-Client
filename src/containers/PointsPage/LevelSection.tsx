@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { CalendarClock, Check, ChevronDown, Gift, Lock, ShieldCheck, Sparkles, TriangleAlert } from 'lucide-react';
+import { BadgeCheck, CalendarClock, Check, ChevronDown, Gift, Lock, ShieldCheck, Sparkles, TriangleAlert } from 'lucide-react';
 import api from '../../api';
 import { dateText } from '../ClientOrders/orderUtils';
 import LevelEmblem from './LevelEmblem';
@@ -107,6 +107,12 @@ const Membership = ({ level, tiers }: { level: LoyaltyLevel, tiers: LoyaltyTier[
   const soon = !!level.review;
   return (
     <div className="pt-member">
+      {level.byOffice && (
+        <p className="pt-member__row pt-member__office">
+          <BadgeCheck size={17} aria-hidden />
+          <span>رُفعت عضويتك إلى <b>{level.name}</b> من المكتب، لذلك نقاطك الآن أقل من حدّ المستوى.{keep && keep.remaining > 0 ? <> لتبقى فيه، اكسب ما ينقص قبل موعد المراجعة.</> : null}</span>
+        </p>
+      )}
       {keep && until && (
         <p className="pt-member__row">
           <CalendarClock size={17} aria-hidden />

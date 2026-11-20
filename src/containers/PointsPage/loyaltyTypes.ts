@@ -37,6 +37,8 @@ export type LoyaltyLevel = {
   keep?: { min: number, remaining: number } | null,
   // Within 30 days of the yearly review: whether the level is kept, and the points still needed
   review: { at: string, keeps: boolean, needed: number } | null,
+  // Raised by the office above what the points reach (so the points sit below the level)
+  byOffice?: boolean,
   // The level reached and not celebrated yet in the app
   celebrate: string | null,
 };
