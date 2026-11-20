@@ -72,8 +72,17 @@ export function nextStepText(qualified: number, paidUsd: number, steps: Step[]) 
   return `باقي ${missing} على ${pointsNum(next.points)} نقطة إضافية${next.title ? ` ولقب «${next.title}»` : ''}`;
 }
 
-const monthsLeft = (until: string, now: number) => Math.max(Math.ceil((new Date(until).getTime() - now) / (30.4 * 24 * 3600 * 1000)), 0);
-const monthsText = (m: number) => (m <= 1 ? 'أقل من شهر' : m === 2 ? 'شهران' : m <= 10 ? `${m} أشهر` : `${m} شهراً`);
+// Whole calendar months from now until the share ends: 20 Nov to 20 Nov next year is 12 (dividing
+// the 365 days by an average month gave 13)
+function monthsLeft(until: string, now: number) {
+  const a = new Date(now);
+  const b = new Date(until);
+  let months = (b.getUTCFullYear() - a.getUTCFullYear()) * 12 + (b.getUTCMonth() - a.getUTCMonth());
+  const dayOf = (d: Date) => ((d.getUTCDate() * 24 + d.getUTCHours()) * 60 + d.getUTCMinutes()) * 60 + d.getUTCSeconds();
+  if (dayOf(b) < dayOf(a)) months -= 1;
+  return Math.max(months, 0);
+}
+const monthsText = (m: number) => (m < 1 ? 'أقل من شهر' : m === 1 ? 'شهر واحد' : m === 2 ? 'شهران' : m <= 10 ? `${m} أشهر` : `${m} شهراً`);
 
 export function friendStatusText(f: Friend, qualifyUsd: number, now = Date.now()) {
   if (f.status === 'canceled') return { text: 'أُلغيت الدعوة', tone: 'muted' };

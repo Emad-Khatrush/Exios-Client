@@ -78,3 +78,17 @@ describe('the record of rewards: what each row says', () => {
     expect(historyNoteText({ state: 'granted', note: null, releaseAt: null, grantedAt: '2026-11-18T10:00:00Z' }, 24, now)).toBe('أُضيفت لرصيدك 18 نوفمبر');
   });
 });
+
+describe('months left of the share, by the calendar', () => {
+  const { friendStatusText } = require('../containers/InvitePage/referralText');
+  const at = (now: string, end: string) => friendStatusText({ id: '1', name: 'أ', joinedAt: now, status: 'sharing', qualifiedAt: now, shareEndsAt: end,
+    points: 0, heldPoints: 0, paidUsd: 300, leftUsd: 0 }, 200, new Date(now).getTime()).text;
+  it('a whole year just started: 12 months, not 13', () => {
+    expect(at('2026-11-20T18:40:00Z', '2027-11-20T18:40:00Z')).toBe('تكسب من شحنه · باقي 12 شهراً');
+  });
+  it('part of a month counts as whole months gone by the calendar', () => {
+    expect(at('2027-05-21T10:00:00Z', '2027-11-20T18:40:00Z')).toBe('تكسب من شحنه · باقي 5 أشهر');
+    expect(at('2027-09-20T10:00:00Z', '2027-11-20T18:40:00Z')).toBe('تكسب من شحنه · باقي شهران');
+    expect(at('2027-11-01T10:00:00Z', '2027-11-20T18:40:00Z')).toBe('تكسب من شحنه · باقي أقل من شهر');
+  });
+});
