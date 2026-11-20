@@ -23,6 +23,7 @@
     visibility: hidden;
     transition: opacity var(--mm-close) ease, visibility 0s linear var(--mm-close);
   }
+  .mm-scrim { will-change: opacity; }
   .mm-scrim.is-open { opacity: 1; visibility: visible; transition: opacity var(--mm-open) ease, visibility 0s; }
 
   .mm {
