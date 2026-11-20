@@ -101,6 +101,8 @@ export const waitingText = (waiting?: Friend['waiting']) => (waiting === 'passpo
 export type HistoryItem = {
   id: string, kind: 'first' | 'share' | 'step', points: number, countsForLevel: boolean,
   state: 'granted' | 'pending' | 'canceled',
+  // canceled after it was given: taken back from the balance
+  revoked?: boolean,
   // pending: 'hold' (its 24 hours), 'passport', 'review', 'soon'; canceled: the reason in words
   note: string | null, releaseAt: string | null, at: string, grantedAt: string | null, canceledAt: string | null,
   friend: { id: string, name: string } | null, orderNumber: string | null, paidUsd: number | null,
@@ -125,8 +127,9 @@ const hoursText = (h: number) => (h === 1 ? 'ساعة' : h === 2 ? 'ساعتين
 const shortDay = (d: string) => new Date(d).toLocaleDateString('ar-LY-u-nu-latn', { day: 'numeric', month: 'long' });
 
 // Where a reward stands, in words
-export function historyNoteText(i: Pick<HistoryItem, 'state' | 'note' | 'releaseAt' | 'grantedAt'>, holdHours: number, now = Date.now()) {
+export function historyNoteText(i: Pick<HistoryItem, 'state' | 'note' | 'releaseAt' | 'grantedAt' | 'revoked'>, holdHours: number, now = Date.now()) {
   if (i.state === 'granted') return i.grantedAt ? `أُضيفت لرصيدك ${shortDay(i.grantedAt)}` : 'أُضيفت لرصيدك';
+  if (i.state === 'canceled' && i.revoked) return i.note ? `سُحبت من رصيدك: ${i.note}` : 'سُحبت من رصيدك';
   if (i.state === 'canceled') return i.note ? `أُلغيت: ${i.note}` : 'أُلغيت';
   if (i.note === 'hold' && i.releaseAt) return `تُضاف بعد ${hoursText(hoursLeft(i.releaseAt, now))}`;
   if (i.note === 'passport') return 'تنتظر توثيق جواز صديقك';

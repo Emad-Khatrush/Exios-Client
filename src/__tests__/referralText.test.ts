@@ -76,6 +76,8 @@ describe('the record of rewards: what each row says', () => {
     expect(historyNoteText({ state: 'pending', note: 'review', releaseAt: null, grantedAt: null }, 24, now)).toBe('قيد مراجعة المكتب');
     expect(historyNoteText({ state: 'canceled', note: 'عُدّلت طلبية الصديق أو أُلغيت', releaseAt: null, grantedAt: null }, 24, now)).toBe('أُلغيت: عُدّلت طلبية الصديق أو أُلغيت');
     expect(historyNoteText({ state: 'granted', note: null, releaseAt: null, grantedAt: '2026-11-18T10:00:00Z' }, 24, now)).toBe('أُضيفت لرصيدك 18 نوفمبر');
+    expect(historyNoteText({ state: 'canceled', revoked: true, note: 'عُدّلت طلبية الصديق أو أُلغيت دفعتها', releaseAt: null, grantedAt: '2026-11-18T10:00:00Z' }, 24, now))
+      .toBe('سُحبت من رصيدك: عُدّلت طلبية الصديق أو أُلغيت دفعتها');
   });
 });
 
