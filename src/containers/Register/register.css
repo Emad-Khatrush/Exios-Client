@@ -274,3 +274,10 @@
 #rg-passportNo { letter-spacing: 0.1em; font-weight: 700; }
 .rg-pno__ok { margin-top: 6px; }
 .rg-pno__ok bdi { font-weight: 800; letter-spacing: 0.06em; }
+/* The photo does not look like a passport: say so, and how to fix it */
+.rg-notpass { display: flex; align-items: flex-start; gap: 10px; margin-top: 10px; padding: 12px; border: 1px solid #fecaca; border-radius: 14px; background: #fef2f2; color: #7f1d1d; }
+.rg-notpass > svg { flex: none; margin-top: 2px; color: #dc2626; }
+.rg-notpass b { display: block; font-weight: 800; }
+.rg-notpass p { margin: 2px 0 8px; font-size: 0.86rem; line-height: 1.6; }
+.rg-notpass__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.rg-notpass__actions button { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1px solid #fca5a5; border-radius: 10px; background: #fff; color: #b91c1c; font-size: 0.85rem; font-weight: 700; }

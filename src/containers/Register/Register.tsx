@@ -88,6 +88,8 @@ const Register = () => {
   const [passportNo, setPassportNo] = useState('');
   const [passportRead, setPassportRead] = useState('');
   const [readingNo, setReadingNo] = useState(false);
+  // The photo was read and does not look like a passport: the customer is warned it would be rejected
+  const [notPassport, setNotPassport] = useState(false);
   const [passportNoOkTicked, setPassportNoOkTicked] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
@@ -161,9 +163,11 @@ const Register = () => {
     setPassportNo('');
     setPassportRead('');
     setPassportNoOkTicked(false);
+    setNotPassport(false);
     setReadingNo(true);
     try {
       const res: any = await api.readPassportNumber(ready);
+      setNotPassport(res?.data?.passport === false);
       const number = cleanPassportNo(res?.data?.number || '');
       if (number) {
         setPassportNo(number);
@@ -183,6 +187,7 @@ const Register = () => {
   const removePassport = () => {
     setPassport(null);
     setPreview('');
+    setNotPassport(false);
     setPassportNo('');
     setPassportRead('');
     setPassportNoOkTicked(false);
@@ -552,6 +557,19 @@ const Register = () => {
                     <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => pickFile(e.target.files?.[0])} />
                     <input ref={cameraRef} type="file" accept="image/*" capture="environment" hidden onChange={(e) => pickFile(e.target.files?.[0])} />
                     {err('passport')}
+                    {passport && notPassport && !readingNo && (
+                      <div className="rg-notpass" role="alert">
+                        <AlertCircle size={18} aria-hidden />
+                        <div>
+                          <b>لا تبدو هذه صورة جواز سفر</b>
+                          <p>ارفع صورة صفحة البيانات في جوازك (التي فيها صورتك ورقم الجواز)، وإلا سيُرفض حسابك عند المراجعة.</p>
+                          <div className="rg-notpass__actions">
+                            <button type="button" onClick={() => cameraRef.current?.click()}><Camera size={16} aria-hidden /> صوّر الجواز</button>
+                            <button type="button" onClick={() => fileRef.current?.click()}><ImagePlus size={16} aria-hidden /> اختر صورة أخرى</button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                     <p className="rg-private"><ShieldCheck size={16} aria-hidden /> يراها فريق التوثيق فقط، لنتأكد أن الحساب لك. نراجعها عادة خلال يوم عمل.</p>
                   </div>
 
