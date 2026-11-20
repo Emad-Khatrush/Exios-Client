@@ -1,5 +1,6 @@
 /* «ادعُ أصدقاءك»: the hero with the code and the WhatsApp button, how it works, the ladder and the friends */
-.iv-page { color: #1f2a24; }
+/* The app sets text-align: left on html/body (index.css), which dir="rtl" does not undo: start follows rtl */
+.iv-page { color: #1f2a24; text-align: start; }
 .iv-hero { position: relative; overflow: hidden; margin-bottom: 14px; padding: 24px 18px 18px; border-radius: 24px; background: linear-gradient(150deg, #14532d, #15803d 60%, #22a355); color: #fff; text-align: center; box-shadow: 0 18px 40px -24px rgba(20, 83, 45, 0.9); }
 .iv-hero::after { content: ''; position: absolute; inset: auto -40px -60px auto; width: 180px; height: 180px; border-radius: 50%; background: rgba(255, 255, 255, 0.07); pointer-events: none; }
 .iv-hero__icon { display: inline-grid; place-items: center; width: 54px; height: 54px; margin-bottom: 10px; border-radius: 18px; background: rgba(255, 255, 255, 0.16); }
