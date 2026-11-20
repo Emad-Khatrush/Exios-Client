@@ -36,6 +36,8 @@ const WalletPage = lazyPage(() => import('./containers/WalletPage/WalletPage'));
 const Announcements = lazyPage(() => import('./containers/Announcements/Announcements'));
 const NotificationsPage = lazyPage(() => import('./containers/Notifications/NotificationsPage'));
 const RatePage = lazyPage(() => import('./containers/RatePage/RatePage'));
+const InvitePage = lazyPage(() => import('./containers/InvitePage/InvitePage'));
+const RefLink = lazyPage(() => import('./containers/InvitePage/RefLink'));
 
 declare const process: {
   env: Record<string, string | undefined>;
@@ -66,6 +68,7 @@ const App = () => {
         <Suspense fallback={<PageLoader fullScreen />}>
           <Routes>
             <Route path='/' element={<LandingPage />} />
+            <Route path='/r/:code' element={<RefLink />} />
             {!isLoggedIn &&
               <>
                 <Route path='/login' element={<Login />} />
@@ -88,6 +91,7 @@ const App = () => {
               <Route path='/announcements' element={<Announcements />} />
               <Route path='/notifications' element={<NotificationsPage />} />
               <Route path='/rate' element={<RatePage />} />
+              <Route path='/invite' element={<InvitePage />} />
               <Route path='/settings' element={<SettingsPage />} />
               <Route path='/contact-us' element={<ContactUs />} />
               <Route path='/terms-privacy' element={<TermsAndPrivacy />} />

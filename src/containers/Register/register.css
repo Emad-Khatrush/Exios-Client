@@ -261,3 +261,10 @@
 @media (prefers-reduced-motion: no-preference) {
   .rg-office { animation: rg-step 0.25s ease both; }
 }
+
+/* Invite a friend: who invited them and the gift, and the optional code on the last step */
+.rg-gift { display: flex; align-items: center; gap: 8px; margin: 0 0 14px; padding: 10px 12px; border: 1px solid #bbe3c9; border-radius: 14px; background: #f0fdf4; color: #14532d; font-size: 0.88rem; line-height: 1.6; }
+.rg-gift svg { flex: none; color: #15803d; }
+.rg-ref-open { display: inline-flex; align-items: center; gap: 6px; padding: 0; background: none; color: var(--lg-brand, #15803d); font-size: 0.88rem; font-weight: 700; }
+.rg-label small { color: var(--lg-muted, #66736b); font-weight: 500; }
+#rg-ref { letter-spacing: 0.12em; font-weight: 700; }

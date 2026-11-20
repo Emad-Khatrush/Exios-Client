@@ -1,0 +1,57 @@
+/* «ادعُ أصدقاءك»: the hero with the code and the WhatsApp button, how it works, the ladder and the friends */
+.iv-page { color: #1f2a24; }
+.iv-hero { position: relative; overflow: hidden; margin-bottom: 14px; padding: 24px 18px 18px; border-radius: 24px; background: linear-gradient(150deg, #14532d, #15803d 60%, #22a355); color: #fff; text-align: center; box-shadow: 0 18px 40px -24px rgba(20, 83, 45, 0.9); }
+.iv-hero::after { content: ''; position: absolute; inset: auto -40px -60px auto; width: 180px; height: 180px; border-radius: 50%; background: rgba(255, 255, 255, 0.07); pointer-events: none; }
+.iv-hero__icon { display: inline-grid; place-items: center; width: 54px; height: 54px; margin-bottom: 10px; border-radius: 18px; background: rgba(255, 255, 255, 0.16); }
+.iv-hero h1 { margin: 0 auto; max-width: 22ch; font-size: clamp(1.35rem, 4.6vw, 1.85rem); font-weight: 800; line-height: 1.45; }
+.iv-hero p { margin: 8px auto 0; max-width: 46ch; color: #d9f5e2; font-size: 0.92rem; line-height: 1.8; }
+.iv-code { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 16px auto 0; padding: 10px 12px; max-width: 320px; border: 1.5px dashed rgba(255, 255, 255, 0.5); border-radius: 16px; background: rgba(0, 0, 0, 0.12); }
+.iv-code span { color: #c7ecd3; font-size: 0.82rem; font-weight: 700; }
+.iv-code b { font-size: 1.45rem; font-weight: 800; letter-spacing: 0.18em; }
+.iv-code button { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: #fff; color: #15803d; }
+.iv-actions { display: grid; gap: 8px; margin-top: 14px; }
+.iv-actions__row { display: flex; gap: 8px; }
+.iv-actions__row > * { flex: 1; }
+.iv-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 16px; border-radius: 14px; background: #15803d; color: #fff; font-weight: 800; text-decoration: none; }
+.iv-btn--wa { min-height: 54px; background: #25d366; color: #0b3d1f; font-size: 1.05rem; box-shadow: 0 10px 22px -12px rgba(0, 0, 0, 0.5); }
+.iv-hero .iv-btn--ghost { border: 1px solid rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.1); color: #fff; }
+.iv-btn--ghost { border: 1px solid #d7e1db; background: #fff; color: #15803d; }
+.iv-card { margin-bottom: 14px; padding: 16px; border: 1px solid #e6ebe8; border-radius: 20px; background: #fff; }
+.iv-card h2 { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 1.05rem; font-weight: 800; }
+.iv-card__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+.iv-card__head h2 { margin: 0; }
+.iv-pill { padding: 2px 10px; border-radius: 999px; background: #ecf6ef; color: #15803d; font-size: 0.8rem; font-weight: 800; white-space: nowrap; }
+.iv-pill--gold { background: #fef3c7; color: #92400e; }
+.iv-how { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.iv-how li { display: flex; align-items: center; gap: 12px; }
+.iv-how li > span { display: grid; place-items: center; flex: none; width: 42px; height: 42px; border-radius: 14px; background: #ecf6ef; color: #15803d; }
+.iv-how b { display: block; font-weight: 800; }
+.iv-how small { color: #66736b; font-size: 0.84rem; line-height: 1.6; }
+.iv-bar { height: 10px; margin-bottom: 12px; overflow: hidden; border-radius: 999px; background: #eef2ef; }
+.iv-bar span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #f59e0b, #fbbf24); transition: width 0.6s ease; }
+.iv-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.iv-steps li { display: grid; justify-items: center; gap: 6px; padding: 10px 6px; border: 1px solid #e6ebe8; border-radius: 16px; text-align: center; }
+.iv-steps li.is-on { border-color: #fcd34d; background: #fffbeb; }
+.iv-steps b { display: block; font-size: 0.9rem; font-weight: 800; }
+.iv-steps small { color: #66736b; font-size: 0.76rem; line-height: 1.5; }
+.iv-steps__n { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #f4f4f5; color: #3f3f46; font-weight: 800; }
+.iv-steps li.is-on .iv-steps__n { background: #f59e0b; color: #fff; }
+.iv-next { margin: 12px 0 0; color: #92400e; font-size: 0.88rem; font-weight: 700; text-align: center; }
+.iv-empty { margin: 0; padding: 18px 8px; color: #66736b; text-align: center; line-height: 1.7; }
+.iv-friends { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.iv-friends li { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid #eef2ef; border-radius: 16px; }
+.iv-friends__avatar { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 50%; background: #ecf6ef; color: #15803d; font-weight: 800; }
+.iv-friends__main { display: grid; flex: 1; gap: 2px; min-width: 0; }
+.iv-friends__main b { font-weight: 800; }
+.iv-friends__main small { color: #8a958f; font-size: 0.8rem; }
+.iv-friends__main small.is-live { color: #15803d; font-weight: 700; }
+.iv-friends__main small.is-wait { color: #b45309; font-weight: 700; }
+.iv-friends__pts { padding: 2px 10px; border-radius: 999px; background: #fef3c7; color: #92400e; font-size: 0.85rem; font-style: normal; font-weight: 800; }
+.iv-fine { margin: 4px 4px 0; color: #8a958f; font-size: 0.8rem; line-height: 1.7; text-align: center; }
+.iv-fine a { color: #15803d; font-weight: 700; }
+.iv-state { display: grid; justify-items: center; gap: 10px; padding: 36px 16px; border: 1px dashed #d7e1db; border-radius: 20px; background: #fff; text-align: center; }
+.iv-state p { margin: 0; color: #66736b; }
+.iv-sk { height: 320px; border-radius: 24px; background: linear-gradient(90deg, #eef2ef, #f7f9f8, #eef2ef); background-size: 200% 100%; animation: iv-sk 1.2s linear infinite; }
+@keyframes iv-sk { to { background-position: -200% 0; } }
+@media (max-width: 380px) { .iv-steps { grid-template-columns: 1fr; } .iv-steps li { grid-template-columns: auto 1fr; justify-items: start; text-align: start; } }
+@media (prefers-reduced-motion: reduce) { .iv-sk { animation: none; } .iv-bar span { transition: none; } }

@@ -548,3 +548,12 @@
 .hm-rate__text b { font-weight: 800; }
 .hm-rate__text small { color: #92400e; font-weight: 600; }
 .hm-rate__go { display: inline-flex; align-items: center; gap: 4px; flex: none; padding: 8px 12px; border-radius: 12px; background: #f59e0b; color: #fff; font-size: 0.88rem; font-weight: 800; white-space: nowrap; }
+
+/* Invite a friend: a green card under the money row */
+.hm-invite { display: flex; align-items: center; gap: 12px; margin: 14px 0; padding: 14px 16px; border: 1px solid #bbe3c9; border-radius: 18px; background: linear-gradient(90deg, #f0fdf4, #ecfdf5); color: #14532d; text-decoration: none; }
+.hm-invite__icon { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 14px; background: linear-gradient(135deg, #22a355, #15803d); color: #fff; }
+.hm-invite__text { display: grid; flex: 1; gap: 2px; min-width: 0; }
+.hm-invite__text b { font-weight: 800; }
+.hm-invite__text small { color: #166534; font-weight: 600; }
+.hm-invite__go { display: inline-flex; align-items: center; gap: 4px; flex: none; padding: 8px 12px; border-radius: 12px; background: #15803d; color: #fff; font-size: 0.88rem; font-weight: 800; white-space: nowrap; }
+@media (max-width: 380px) { .hm-invite__go { display: none; } }

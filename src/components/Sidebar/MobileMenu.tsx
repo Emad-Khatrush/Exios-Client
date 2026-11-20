@@ -22,7 +22,7 @@ type Props = {
 
 // Each tile's colour, so the eye finds a page by colour as well as by its name
 const HUE: Record<string, string> = {
-  myOrders: 'teal', wallet: 'amber', points: 'violet', startShip: 'green', address: 'blue', notifications: 'rose',
+  myOrders: 'teal', wallet: 'amber', points: 'violet', startShip: 'green', address: 'blue', notifications: 'rose', invite: 'green',
   shippingPrices: 'green', purchasePrices: 'rose', transferPrices: 'blue',
 };
 
@@ -59,7 +59,7 @@ const MobileMenu = ({ open, onClose, account, badges }: Props) => {
   const scrimRef = useRef<HTMLDivElement>(null);
   useDragToClose(open, onClose, { sheet: sheetRef, body: bodyRef, head: headRef, scrim: scrimRef });
 
-  const tiles = mainGroup.routes.filter((r) => r.value !== 'home' && !(r.value === 'points' && account?.loyaltyOff));
+  const tiles = mainGroup.routes.filter((r) => r.value !== 'home' && !(['points', 'invite'].includes(r.value) && account?.loyaltyOff));
 
   return (
     <>

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import {
   ArrowLeft, Ban, Bell, Check, CircleCheckBig, Copy, FileText, MapPin, MessageSquareText, PackageCheck, PackageOpen, PackagePlus,
-  Phone, Receipt, Rocket, ShoppingBag, Star, Tags, Warehouse,
+  Phone, Receipt, Rocket, ShoppingBag, Star, Tags, UserPlus, Warehouse,
 } from 'lucide-react';
 import { TbBrandWhatsapp } from 'react-icons/tb';
 import api from '../../api';
@@ -24,6 +24,7 @@ import { officeFor, whatsappLink } from '../../constants/contact';
 import { useCopy } from '../../utils/useCopy';
 import { withSpecialPrices } from '../../utils/specialPrices';
 import { homeCardText } from '../RatePage/rateText';
+import { homeInviteText } from '../InvitePage/referralText';
 import './home.css';
 
 type Counts = { activeOrders: number, readyForReceivement: number, receivedOrders: number, totalPaidInvoices: number };
@@ -178,6 +179,15 @@ const Home = () => {
           <WalletCard />
           <PointsCard />
         </div>
+
+        {/* Invite a friend: $10 a friend, and a share of their shipping for a year */}
+        {!account?.loyaltyOff && (
+          <Link to="/invite" className="hm-invite">
+            <span className="hm-invite__icon" aria-hidden><UserPlus size={22} /></span>
+            <span className="hm-invite__text"><b>{homeInviteText(1000).title}</b><small>{homeInviteText(1000).sub}</small></span>
+            <span className="hm-invite__go">ادعُ الآن <ArrowLeft size={16} aria-hidden /></span>
+          </Link>
+        )}
 
         <LatestPosts />
 

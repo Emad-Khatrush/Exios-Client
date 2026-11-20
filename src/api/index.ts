@@ -209,6 +209,11 @@ export default {
 
   rateOrders: (orderIds: string[], questions: any[]) => base.post(`client/ratings`, { orderIds, questions }),
 
+  // Invite a friend: the customer's code, rewards and friends; and the sign-up page's check of a code
+  getReferrals: () => base.get(`client/referrals`),
+
+  checkReferralCode: (code: string) => base.get(`referrals/check/${encodeURIComponent(code)}`),
+
   // Points offers running or about to start (orders created during one earn ×N)
   getLoyaltyPromotions: () => base.get(`client/loyalty/promotions`),
 

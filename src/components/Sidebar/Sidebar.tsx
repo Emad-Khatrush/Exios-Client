@@ -240,7 +240,7 @@ const Sidebar = ({ account, open, setOpen }: Props) => {
             <div className="sb-group" key={group.title || i}>
               {group.title && <p className="sb-group__title">{group.title}</p>}
               <ul>
-                {group.routes.filter((route) => !(route.value === 'points' && account?.loyaltyOff)).map(({ value, path, label, icon: Icon }) => {
+                {group.routes.filter((route) => !(['points', 'invite'].includes(route.value) && account?.loyaltyOff)).map(({ value, path, label, icon: Icon }) => {
                   const count = badges[value] || 0;
                   return (
                     <li key={value}>

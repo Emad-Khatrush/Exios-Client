@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import {
   AlertCircle, ArrowLeft, ArrowRight, BadgeCheck, Building2, Camera, Check, Eye, EyeOff, FileText, ImagePlus, Loader2, Lock,
-  Mail, MapPin, PackageSearch, ShieldCheck, Trash2, X,
+  Gift, Mail, MapPin, PackageSearch, ShieldCheck, Trash2, X,
 } from 'lucide-react';
 import { TbBrandWhatsapp } from 'react-icons/tb';
 import api from '../../api';
@@ -18,6 +18,7 @@ import PhoneField from '../../components/PhoneField/PhoneField';
 import Picker from '../../components/Picker/Picker';
 import { DEFAULT_COUNTRY, phoneForServer, phoneProblem } from '../../utils/phone';
 import { passwordStrength as strength } from '../../utils/password';
+import { cleanCode, forgetCode, savedCode, usd } from '../InvitePage/referralText';
 import logo from '../../../public/images/exios-logo.png';
 import '../Login/login.css';
 import './register.css';
@@ -91,6 +92,23 @@ const Register = () => {
   const cameraRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  // Invite a friend: the code a shared link brought (/r/CODE), or one typed on the last step
+  const [linkCode] = useState(() => savedCode());
+  const [refCode, setRefCode] = useState(linkCode);
+  const [refOpen, setRefOpen] = useState(!!linkCode);
+  const [refInfo, setRefInfo] = useState<{ code: string, ok: boolean, name?: string, welcomePoints?: number } | null>(null);
+  useEffect(() => {
+    const code = cleanCode(refCode);
+    if (code.length !== 6) { setRefInfo(null); return undefined; }
+    let alive = true;
+    const t = window.setTimeout(() => {
+      api.checkReferralCode(code)
+        .then((res: any) => { if (alive) setRefInfo({ code, ok: !!res?.data?.ok, name: res?.data?.name, welcomePoints: res?.data?.welcomePoints }); })
+        .catch(() => { if (alive) setRefInfo(null); });
+    }, 350);
+    return () => { alive = false; window.clearTimeout(t); };
+  }, [refCode]);
+  const refOk = !!refInfo?.ok && refInfo.code === cleanCode(refCode);
 
   useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
 
@@ -222,7 +240,12 @@ const Register = () => {
       body.append('isAgreeToTermsOfCompany', 'true');
       body.append('termsVersion', TERMS_VERSION);
       body.append('passportImage', passport as File);
+      if (refOk) {
+        body.append('referralCode', cleanCode(refCode));
+        body.append('referralSource', cleanCode(refCode) === linkCode ? 'link' : 'code');
+      }
       await api.createClientAccount(body);
+      forgetCode();
 
       const res: any = await api.login({ username: email, password: form.password, loginMethod: 'email' }, 'client');
       const data = res.data;
@@ -279,6 +302,13 @@ const Register = () => {
           <img className="lg-logo" src={logo} alt="اكسيوس" width={132} height={56} />
           <h1>أنشئ حسابك</h1>
           <p className="lg-lead">ثلاث خطوات قصيرة، وتحصل على كود عميل وعنوان باسمك في مخازننا.</p>
+
+          {refOk && (
+            <p className="rg-gift" role="status">
+              <Gift size={18} aria-hidden />
+              <span>دعاك <b>{refInfo?.name}</b> · تحصل على هدية {usd(refInfo?.welcomePoints || 0)} على أول فاتورة شحن</span>
+            </p>
+          )}
 
           {/* Where they are */}
           <ol className="rg-steps" aria-label="خطوات التسجيل">
@@ -485,6 +515,26 @@ const Register = () => {
                     <input ref={cameraRef} type="file" accept="image/*" capture="environment" hidden onChange={(e) => pickFile(e.target.files?.[0])} />
                     {err('passport')}
                     <p className="rg-private"><ShieldCheck size={16} aria-hidden /> يراها فريق التوثيق فقط، لنتأكد أن الحساب لك. نراجعها عادة خلال يوم عمل.</p>
+                  </div>
+
+                  <div className="lg-field">
+                    {!refOpen ? (
+                      <button type="button" className="rg-ref-open" onClick={() => setRefOpen(true)}><Gift size={16} aria-hidden /> عندك كود دعوة من صديق؟</button>
+                    ) : (
+                      <>
+                        <label htmlFor="rg-ref" className="rg-label">كود الدعوة <small>(اختياري)</small></label>
+                        <div className="lg-input">
+                          <Gift size={18} className="lg-input__icon" aria-hidden />
+                          <input id="rg-ref" dir="ltr" value={refCode} maxLength={8} autoCapitalize="characters" autoComplete="off" spellCheck={false}
+                            onChange={(e) => setRefCode(e.target.value.toUpperCase())} placeholder="ABC234" aria-describedby="rg-ref-note" />
+                        </div>
+                        <p id="rg-ref-note" className="rg-hint">
+                          {refOk ? <>✓ دعاك <b>{refInfo?.name}</b>، وتحصل على {usd(refInfo?.welcomePoints || 0)} هدية</>
+                            : refInfo && refInfo.code === cleanCode(refCode) ? 'هذا الكود غير صحيح. تأكد منه أو اتركه فارغاً.'
+                              : 'اكتب الكود الذي أرسله لك صديقك، أو اتركه فارغاً.'}
+                        </p>
+                      </>
+                    )}
                   </div>
 
                   <div className="lg-field">
