@@ -37,6 +37,8 @@ const ADD_TITLE: Record<string, { icon: LucideIcon, title: string }> = {
 const kindOf = (r: { kind: string, source?: string | null, reason?: string }) => {
   const base = KIND[r.kind as keyof typeof KIND] || { icon: Plus, tone: 'gain' as const, title: r.kind };
   if (r.kind === 'add' && r.source && ADD_TITLE[r.source]) return { ...base, ...ADD_TITLE[r.source] };
+  // Points spent from an order cancelled or moved, or from an invite reward cancelled (owner, 2026-11-21)
+  if (r.kind === 'deduct' && r.source === 'clawback') return { ...base, tone: 'loss' as const, title: 'خصم نقاط صُرفت من طلبية أو مكافأة أُلغيت' };
   if (r.kind === 'revoke' && r.source?.startsWith('invite')) return { ...base, title: 'سحب مكافأة دعوة' };
   if (r.kind === 'revoke' && r.source) return { ...base, title: 'سحب نقاط' };
   // A paid invoice owed again: its points wait until it is paid (the reason says so)
