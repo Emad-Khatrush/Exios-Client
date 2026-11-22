@@ -162,9 +162,12 @@ export default {
   // Agree to the terms version this app shows; the server answers with the account (as account/me)
   acceptTerms: (version: string) => base.post(`account/terms/accept`, { version }),
 
-  uploadPassport: (file: File) => {
+  // A new passport photo, with the number the customer confirmed and what was read from the photo
+  uploadPassport: (file: File, passportNumber: string, passportNumberRead?: string) => {
     const body = new FormData();
     body.append('passportImage', file);
+    body.append('passportNumber', passportNumber);
+    if (passportNumberRead) body.append('passportNumberRead', passportNumberRead);
     return sendMultipart(`account/passport/upload`, 'POST', body);
   },
 

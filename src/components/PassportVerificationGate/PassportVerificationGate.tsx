@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { CircularProgress, Dialog } from '@mui/material';
@@ -7,6 +7,11 @@ import api from '../../api';
 import { setAccountData } from '../../actions/session';
 import { User } from '../../models';
 import { logout } from '../../utils/logout';
+import { apiErrorsTypes } from '../../constants/errorTypes';
+
+// Same rules as the sign-up page
+const cleanPassportNo = (v: string) => v.toUpperCase().replace(/[^A-Z0-9]/g, '');
+const passportNoOk = (v: string) => /^[A-Z0-9]{6,12}$/.test(cleanPassportNo(v));
 
 type Mode = 'mustUpload' | 'rejected' | 'pendingReReview';
 
@@ -47,21 +52,59 @@ const PassportVerificationGate = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState('');
+  // The passport number, as at sign-up: read from the photo when possible, the customer confirms it
+  const [passportNo, setPassportNo] = useState('');
+  const [passportRead, setPassportRead] = useState('');
+  const [noTicked, setNoTicked] = useState(false);
+  const [readingNo, setReadingNo] = useState(false);
+  const [noError, setNoError] = useState('');
+  const pickSeq = useRef(0);
 
   const passport = account?.passportVerification;
   const mode = getPassportGateMode(account);
   const needsUploadAction = mode === 'mustUpload' || mode === 'rejected';
+  const canSubmit = !!file && passportNoOk(passportNo) && noTicked && !readingNo && !isUploading;
+
+  const pickFile = async (picked: File | null) => {
+    setFile(picked);
+    setError('');
+    setNoError('');
+    setPassportNo('');
+    setPassportRead('');
+    setNoTicked(false);
+    const seq = ++pickSeq.current;
+    if (!picked) { setReadingNo(false); return; }
+    setReadingNo(true);
+    try {
+      const res: any = await api.readPassportNumber(picked);
+      if (seq !== pickSeq.current) return; // another photo was picked meanwhile
+      const number = cleanPassportNo(res?.data?.number || '');
+      if (number) {
+        setPassportNo(number);
+        setPassportRead(number);
+      }
+    } catch { /* typed by hand */ }
+    if (seq === pickSeq.current) setReadingNo(false);
+  }
 
   const submitUpload = async () => {
     if (!file) return;
+    if (!passportNoOk(passportNo)) { setNoError('اكتب رقم جواز سفرك كما هو في الجواز.'); return; }
+    if (!noTicked) { setNoError('قارن الرقم بجوازك، ثم ضع علامة التأكيد.'); return; }
     try {
       setIsUploading(true);
       setError('');
-      const res = await api.uploadPassport(file);
+      setNoError('');
+      const res = await api.uploadPassport(file, cleanPassportNo(passportNo), passportRead);
       setAccountData(res.data, session, dispatch);
       setFile(null);
-    } catch (err) {
-      setError('حدث خطأ اثناء رفع الصورة، الرجاء المحاولة مرة اخرى');
+      setPassportNo('');
+      setPassportRead('');
+      setNoTicked(false);
+    } catch (err: any) {
+      const code = err?.data?.message;
+      if (code === 'passport-exist' || code === 'passport-number-required') setNoError(apiErrorsTypes[code]);
+      else setError(apiErrorsTypes[code] || 'حدث خطأ اثناء رفع الصورة، الرجاء المحاولة مرة اخرى');
     }
     setIsUploading(false);
   }
@@ -174,7 +217,7 @@ const PassportVerificationGate = () => {
                 accept="image/*"
                 disabled={isUploading}
                 onClick={(e) => { e.currentTarget.value = ''; }}
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                onChange={(e) => pickFile(e.target.files?.[0] || null)}
                 style={{
                   position: 'absolute',
                   inset: 0,
@@ -186,11 +229,68 @@ const PassportVerificationGate = () => {
               />
             </label>
 
-            {error && <p style={{ margin: '10px 0 0', fontSize: '0.82rem', color: '#dc2626' }}>{error}</p>}
+            {file && (
+              <div style={{ marginTop: 16 }}>
+                <label htmlFor="passport-gate-no" style={{ display: 'block', marginBottom: 6, fontSize: '0.88rem', fontWeight: 600, color: '#111827' }}>
+                  رقم جواز السفر
+                </label>
+                {readingNo ? (
+                  <p style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.85rem', color: '#6b7280' }}>
+                    <CircularProgress size={16} sx={{ color: '#6b7280' }} /> نقرأ رقم الجواز من الصورة…
+                  </p>
+                ) : (
+                  <>
+                    <input
+                      id="passport-gate-no"
+                      dir="ltr"
+                      value={passportNo}
+                      maxLength={14}
+                      autoCapitalize="characters"
+                      autoComplete="off"
+                      spellCheck={false}
+                      placeholder="AB1234567"
+                      disabled={isUploading}
+                      aria-invalid={!!noError}
+                      aria-describedby="passport-gate-no-hint"
+                      onChange={(e) => { setPassportNo(e.target.value.toUpperCase()); setNoTicked(false); setNoError(''); }}
+                      style={{
+                        width: '100%',
+                        boxSizing: 'border-box',
+                        padding: '11px 14px',
+                        border: `1.5px solid ${noError ? '#dc2626' : '#d1d5db'}`,
+                        borderRadius: 12,
+                        fontSize: '1rem',
+                        letterSpacing: '0.05em',
+                        textAlign: 'left',
+                        outline: 'none',
+                      }}
+                    />
+                    <p id="passport-gate-no-hint" style={{ margin: '6px 0 0', fontSize: '0.78rem', lineHeight: 1.6, color: '#6b7280' }}>
+                      {passportRead && cleanPassportNo(passportNo) === passportRead
+                        ? 'قرأناه من صورتك. قارنه بجوازك حرفاً حرفاً، وصحّحه إن لزم.'
+                        : 'اكتبه كما هو في صفحة البيانات بجوازك.'}
+                    </p>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, fontSize: '0.85rem', color: '#374151', cursor: passportNoOk(passportNo) ? 'pointer' : 'not-allowed' }}>
+                      <input
+                        type="checkbox"
+                        checked={noTicked}
+                        disabled={!passportNoOk(passportNo) || isUploading}
+                        onChange={(e) => { setNoTicked(e.target.checked); setNoError(''); }}
+                        style={{ width: 18, height: 18, accentColor: '#16a34a', margin: 0 }}
+                      />
+                      <span>تأكدت أن رقم الجواز <bdi dir="ltr">{cleanPassportNo(passportNo) || '—'}</bdi> صحيح</span>
+                    </label>
+                    {noError && <p role="alert" style={{ margin: '8px 0 0', fontSize: '0.82rem', color: '#dc2626' }}>{noError}</p>}
+                  </>
+                )}
+              </div>
+            )}
+
+            {error && <p role="alert" style={{ margin: '10px 0 0', fontSize: '0.82rem', color: '#dc2626' }}>{error}</p>}
 
             <button
               type="button"
-              disabled={!file || isUploading}
+              disabled={!canSubmit}
               onClick={submitUpload}
               style={{
                 width: '100%',
@@ -201,8 +301,8 @@ const PassportVerificationGate = () => {
                 fontSize: '0.95rem',
                 fontWeight: 700,
                 color: '#ffffff',
-                background: !file || isUploading ? '#9ca3af' : '#16a34a',
-                cursor: !file || isUploading ? 'not-allowed' : 'pointer',
+                background: !canSubmit ? '#9ca3af' : '#16a34a',
+                cursor: !canSubmit ? 'not-allowed' : 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
