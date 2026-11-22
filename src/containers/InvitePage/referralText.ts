@@ -4,8 +4,6 @@
 export type FriendStatus = 'joined' | 'sharing' | 'ended' | 'canceled';
 export type Friend = {
   id: string, name: string, joinedAt: string, status: FriendStatus, qualifiedAt: string | null, shareEndsAt: string | null, points: number,
-  // What the friend paid in total, and what is left before the inviter's big reward
-  paidUsd: number, leftUsd: number,
   // Rewards from this friend still waiting their 24 hours
   heldPoints: number,
   // Why its rewards wait beyond the 24 hours: the friend's passport not verified yet, or the office's review
@@ -15,7 +13,7 @@ export type Friend = {
 export type Step = { friends: number, usd: number, points: number, title?: string, ambassador?: boolean, reached: boolean };
 export type Referrals = {
   off: false, code: string, path: string, welcomePoints: number, firstPoints: number, qualifyUsd: number,
-  sharePoints: number, sharePerUsd: number, ambassadorSharePoints: number, ambassadorTitle: string, ambassadorAt: string | null, months: number, qualified: number, friendsPaidUsd: number, steps: Step[], friends: Friend[], totalPoints: number, heldPoints: number, holdHours: number,
+  sharePoints: number, sharePerUsd: number, ambassadorSharePoints: number, ambassadorTitle: string, ambassadorAt: string | null, months: number, qualified: number, friendsPaidUsd: number | null, steps: Step[], friends: Friend[], totalPoints: number, heldPoints: number, holdHours: number,
 } | { off: true };
 
 // Every new account without an inviter gets this at sign-up (invited: the welcome gift instead, never both)
@@ -71,12 +69,13 @@ export const shareMessage = (link: string, welcomePoints: number) => [
 
 const friendsWord = (n: number) => (n === 1 ? 'صديق واحد' : n === 2 ? 'صديقان' : `${n} أصدقاء`);
 
-// The next step: what is still missing (friends, dollars or both), or null when all are reached
-export function nextStepText(qualified: number, paidUsd: number, steps: Step[]) {
+// The next step: what is still missing (friends, dollars or both), or null when all are reached. The
+// dollars are not known (null) before the first step's number of friends: they would tell what each paid.
+export function nextStepText(qualified: number, paidUsd: number | null, steps: Step[]) {
   const next = steps.find((s) => !s.reached);
   if (!next) return null;
   const friendsLeft = Math.max(next.friends - qualified, 0);
-  const usdLeft = Math.max(next.usd - paidUsd, 0);
+  const usdLeft = paidUsd === null ? 0 : Math.max(next.usd - paidUsd, 0);
   const missing = [friendsLeft && friendsWord(friendsLeft), usdLeft && `${pointsNum(usdLeft)}$ من مدفوعات أصدقائك`].filter(Boolean).join(' و');
   return `باقي ${missing} على ${pointsNum(next.points)} نقطة إضافية${next.title ? ` ولقب «${next.title}»` : ''}`;
 }
@@ -96,7 +95,8 @@ const monthsText = (m: number) => (m < 1 ? 'أقل من شهر' : m === 1 ? 'ش�
 export function friendStatusText(f: Friend, qualifyUsd: number, now = Date.now()) {
   if (f.status === 'canceled') return { text: 'أُلغيت الدعوة', tone: 'muted' };
   if (f.status === 'joined') {
-    return { text: f.paidUsd > 0 ? `دفع ${pointsNum(f.paidUsd)}$ · باقي ${pointsNum(f.leftUsd)}$ على مكافأتك` : `سجّل · مكافأتك عندما يصل مجموع ما يدفعه ${qualifyUsd}$`, tone: 'wait' };
+    // What the friend paid is not shown to the inviter (owner, 2026-11-22): only what they earn from them
+    return { text: `سجّل · مكافأتك عندما يصل مجموع ما يدفعه ${qualifyUsd}$`, tone: 'wait' };
   }
   if (f.status === 'ended') return { text: 'انتهت سنة الحصة', tone: 'muted' };
   return { text: `تكسب من شحنه · باقي ${monthsText(monthsLeft(f.shareEndsAt as string, now))}`, tone: 'live' };
@@ -114,11 +114,13 @@ export type HistoryItem = {
   revoked?: boolean,
   // pending: 'hold' (its 24 hours), 'passport', 'review', 'soon'; canceled: the reason in words
   note: string | null, releaseAt: string | null, at: string, grantedAt: string | null, canceledAt: string | null,
-  friend: { id: string, name: string } | null, orderNumber: string | null, paidUsd: number | null,
+  friend: { id: string, name: string } | null, orderNumber: string | null,
   step: { friends: number, usd: number, title: string | null } | null,
 };
 export type HistoryFriend = {
-  id: string, name: string, joinedAt: string, status: FriendStatus, paidUsd: number, leftUsd: number,
+  id: string, name: string, joinedAt: string, status: FriendStatus,
+  // The points given from this friend
+  points: number,
   qualifiedAt: string | null, shareEndsAt: string | null, orders: number, waiting: 'passport' | 'review' | null,
 };
 export type HistoryResponse = {

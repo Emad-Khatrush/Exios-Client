@@ -39,13 +39,16 @@ describe('invite a friend: what the customer reads', () => {
     expect(nextStepText(4, 3200, first)).toBe('باقي صديق واحد على 2,000 نقطة إضافية ولقب «سفير إكسيوس»');
     expect(nextStepText(3, 1000, first)).toBe('باقي صديقان و2,000$ من مدفوعات أصدقائك على 2,000 نقطة إضافية ولقب «سفير إكسيوس»');
     expect(nextStepText(10, 6000, steps.map((s) => ({ ...s, reached: true })))).toBeNull();
+    // Before three friends the dollars are not known (they would tell what each friend paid)
+    expect(nextStepText(1, null, steps)).toBe('باقي صديقان على 1,000 نقطة إضافية');
   });
 
   it('each friend\'s status', () => {
     const now = new Date('2026-11-20').getTime();
-    const base = { id: '1', name: 'أحمد م.', joinedAt: '2026-11-01', qualifiedAt: null, shareEndsAt: null, points: 0, heldPoints: 0, paidUsd: 0, leftUsd: 200 };
+    const base = { id: '1', name: 'أحمد م.', joinedAt: '2026-11-01', qualifiedAt: null, shareEndsAt: null, points: 0, heldPoints: 0 };
     expect(friendStatusText({ ...base, status: 'joined' }, 200, now).text).toBe('سجّل · مكافأتك عندما يصل مجموع ما يدفعه 200$');
-    expect(friendStatusText({ ...base, status: 'joined', paidUsd: 80, leftUsd: 120 }, 200, now).text).toBe('دفع 80$ · باقي 120$ على مكافأتك');
+    // What the friend paid is never shown to the inviter
+    expect(friendStatusText({ ...base, status: 'joined' }, 200, now).text).toBe('سجّل · مكافأتك عندما يصل مجموع ما يدفعه 200$');
     expect(friendStatusText({ ...base, status: 'sharing', shareEndsAt: '2027-06-20' }, 50, now).text).toBe('تكسب من شحنه · باقي 7 أشهر');
     expect(friendStatusText({ ...base, status: 'ended' }, 50, now).tone).toBe('muted');
   });
@@ -84,7 +87,7 @@ describe('the record of rewards: what each row says', () => {
 describe('months left of the share, by the calendar', () => {
   const { friendStatusText } = require('../containers/InvitePage/referralText');
   const at = (now: string, end: string) => friendStatusText({ id: '1', name: 'أ', joinedAt: now, status: 'sharing', qualifiedAt: now, shareEndsAt: end,
-    points: 0, heldPoints: 0, paidUsd: 300, leftUsd: 0 }, 200, new Date(now).getTime()).text;
+    points: 0, heldPoints: 0 }, 200, new Date(now).getTime()).text;
   it('a whole year just started: 12 months, not 13', () => {
     expect(at('2026-11-20T18:40:00Z', '2027-11-20T18:40:00Z')).toBe('تكسب من شحنه · باقي 12 شهراً');
   });

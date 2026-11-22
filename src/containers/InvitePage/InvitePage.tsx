@@ -112,7 +112,7 @@ const InvitePage = () => {
       <section className="iv-card" aria-labelledby="iv-steps">
         <div className="iv-card__head">
           <h2 id="iv-steps"><Trophy size={19} aria-hidden /> مكافآت إضافية</h2>
-          <span className="iv-pill">{data.qualified} {data.qualified === 1 ? 'صديق' : 'أصدقاء'} · <bdi dir="ltr">{pointsNum(data.friendsPaidUsd)}$</bdi></span>
+          <span className="iv-pill">{data.qualified} {data.qualified === 1 ? 'صديق' : 'أصدقاء'}{data.friendsPaidUsd !== null && <> · <bdi dir="ltr">{pointsNum(data.friendsPaidUsd)}$</bdi></>}</span>
         </div>
         <div className="iv-bar" role="progressbar" aria-valuemin={0} aria-valuemax={top.friends} aria-valuenow={Math.min(data.qualified, top.friends)}>
           <span style={{ width: `${progress * 100}%` }} />

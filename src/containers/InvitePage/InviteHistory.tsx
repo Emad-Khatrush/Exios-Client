@@ -76,7 +76,7 @@ const InviteHistory = () => {
               </div>
             </div>
             <dl className="ih-stats">
-              <div><dt>دفع</dt><dd><bdi dir="ltr">{pointsNum(friend.paidUsd)}$</bdi></dd></div>
+              <div><dt>كسبت منه</dt><dd><bdi dir="ltr">{pointsNum(friend.points)}</bdi> نقطة</dd></div>
               <div><dt>طلبيات كسبت منها</dt><dd>{friend.orders}</dd></div>
               <div><dt>سجّل</dt><dd>{dayText(friend.joinedAt)}</dd></div>
             </dl>
@@ -116,7 +116,7 @@ const InviteHistory = () => {
                     <b>{kindText(i)}</b>
                     {!friend && i.friend && <Link to={`/invite/history?friend=${i.friend.id}`} className="ih-item__friend">{i.friend.name}</Link>}
                     {i.orderNumber && (
-                      <small><Package size={13} aria-hidden /> طلبية <bdi dir="ltr">{i.orderNumber}</bdi>{i.paidUsd ? <> · دفع <bdi dir="ltr">{pointsNum(i.paidUsd)}$</bdi></> : null}</small>
+                      <small><Package size={13} aria-hidden /> طلبية <bdi dir="ltr">{i.orderNumber}</bdi></small>
                     )}
                     <small className={`ih-item__state is-${i.state}`}><StateIcon size={13} aria-hidden /> {historyNoteText(i, data?.holdHours || 24)}</small>
                   </div>
