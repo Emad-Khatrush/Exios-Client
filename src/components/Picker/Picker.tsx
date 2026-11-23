@@ -1,4 +1,5 @@
 import { KeyboardEvent, ReactNode, useEffect, useId, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Check, ChevronDown, Search, X } from 'lucide-react';
 import './picker.css';
 
@@ -45,6 +46,7 @@ const Picker = ({
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const popRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -89,7 +91,8 @@ const Picker = ({
   useEffect(() => {
     if (!open) return undefined;
     const onDown = (e: MouseEvent | TouchEvent) => {
-      if (!wrapRef.current?.contains(e.target as Node)) close(false);
+      const target = e.target as Node;
+      if (!wrapRef.current?.contains(target) && !popRef.current?.contains(target)) close(false);
     };
     document.addEventListener('mousedown', onDown);
     document.addEventListener('touchstart', onDown);
@@ -153,10 +156,10 @@ const Picker = ({
         <ChevronDown size={18} className="pk-trigger__chev" aria-hidden />
       </button>
 
-      {open && (
+      {open && inPlaceOrOnTop(
         <>
           <div className="pk-scrim" aria-hidden onClick={() => close(false)} />
-          <div className="pk-pop" dir="rtl">
+          <div className="pk-pop" dir="rtl" ref={popRef}>
             <div className="pk-pop__head">
               <span className="pk-pop__grab" aria-hidden />
               <b>{title}</b>
@@ -214,5 +217,14 @@ const Picker = ({
     </div>
   );
 };
+
+// On a phone the sheet goes on top of the whole page (rendered in <body>): left inside the form, an
+// animated or layered parent traps it, and parts of the page (the sign-up steps) showed over it.
+// On a wide screen it stays under its button.
+const inPlaceOrOnTop = (sheet: ReactNode) => (
+  typeof document !== 'undefined' && window.matchMedia?.('(max-width: 640px)').matches
+    ? createPortal(sheet, document.body)
+    : sheet
+);
 
 export default Picker;
