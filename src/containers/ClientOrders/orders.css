@@ -835,3 +835,6 @@
 @media (prefers-reduced-motion: reduce) {
   .or-bill, .or-bill__chev, .or-bill__body, .or-bill__inner, .or-bill.is-open .or-bill__inner { transition: none; }
 }
+
+/* The next page of received orders, under the list */
+.or-more { grid-column: 1 / -1; justify-self: center; margin-top: 4px; }

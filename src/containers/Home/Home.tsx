@@ -51,6 +51,8 @@ const Home = () => {
   const { copied, copy } = useCopy();
   const [counts, setCounts] = useState<Counts | null>(null);
   const [orders, setOrders] = useState<Package[] | null>(null);
+  // How many open orders there are (the server counts them; only the newest two are fetched)
+  const [ordersTotal, setOrdersTotal] = useState(0);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [pricing, setPricing] = useState<Pricing | null>(() => cachedPricing() as Pricing | null);
   const [unreadReplies, setUnreadReplies] = useState(0);
@@ -68,7 +70,13 @@ const Home = () => {
       'shipment.method': 1, 'shipment.fromWhere': 1, 'shipment.toWhere': 1,
       'paymentList._id': 1, 'paymentList.status': 1, 'paymentList.settings': 1,
       'paymentList.deliveredPackages.trackingNumber': 1, 'paymentList.deliveredPackages.weight': 1,
-    }).then((res: any) => setOrders(res.data?.results?.orders || [])).catch(() => setOrders([]));
+      // Only the two the home shows; the count of all of them comes with them
+      limit: 2, skip: 0,
+    }).then((res: any) => {
+      const list: Package[] = res.data?.results?.orders || [];
+      setOrders(list);
+      setOrdersTotal(Number(res.data?.results?.page?.total ?? list.length));
+    }).catch(() => setOrders([]));
     fetchPricing(['shipping', 'fcl']).then((data) => setPricing({ ...data } as Pricing)).catch(() => undefined);
     api.getPendingRatings()
       .then((res: any) => { if (!res?.data?.off) setToRate(Array.isArray(res?.data?.orders) ? res.data.orders.length : 0); })
@@ -193,7 +201,7 @@ const Home = () => {
 
         <div className="hm-grid">
           {/* The two newest shipments and their packages */}
-          <RecentShipments orders={orders} total={orders?.length || 0} />
+          <RecentShipments orders={orders} total={ordersTotal} />
 
           <aside className="hm-side">
             {/* Today's prices */}

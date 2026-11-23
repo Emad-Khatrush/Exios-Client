@@ -58,6 +58,12 @@ const PERIODS = [
 
 const FILTER_KEYS: Record<keyof OrderFilters, string> = { method: 'm', country: 'c', note: 'n', period: 'p', sort: 's' };
 
+// Tabs that grow without end (received orders) come a page at a time, unless a filter is on: the
+// filters and the oldest-first order work on the whole list, so it is then loaded whole as before
+const PAGED_TABS = ['finished'];
+const PAGE_SIZE = 30;
+type PageInfo = { total: number, hasMore: boolean };
+
 const PURCHASE_FILTERS = [
   { value: 'all', label: 'الكل' },
   { value: 'pending', label: 'قيد الشراء' },
@@ -95,8 +101,13 @@ const ClientOrders = () => {
   };
   const clearFilters = () => setParam({ m: null, c: null, n: null, p: null, s: null });
 
-  const listKey = view === 'purchases' ? 'invoiceOrders' : tab;
+  const paged = view === 'shipments' && PAGED_TABS.includes(tab) && filterCount === 0;
+  // The paged list and the whole one are kept apart, so turning a filter on never filters a page
+  const listKey = view === 'purchases' ? 'invoiceOrders' : paged ? `${tab}:paged` : tab;
   const cache = useRef<Record<string, Package[]>>({});
+  const pages = useRef<Record<string, PageInfo>>({});
+  const [pageInfo, setPageInfo] = useState<Record<string, PageInfo>>({});
+  const [loadingMore, setLoadingMore] = useState(false);
   // Each answer is kept with the list it belongs to, and the list shown is picked by the tab on screen.
   // So on a tab change the old tab's orders are never shown under the new tab, not even for one frame
   // (the effect that loads the new tab only runs after the screen is painted).
@@ -122,12 +133,20 @@ const ClientOrders = () => {
     const id = ++requestSeq.current;
     latestFor.current[key] = id;
     setFailedKey((k) => (k === key ? null : k));
-    api.getOrdersForUser(key as OrderStatusType, LIST_FIELDS)
+    const [type, mode] = key.split(':');
+    // A paged list refreshes as many orders as were already shown (at least one page)
+    const limit = mode === 'paged' ? Math.min(100, Math.max(PAGE_SIZE, cache.current[key]?.length || 0)) : 0;
+    api.getOrdersForUser(type as OrderStatusType, { ...LIST_FIELDS, ...(limit && { limit, skip: 0 }) })
       .then((res: any) => {
         const countList = res.data?.results?.countList;
         if (countList && id > countsFrom.current) { countsFrom.current = id; setCounts(countList); }
         if (latestFor.current[key] !== id) return;
         const list: Package[] = res.data?.results?.orders || [];
+        const page = res.data?.results?.page;
+        if (page) {
+          pages.current[key] = { total: page.total, hasMore: page.hasMore };
+          setPageInfo({ ...pages.current });
+        }
         cache.current[key] = list;
         setLoaded({ key, list });
       })
@@ -135,6 +154,30 @@ const ClientOrders = () => {
   }, []);
 
   useEffect(() => { load(listKey); }, [listKey, load]);
+
+  // The next page of a paged list, added under the orders already shown
+  const loadMore = () => {
+    const key = listKey;
+    const current = cache.current[key] || [];
+    if (loadingMore || !pages.current[key]?.hasMore) return;
+    setLoadingMore(true);
+    const id = latestFor.current[key];
+    api.getOrdersForUser(key.split(':')[0] as OrderStatusType, { ...LIST_FIELDS, limit: PAGE_SIZE, skip: current.length })
+      .then((res: any) => {
+        // A refresh of the list started meanwhile: its answer wins
+        if (latestFor.current[key] !== id) return;
+        const seen = new Set(current.map((o) => o._id));
+        const list = [...current, ...(res.data?.results?.orders || []).filter((o: Package) => !seen.has(o._id))];
+        const page = res.data?.results?.page;
+        if (page) pages.current[key] = { total: page.total, hasMore: page.hasMore };
+        setPageInfo({ ...pages.current });
+        cache.current[key] = list;
+        setLoaded({ key, list });
+      })
+      .catch(() => undefined)
+      .finally(() => setLoadingMore(false));
+  };
+  const page = paged ? pageInfo[listKey] : undefined;
 
   useEffect(() => {
     api.getAnnouncements().then((res: any) => setAnnouncements(Array.isArray(res?.data) ? res.data : [])).catch(() => undefined);
@@ -474,6 +517,11 @@ const ClientOrders = () => {
         ) : shown.length ? (
           <div key={`${isSearch ? 'search' : `${listKey}:${pFilter}`}:${params.get('m')}${params.get('c')}${params.get('n')}${params.get('p')}${params.get('s')}`} className={`or-list or-list--enter ${view === 'purchases' && !isSearch ? 'or-list--receipts' : ''}`}>
             {shown.map(card)}
+            {!isSearch && page?.hasMore && (
+              <button type="button" className="or-btn or-btn--outline or-more" onClick={loadMore} disabled={loadingMore} aria-busy={loadingMore}>
+                {loadingMore ? 'جارٍ التحميل…' : `عرض المزيد (يظهر ${shown.length} من ${page.total})`}
+              </button>
+            )}
           </div>
         ) : filterCount > 0 && base && base.length > 0 ? (
           <div className="or-empty">
