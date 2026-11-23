@@ -484,3 +484,14 @@
 .fb-order.is-active .fb-order__tracks bdi { background: #dcfce7; color: #166534; }
 .fb-order__tracks em { color: #71717a; font-size: 0.8rem; font-style: normal; font-weight: 700; }
 .fb-orders__count { display: flex; align-items: center; gap: 12px; margin: 0; color: #166534; font-weight: 700; }
+
+/* Entering the page: its blocks rise into place one after another, like the other pages. The
+   animation applies only while it runs (backwards), so nothing keeps a block on its own layer after
+   it and windows opened from the page still cover everything. */
+@media (prefers-reduced-motion: no-preference) {
+  /* The heading, then the form and the list of complaints (side by side on a wide screen) */
+  .fb-page > div > :not(.fb-layout), .fb-layout > * { animation: fb-page-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards; }
+  .fb-layout > :first-child { animation-delay: 0.05s; }
+  .fb-layout > :nth-child(n + 2) { animation-delay: 0.1s; }
+}
+@keyframes fb-page-in { from { opacity: 0; transform: translateY(12px); } }
