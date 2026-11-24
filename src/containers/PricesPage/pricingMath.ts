@@ -5,6 +5,8 @@ export type Tier = { upTo: number | null, type?: 'fixed' | 'percent', value?: nu
 export type ShippingRoute = {
   key: string, country: string, method: 'air' | 'sea', label: string, countryLabel: string,
   unit: 'kg' | 'cbm', price: number, duration: string, note: string, minCharge: number,
+  // The least weight (kg) or volume (CBM) billed for a shipment; 0 or absent = none
+  minWeight?: number,
   // Price by kind of goods; the first is the base price
   categories: Category[],
   // When a price of this route last changed
@@ -35,12 +37,18 @@ export type Container = {
   key: string, label: string, carrier?: string, fromPort?: string, toPort?: string,
   route: string, price: number, duration: string, updatedAt?: string | null,
 };
+// A shopping site: its own fee, and its own commission in place of the brackets when the office set
+// one ('none' = no commission). freeShipping is shown beside it.
+export type Site = {
+  key: string, label: string, feePercent: number,
+  commission?: 'default' | 'none' | 'percent' | 'fixed', commissionValue?: number, freeShipping?: boolean,
+};
 export type Office = { key: string, label: string, whatsapp: string, cities: string[] };
 type Dated = { updatedAt?: string | null };
 export type Pricing = {
   exchangeRate: { rate: number, updatedAt: string } | null,
   shipping: Dated & { note: string, volumetricDivisor: number, routes: ShippingRoute[] } | null,
-  purchase: Dated & { note: string, minCommission: number, tiers: Tier[], sites: { key: string, label: string, feePercent: number }[] } | null,
+  purchase: Dated & { note: string, minCommission: number, tiers: Tier[], sites: Site[] } | null,
   alipay: Dated & { note: string, tiers: Tier[] } | null,
   swift: Dated & { note: string, tiers: Tier[], fixedFee: number, minFee: number } | null,
   fcl: Dated & { note: string, containers: Container[] } | null,
@@ -83,19 +91,26 @@ export const shippingQuote = (
   const boxes = Math.max(1, Math.floor(input.boxes || 1));
   const dims = (input.length || 0) * (input.width || 0) * (input.height || 0) * boxes;
   const lines: Line[] = [];
+  const minWeight = route.minWeight || 0;
   let charged: number;
   if (route.unit === 'kg') {
     const volumetric = dims ? dims / (divisor || 6000) : 0;
-    charged = Math.max(input.amount, volumetric);
-    if (!charged) return null;
+    const weighed = Math.max(input.amount, volumetric);
+    if (!weighed) return null;
+    charged = Math.max(weighed, minWeight);
     if (input.amount) lines.push({ label: 'الوزن الفعلي', value: input.amount, hint: 'كجم' });
     if (volumetric) lines.push({ label: 'الوزن الحجمي', value: cents(volumetric), hint: 'كجم' });
+    if (charged > weighed) lines.push({ label: 'أقل وزن للشحن', value: minWeight, hint: 'كجم' });
     lines.push({ label: 'الوزن المحسوب', value: cents(charged), hint: 'كجم', strong: true });
   } else {
     const cbmFromDims = dims ? dims / 1_000_000 : 0;
-    charged = input.amount || cbmFromDims;
-    if (!charged) return null;
-    lines.push({ label: 'الحجم', value: cents(charged), hint: 'CBM', strong: true });
+    const measured = input.amount || cbmFromDims;
+    if (!measured) return null;
+    charged = Math.max(measured, minWeight);
+    if (charged > measured) {
+      lines.push({ label: 'الحجم', value: cents(measured), hint: 'CBM' }, { label: 'أقل حجم للشحن', value: minWeight, hint: 'CBM' });
+      lines.push({ label: 'الحجم المحسوب', value: cents(charged), hint: 'CBM', strong: true });
+    } else lines.push({ label: 'الحجم', value: cents(charged), hint: 'CBM', strong: true });
   }
   const freight = up(charged * unitPrice);
   const total = Math.max(freight, route.minCharge || 0);
@@ -121,24 +136,42 @@ export const shippingQuote = (
   };
 };
 
-// ---- Purchasing: the site's own fee, then our commission by bracket, with a minimum
+// The commission of a site, as the customer reads it: "بدون عمولة", "عمولة 2%", "عمولة $5"; '' = the brackets
+export const siteCommissionText = (site?: Site) => {
+  if (!site || !site.commission || site.commission === 'default') return '';
+  if (site.commission === 'none') return 'بدون عمولة';
+  return site.commission === 'fixed' ? `عمولة ${ltr(money(site.commissionValue || 0))}` : `عمولة ${ltr(`${plain(site.commissionValue || 0)}%`)}`;
+};
+
+// ---- Purchasing: the site's own fee, then our commission (the site's own, or by bracket) with a minimum
 export const purchaseQuote = (cfg: NonNullable<Pricing['purchase']>, amount: number, siteKey: string): Quote | null => {
   if (!amount) return null;
   const site = cfg.sites.find((s) => s.key === siteKey) || cfg.sites[0];
   const siteFee = site?.feePercent ? Math.ceil(amount * site.feePercent / 100) : 0;
-  const tier = tierFor(cfg.tiers, amount);
-  const raw = tier?.type === 'fixed' ? (tier.value || 0) : amount * (tier?.value || 0) / 100;
-  const commission = Math.ceil(Math.max(raw, cfg.minCommission || 0));
+  const own = site?.commission && site.commission !== 'default' ? site.commission : null;
+  const tier = own ? null : tierFor(cfg.tiers, amount);
+  const type = own || tier?.type || 'percent';
+  const rate = own ? (site.commissionValue || 0) : (tier?.value || 0);
+  const raw = type === 'none' ? 0 : type === 'fixed' ? rate : amount * rate / 100;
+  // No commission is none at all; any other commission has the minimum
+  const commission = type === 'none' ? 0 : Math.ceil(Math.max(raw, cfg.minCommission || 0));
   const total = cents(amount + siteFee + commission);
   const lines: Line[] = [{ label: 'قيمة المشتريات', value: amount, hint: 'USD' }];
   if (siteFee) lines.push({ label: `رسوم ${site.label} ${ltr(`${plain(site.feePercent)}%`)}`, value: siteFee, hint: 'USD' });
-  lines.push({ label: tier?.type === 'percent' ? `عمولة الشراء ${ltr(`${plain(tier.value || 0)}%`)}` : 'عمولة الشراء', value: commission, hint: 'USD' });
+  lines.push(type === 'none'
+    ? { label: 'عمولة الشراء', value: 0, text: 'بدون عمولة' }
+    : { label: type === 'percent' ? `عمولة الشراء ${ltr(`${plain(rate)}%`)}` : 'عمولة الشراء', value: commission, hint: 'USD' });
+  if (site?.freeShipping) lines.push({ label: 'الشحن', value: 0, text: 'شحن مجاني' });
   return {
     title: `شراء من ${site?.label || 'المواقع'}`,
     lines,
     total,
     totalLabel: 'إجمالي الفاتورة التقريبي',
-    summary: [`طلب شراء من ${site?.label || 'موقع'}`, `قيمة المشتريات: ${money(amount)}`, `العمولة: ${money(commission)}`, siteFee ? `رسوم الموقع: ${money(siteFee)}` : '', `الإجمالي التقريبي: ${money(total)}`].filter(Boolean),
+    summary: [
+      `طلب شراء من ${site?.label || 'موقع'}`, `قيمة المشتريات: ${money(amount)}`,
+      `العمولة: ${commission ? money(commission) : 'بدون عمولة'}`, siteFee ? `رسوم الموقع: ${money(siteFee)}` : '',
+      site?.freeShipping ? 'الشحن: مجاني' : '', `الإجمالي التقريبي: ${money(total)}`,
+    ].filter(Boolean),
   };
 };
 

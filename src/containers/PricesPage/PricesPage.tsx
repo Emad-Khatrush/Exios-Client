@@ -7,7 +7,7 @@ import QuoteTicket from './QuoteTicket';
 import { PricingPart, cachedPricing, fetchPricing, hasParts } from './pricingCache';
 import Flag, { countryOfPort } from './Flag';
 import {
-  Container, Pricing, Quote, ShippingRoute, Tier, alipayQuote, carrierName, fclQuote, ltr, money, plain, purchaseQuote, shippingQuote, swiftQuote, tierFor, toNumber, updatedLabel,
+  Container, Pricing, Quote, ShippingRoute, Tier, alipayQuote, carrierName, siteCommissionText, fclQuote, ltr, money, plain, purchaseQuote, shippingQuote, swiftQuote, tierFor, toNumber, updatedLabel,
 } from './pricingMath';
 import { SpecialPrices, categoryLabel, specialCategories, withSpecialPrices } from '../../utils/specialPrices';
 import './pricesPage.css';
@@ -523,6 +523,7 @@ const PricesPage = ({ group = 'shipping' }: { group?: PriceGroup }) => {
                               </span>
                             )}
                             {r.minCharge > 0 && <span className="mt-2 text-sm text-zinc-600">أقل تكلفة للشحنة <bdi dir="ltr" className="font-bold text-zinc-700">{money(r.minCharge)}</bdi></span>}
+                            {(r.minWeight || 0) > 0 && <span className="mt-1 text-sm text-zinc-600">{r.unit === 'kg' ? 'أقل وزن للشحن' : 'أقل حجم للشحن'} <bdi dir="ltr" className="font-bold text-zinc-700">{plain(r.minWeight || 0)} {r.unit === 'kg' ? 'كجم' : 'CBM'}</bdi></span>}
                           </button>
                           <div className="route-card__foot">
                             <Updated at={r.updatedAt} />
@@ -595,6 +596,13 @@ const PricesPage = ({ group = 'shipping' }: { group?: PriceGroup }) => {
                 )}
                 {pricing.purchase.sites.filter((s) => s.feePercent > 0).map((s) => (
                   <div key={s.key} className="flex gap-1.5 rounded-xl bg-zinc-50 px-3.5 py-2"><dt className="text-zinc-600">رسوم {s.label}</dt><dd dir="ltr" className="font-bold tabular-nums text-zinc-900">{plain(s.feePercent)}%</dd></div>
+                ))}
+                {/* Sites with their own terms: «شي ان: بدون عمولة · شحن مجاني» */}
+                {pricing.purchase.sites.filter((s) => siteCommissionText(s) || s.freeShipping).map((s) => (
+                  <div key={`own-${s.key}`} className="flex gap-1.5 rounded-xl bg-green-50 px-3.5 py-2">
+                    <dt className="text-zinc-700">{s.label}</dt>
+                    <dd className="font-bold text-green-800">{[siteCommissionText(s), s.freeShipping ? 'شحن مجاني' : ''].filter(Boolean).join(' · ')}</dd>
+                  </div>
                 ))}
               </dl>
               <Note text={pricing.purchase.note} />
