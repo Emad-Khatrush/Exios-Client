@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Dialog, IconButton, useMediaQuery } from '@mui/material';
 import { FileSpreadsheet, Printer, X } from 'lucide-react';
 import { useReactToPrint } from 'react-to-print';
+import api from '../../api';
 import { User } from '../../models';
 import { WalletCurrency, WalletMovement } from './walletTypes';
 import { amountText, dayKey } from './walletFormat';
@@ -13,14 +14,14 @@ import './statement.scss';
 // the period, the balance, then date / description / debit / credit / balance, the opening balance
 // first and the totals last. Printed (or saved as PDF from the print window) or downloaded as Excel.
 // Keep the two the same.
+// It opens on the current month (owner's request 2026-11-24) and asks the server for the chosen
+// period only, so a customer with a long history does not download all of it.
 
 type Props = {
   open: boolean
   onClose: () => void
   account: User
   currency: WalletCurrency
-  // Oldest first, each with the balance after it
-  rows: WalletMovement[]
 }
 
 const dateText = (value?: string | Date) => {
@@ -35,13 +36,9 @@ const signedOf = (row: WalletMovement) => (row.direction === 'out' ? -1 : 1) * r
 const round2 = (value: number) => Math.round(value * 100) / 100;
 const fileName = (text: string) => text.replace(/[\\/:*?"<>|]+/g, '-').trim();
 
-// The rows of a period and its opening balance (what the wallet held before its first day)
-function periodOf(rows: WalletMovement[], from: string, to: string) {
-  const before = from ? rows.filter((row) => dayKey(row.at) < from) : [];
-  const inside = rows.filter((row) => (!from || dayKey(row.at) >= from) && (!to || dayKey(row.at) <= to));
-  const opening = before.length ? before[before.length - 1].balance : rows.length ? round2(rows[0].balance - signedOf(rows[0])) : 0;
-  return { rows: inside, opening };
-}
+// A day picked in the form (YYYY-MM-DD) as the instant it starts or ends on this device
+const dayStart = (day: string) => { const [y, m, d] = day.split('-').map(Number); return new Date(y, m - 1, d).toISOString(); };
+const dayEnd = (day: string) => { const [y, m, d] = day.split('-').map(Number); return new Date(y, m - 1, d, 23, 59, 59, 999).toISOString(); };
 function snapshotOf(rows: WalletMovement[], emptyOpening: number) {
   const opening = rows.length ? round2(rows[0].balance - signedOf(rows[0])) : emptyOpening;
   return {
@@ -63,20 +60,42 @@ const quickFrom = (value: string) => {
   return '';
 };
 
-const WalletStatementDialog = ({ open, onClose, account, currency, rows }: Props) => {
+const WalletStatementDialog = ({ open, onClose, account, currency }: Props) => {
   const [scope, setScope] = useState<'period' | 'last15'>('period');
-  const [from, setFrom] = useState('');
-  const [to, setTo] = useState('');
+  const [from, setFrom] = useState(() => quickFrom('month'));
+  const [to, setTo] = useState(today);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  // The period's movements from the server (oldest first, each with the balance after it)
+  const [period, setPeriod] = useState<{ rows: WalletMovement[], opening: number } | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const request = useRef(0);
   const paper = useRef<HTMLDivElement>(null);
   const mobile = useMediaQuery('(max-width:700px)');
-  useEffect(() => { if (open) { setScope('period'); setFrom(''); setTo(''); setError(''); } }, [open]);
+  useEffect(() => { if (open) { setScope('period'); setFrom(quickFrom('month')); setTo(today()); setError(''); } }, [open]);
 
-  const period = useMemo(() => periodOf(rows, from, to), [rows, from, to]);
-  const snap = useMemo(() => snapshotOf(scope === 'last15' ? period.rows.slice(-15) : period.rows, period.opening), [period, scope]);
   const invalid = !!from && !!to && from > to;
-  const disabled = busy || invalid || !snap.rows.length;
+  const load = useCallback(() => {
+    if (!open || invalid) return;
+    // Only the last answer counts when the dates change quickly
+    const id = ++request.current;
+    setPeriod(null);
+    setLoadFailed(false);
+    api.getWalletStatement(currency, { ...(from ? { from: dayStart(from) } : {}), ...(to ? { to: dayEnd(to) } : {}) })
+      .then((res: any) => {
+        if (id !== request.current) return;
+        const rows: WalletMovement[] = Array.isArray(res?.data?.rows) ? res.data.rows : [];
+        const opening = typeof res?.data?.opening === 'number' ? res.data.opening : rows.length ? round2(rows[0].balance - signedOf(rows[0])) : 0;
+        setPeriod({ rows, opening });
+      })
+      .catch(() => { if (id === request.current) setLoadFailed(true); });
+  }, [open, invalid, currency, from, to]);
+  useEffect(() => { load(); }, [load]);
+
+  const loadingRows = !invalid && !loadFailed && !period;
+  const periodRows = useMemo(() => period?.rows || [], [period]);
+  const snap = useMemo(() => snapshotOf(scope === 'last15' ? periodRows.slice(-15) : periodRows, period?.opening || 0), [periodRows, period, scope]);
+  const disabled = busy || invalid || loadingRows || !snap.rows.length;
   const name = [account?.firstName, account?.lastName].filter(Boolean).join(' ') || 'العميل';
   const first = snap.rows[0]?.at;
   const last = snap.rows[snap.rows.length - 1]?.at;
@@ -131,21 +150,27 @@ const WalletStatementDialog = ({ open, onClose, account, currency, rows }: Props
         <label>إلى تاريخ<input type="date" value={to} min={from || undefined} max={today()} disabled={busy} onChange={(e) => setTo(e.target.value)} /></label>
         <label>الحركات
           <select value={scope} disabled={busy} onChange={(e) => setScope(e.target.value as 'period' | 'last15')}>
-            <option value="period">كل حركات الفترة ({period.rows.length})</option>
+            <option value="period">كل حركات الفترة{period ? ` (${period.rows.length})` : ''}</option>
             <option value="last15">آخر 15 حركة</option>
           </select>
         </label>
         <div className="statement-preview__quick">
           {QUICK.map(([value, label]) => (
-            <button key={value} type="button" disabled={busy} onClick={() => { setScope('period'); setFrom(quickFrom(value)); setTo(value ? today() : ''); }}>{label}</button>
+            <button key={value} type="button" disabled={busy} aria-pressed={from === quickFrom(value) && to === (value ? today() : '')} onClick={() => { setScope('period'); setFrom(quickFrom(value)); setTo(value ? today() : ''); }}>{label}</button>
           ))}
         </div>
       </div>
       {invalid && <p className="statement-preview__error" role="alert">تاريخ البداية يجب أن يسبق تاريخ النهاية.</p>}
-      {!invalid && !snap.rows.length && <p className="statement-preview__error" role="status">لا توجد حركات في هذه الفترة. اختر فترة أخرى.</p>}
+      {loadingRows && <p className="statement-preview__loading" role="status" aria-busy="true">جارٍ تحميل حركات الفترة…</p>}
+      {loadFailed && (
+        <p className="statement-preview__error" role="alert">
+          تعذّر تحميل حركات الفترة. <button type="button" className="statement-preview__retry" onClick={load}>إعادة المحاولة</button>
+        </p>
+      )}
+      {!invalid && period && !snap.rows.length && <p className="statement-preview__error" role="status">لا توجد حركات في هذه الفترة. اختر فترة أخرى.</p>}
       {error && <p className="statement-preview__error" role="alert">{error}</p>}
 
-      <div className="statement-preview__canvas">
+      <div className="statement-preview__canvas" aria-busy={loadingRows}>
         <div className="statement-paper" ref={paper} dir="rtl">
           <header className="statement-paper__brand">
             <div><img src={logo} alt="Exios" /><p>شركة إكسيوس للشحن</p></div>

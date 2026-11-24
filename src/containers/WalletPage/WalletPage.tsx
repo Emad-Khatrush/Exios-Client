@@ -31,7 +31,9 @@ const KIND_ICONS: Record<MovementKind, ReactNode> = {
   debtPayment: <BadgeCheck size={18} />,
   writeOff: <Scale size={18} />,
 };
-const PAGE = 20;
+// Movements read from the server at a time (2026-11-24: not the whole history at once)
+const PAGE = 30;
+type MovesPage = { rows: WalletMovement[], hasMore: boolean, total: number };
 // Packages on the way shown before «عرض الكل»
 const UPCOMING_FIRST = 4;
 
@@ -40,11 +42,14 @@ const WalletPage = () => {
   const [currency, setCurrency] = useState<WalletCurrency>('USD');
   const [summary, setSummary] = useState<WalletSummary | null>(null);
   const [failed, setFailed] = useState(false);
-  const [moves, setMoves] = useState<Record<string, WalletMovement[] | undefined>>({});
+  // Oldest first, as the server sends them; older pages are put in front
+  const [moves, setMoves] = useState<Record<string, MovesPage | undefined>>({});
   // Each currency loads and fails on its own
   const [movesFailed, setMovesFailed] = useState<Record<string, boolean>>({});
   const loading = useRef(new Set<string>());
-  const [shown, setShown] = useState(PAGE);
+  // The currency whose older movements are on their way («عرض المزيد»)
+  const [loadingMore, setLoadingMore] = useState<Record<string, boolean>>({});
+  const [moreFailed, setMoreFailed] = useState<Record<string, boolean>>({});
   // The entrance plays once, when the page opens. After the customer switches currency, the new
   // currency's cards only cross-fade in. (A timer used to mark the entrance done, and that added the
   // cross-fade to the cards already on screen, so they moved in a second time.)
@@ -62,20 +67,44 @@ const WalletPage = () => {
   }, []);
   useEffect(() => { loadSummary(); }, [loadSummary]);
 
-  // The movements of one currency, read once (a request already on its way is not sent again)
+  // The newest movements of one currency (a request already on its way is not sent again)
   const loadMoves = useCallback((cur: WalletCurrency) => {
     if (loading.current.has(cur)) return;
     loading.current.add(cur);
     setMovesFailed((f) => ({ ...f, [cur]: false }));
-    api.getWalletStatement(cur)
-      .then((res: any) => setMoves((m) => ({ ...m, [cur]: Array.isArray(res?.data?.rows) ? res.data.rows : [] })))
+    api.getWalletStatement(cur, { limit: PAGE })
+      .then((res: any) => {
+        const rows: WalletMovement[] = Array.isArray(res?.data?.rows) ? res.data.rows : [];
+        setMoves((m) => ({ ...m, [cur]: { rows, hasMore: !!res?.data?.hasMore, total: Number(res?.data?.total) || rows.length } }));
+      })
       .catch(() => setMovesFailed((f) => ({ ...f, [cur]: true })))
       .finally(() => loading.current.delete(cur));
   }, []);
   // Both currencies are read when the page opens, so switching shows them at once
   useEffect(() => { loadMoves('USD'); loadMoves('LYD'); }, [loadMoves]);
-  // A new currency starts its list from the top (not when a list finishes loading)
-  useEffect(() => { setShown(PAGE); }, [currency]);
+
+  // The next older page of the chosen currency, after the oldest one on screen
+  const loadOlder = () => {
+    const cur = currency;
+    const page = moves[cur];
+    const key = `more-${cur}`;
+    if (!page || !page.rows.length || loading.current.has(key)) return;
+    loading.current.add(key);
+    setLoadingMore((l) => ({ ...l, [cur]: true }));
+    setMoreFailed((f) => ({ ...f, [cur]: false }));
+    api.getWalletStatement(cur, { limit: PAGE, before: page.rows[0].id })
+      .then((res: any) => {
+        const older: WalletMovement[] = Array.isArray(res?.data?.rows) ? res.data.rows : [];
+        setMoves((m) => {
+          const now = m[cur];
+          if (!now) return m;
+          const seen = new Set(now.rows.map((row) => row.id));
+          return { ...m, [cur]: { ...now, rows: [...older.filter((row) => !seen.has(row.id)), ...now.rows], hasMore: !!res?.data?.hasMore } };
+        });
+      })
+      .catch(() => setMoreFailed((f) => ({ ...f, [cur]: true })))
+      .finally(() => { loading.current.delete(key); setLoadingMore((l) => ({ ...l, [cur]: false })); });
+  };
 
   // Arrow keys move between the two currencies, as in any radio group
   const onSwitchKey = (event: KeyboardEvent<HTMLDivElement>) => {
@@ -86,18 +115,19 @@ const WalletPage = () => {
     (event.currentTarget.querySelector(`[data-currency="${next}"]`) as HTMLButtonElement | null)?.focus();
   };
 
-  const rows = moves[currency];
+  const page = moves[currency];
+  const rows = page?.rows;
   // Newest first on the page, grouped by month
   const newest = useMemo(() => (rows ? [...rows].reverse() : []), [rows]);
   const months = useMemo(() => {
     const groups: { key: string, items: WalletMovement[] }[] = [];
-    newest.slice(0, shown).forEach((row) => {
+    newest.forEach((row) => {
       const key = monthKey(row.at);
       const last = groups[groups.length - 1];
       if (last && last.key === key) last.items.push(row); else groups.push({ key, items: [row] });
     });
     return groups;
-  }, [newest, shown]);
+  }, [newest]);
 
   const cur = summary?.currencies[currency];
   const debts = (summary?.debts || []).filter((d) => d.currency === currency);
@@ -278,10 +308,11 @@ const WalletPage = () => {
             </div>
           ))}
 
-          {newest.length > shown && (
+          {page?.hasMore && (
             <div className="wl-more">
-              <button type="button" className="wl-btn wl-btn--outline wl-btn--sm" onClick={() => setShown((n) => n + PAGE)}>
-                عرض المزيد ({newest.length - shown})
+              {moreFailed[currency] && <p className="wl-muted" role="alert">تعذّر تحميل الحركات الأقدم.</p>}
+              <button type="button" className="wl-btn wl-btn--outline wl-btn--sm" disabled={!!loadingMore[currency]} aria-busy={!!loadingMore[currency]} onClick={loadOlder}>
+                {loadingMore[currency] ? 'جارٍ التحميل…' : moreFailed[currency] ? 'إعادة المحاولة' : `عرض المزيد (${Math.max(0, page.total - page.rows.length)})`}
               </button>
             </div>
           )}
@@ -289,9 +320,7 @@ const WalletPage = () => {
         </section>
       </div>
 
-      {rows && (
-        <WalletStatementDialog open={statementOpen} onClose={() => setStatementOpen(false)} account={account} currency={currency} rows={rows} />
-      )}
+      <WalletStatementDialog open={statementOpen} onClose={() => setStatementOpen(false)} account={account} currency={currency} />
     </div>
   );
 };

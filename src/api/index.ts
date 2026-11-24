@@ -233,7 +233,9 @@ export default {
   // The customer's wallet: balances, debts, packages on the way, and the movements of one currency
   getWallet: () => base.get(`client/wallet`),
 
-  getWalletStatement: (currency: 'USD' | 'LYD') => base.get(`client/wallet/statement`, { currency }),
+  // A page of movements ({ limit, before }) or a period ({ from, to } as instants), oldest first
+  getWalletStatement: (currency: 'USD' | 'LYD', q: { limit?: number, before?: string, from?: string, to?: string } = {}) =>
+    base.get(`client/wallet/statement`, { currency, ...q }),
 
   // Phone notifications: this device's Firebase token, saved when turned on, removed on logout
   savePushToken: (token: string) => base.post(`client/push/token`, { token }),

@@ -20,6 +20,11 @@
   &__actions .is-primary { border-color: #0b6b62; background: #0b6b62; color: #fff; }
   &__actions button:disabled { opacity: .5; cursor: default; }
   &__error { margin: 0; padding: 10px 24px; background: #fff1ef; color: #b42318; font-size: 13px; }
+  &__quick button[aria-pressed='true'] { background: #0b6b62; color: #fff; }
+  &__loading { margin: 0; padding: 10px 24px; background: #f3f7f9; color: #4a5d6e; font-size: 13px; }
+  &__retry { border: 0; background: none; padding: 0; color: inherit; font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
+  // The paper waits, dimmed, while the period's movements load
+  &__canvas[aria-busy='true'] { opacity: .45; transition: opacity .2s; }
   @media (max-width: 700px) {
     .MuiDialog-paper { border-radius: 0; }
     &__toolbar, &__options, &__actions { padding-inline: 16px; }
