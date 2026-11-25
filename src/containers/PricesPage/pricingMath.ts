@@ -44,7 +44,9 @@ export type Site = {
   commission?: 'default' | 'none' | 'percent' | 'fixed', commissionValue?: number, freeShipping?: boolean,
 };
 export type Office = { key: string, label: string, whatsapp: string, cities: string[] };
-type Dated = { updatedAt?: string | null };
+// What is paid on top, in qirsh (1/100 dinar) for each dollar of the total, by where the customer pays
+export type Delivery = { libya: number, turkey: number };
+type Dated = { updatedAt?: string | null, delivery?: Delivery };
 export type Pricing = {
   exchangeRate: { rate: number, updatedAt: string } | null,
   shipping: Dated & { note: string, volumetricDivisor: number, routes: ShippingRoute[] } | null,
@@ -56,7 +58,9 @@ export type Pricing = {
 };
 
 export type Line = { label: string, value: number, hint?: string, strong?: boolean, text?: string };
-export type Quote = { title: string, lines: Line[], total: number, totalLabel: string, summary: string[] };
+// payAt: what the customer pays by where they pay, the total in dollars plus dinars (0 = nothing added)
+export type PayAt = { key: 'libya' | 'turkey', label: string, lyd: number };
+export type Quote = { title: string, lines: Line[], total: number, totalLabel: string, summary: string[], payAt?: PayAt[] };
 
 const cents = (n: number) => Math.round(n * 100) / 100;
 const up = (n: number) => Math.ceil(n * 100 - 1e-9) / 100;
@@ -217,6 +221,19 @@ export const swiftQuote = (cfg: NonNullable<Pricing['swift']>, amount: number): 
     totalLabel: 'تدفع بالدولار',
     summary: ['حوالة سويفت', `المبلغ: ${money(amount)}`, `العمولة والرسوم: ${money(cents(commission + (cfg.fixedFee || 0)))}`, `المطلوب: ${money(total)}`],
   };
+};
+
+// ---- Where the customer pays: the section's qirsh for each dollar of the total, in dinars.
+// $100 at 10 qirsh = $100 + 10 LYD. Nothing changes when neither place adds anything.
+export const lydText = (n: number) => `${n.toLocaleString('en-US', { maximumFractionDigits: 2 })} د.ل`;
+export const payAtText = (total: number, p: PayAt) => (p.lyd ? `${money(total)} + ${lydText(p.lyd)}` : money(total));
+export const withDelivery = (quote: Quote | null, delivery?: Delivery | null): Quote | null => {
+  if (!quote || !delivery || !(delivery.libya > 0 || delivery.turkey > 0)) return quote;
+  const payAt: PayAt[] = [
+    { key: 'libya', label: 'الدفع في ليبيا', lyd: up(quote.total * (delivery.libya || 0) / 100) },
+    { key: 'turkey', label: 'الدفع في تركيا', lyd: up(quote.total * (delivery.turkey || 0) / 100) },
+  ];
+  return { ...quote, payAt, summary: [...quote.summary, ...payAt.map((p) => `${p.label}: ${payAtText(quote.total, p)}`)] };
 };
 
 // ---- Full containers

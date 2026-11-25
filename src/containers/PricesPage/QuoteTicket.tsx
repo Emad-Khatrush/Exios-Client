@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FaWhatsapp } from 'react-icons/fa';
-import { Line, Office, Quote, money, plain, officeFor, whatsappLink } from './pricingMath';
+import { Line, Office, Quote, money, plain, officeFor, payAtText, whatsappLink } from './pricingMath';
 
 type Props = {
   quote: Quote | null,
@@ -52,6 +52,17 @@ const QuoteTicket = ({ quote, offices, city, customer, emptyText, notice }: Prop
           <span className="text-base font-semibold text-zinc-600">{quote.totalLabel}</span>
           <span dir="ltr" className="ticket__total text-3xl font-extrabold tabular-nums text-zinc-900" key={quote.total}>{money(quote.total)}</span>
         </div>
+        {/* What is paid by where the customer pays: the dollars, plus the office's qirsh a dollar in dinars */}
+        {quote.payAt && (
+          <dl className="mt-3 space-y-1.5 rounded-xl bg-zinc-50 px-3 py-2.5">
+            {quote.payAt.map((p) => (
+              <div key={p.key} className="flex items-baseline justify-between gap-3 text-base">
+                <dt className="font-semibold text-zinc-700">{p.label}</dt>
+                <dd dir="ltr" className="whitespace-nowrap font-bold tabular-nums text-zinc-900">{payAtText(quote.total, p)}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
         {notice && <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm font-semibold leading-relaxed text-amber-900">{notice}</p>}
         <p className="mt-2 text-sm leading-relaxed text-zinc-600">هذا تقدير. يؤكد المكتب الفاتورة النهائية قبل البدء.</p>
 

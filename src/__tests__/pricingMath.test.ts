@@ -1,4 +1,4 @@
-import { purchaseQuote, shippingQuote, swiftQuote, tierFor, toNumber } from '../containers/PricesPage/pricingMath';
+import { payAtText, purchaseQuote, withDelivery, shippingQuote, swiftQuote, tierFor, toNumber } from '../containers/PricesPage/pricingMath';
 
 describe('toNumber: what the customer types', () => {
   it('reads Arabic-Indic digits and a comma as the decimal sign', () => {
@@ -75,5 +75,28 @@ describe('shippingQuote: the least weight', () => {
   it('bills the real weight above it', () => expect(shippingQuote(route, { amount: 3 }, 6000)?.total).toBe(30));
   it('works the same in CBM by sea', () => {
     expect(shippingQuote({ ...route, method: 'sea', unit: 'cbm', price: 300, minWeight: 0.5, categories: [] }, { amount: 0.2 }, 6000)?.total).toBe(150);
+  });
+});
+
+// 2026-11-25: qirsh a dollar by where the customer pays, shown as dollars + dinars
+describe('withDelivery', () => {
+  const quote = { title: 't', lines: [], total: 100, totalLabel: '', summary: ['s'] };
+  it('adds the dinars of each place: $100 at 10 qirsh is $100 + 10 LYD', () => {
+    const q = withDelivery(quote, { libya: 10, turkey: 30 })!;
+    expect(q.payAt).toEqual([
+      { key: 'libya', label: 'الدفع في ليبيا', lyd: 10 },
+      { key: 'turkey', label: 'الدفع في تركيا', lyd: 30 },
+    ]);
+    expect(payAtText(q.total, q.payAt![0])).toBe('$100 + 10 د.ل');
+    expect(q.summary).toContain('الدفع في تركيا: $100 + 30 د.ل');
+  });
+  it('a place adding nothing shows the dollars alone', () => {
+    const q = withDelivery({ ...quote, total: 123.45 }, { libya: 0, turkey: 15 })!;
+    expect(payAtText(q.total, q.payAt![0])).toBe('$123.45');
+    expect(q.payAt![1].lyd).toBe(18.52);
+  });
+  it('changes nothing when neither place adds anything', () => {
+    expect(withDelivery(quote, { libya: 0, turkey: 0 })).toBe(quote);
+    expect(withDelivery(quote, undefined)).toBe(quote);
   });
 });

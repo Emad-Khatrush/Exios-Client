@@ -7,7 +7,7 @@ import QuoteTicket from './QuoteTicket';
 import { PricingPart, cachedPricing, fetchPricing, hasParts } from './pricingCache';
 import Flag, { countryOfPort } from './Flag';
 import {
-  Container, Pricing, Quote, ShippingRoute, Tier, alipayQuote, carrierName, siteCommissionText, fclQuote, ltr, money, plain, purchaseQuote, shippingQuote, swiftQuote, tierFor, toNumber, updatedLabel,
+  Container, Pricing, Quote, ShippingRoute, Tier, alipayQuote, carrierName, siteCommissionText, fclQuote, ltr, money, plain, purchaseQuote, shippingQuote, swiftQuote, tierFor, toNumber, updatedLabel, withDelivery,
 } from './pricingMath';
 import { SpecialPrices, categoryLabel, specialCategories, withSpecialPrices } from '../../utils/specialPrices';
 import './pricesPage.css';
@@ -345,15 +345,15 @@ const PricesPage = ({ group = 'shipping' }: { group?: PriceGroup }) => {
   const quote: Quote | null = useMemo(() => {
     if (!pricing || !active) return null;
     if (active === 'shipping' && route && pricing.shipping) {
-      return shippingQuote(route, {
+      return withDelivery(shippingQuote(route, {
         amount: toNumber(weight),
         categoryKey: category?.key,
         ...(useDims ? { length: toNumber(dims.length), width: toNumber(dims.width), height: toNumber(dims.height), boxes: toNumber(dims.boxes) || 1 } : {}),
-      }, pricing.shipping.volumetricDivisor);
+      }, pricing.shipping.volumetricDivisor), pricing.shipping.delivery);
     }
-    if (active === 'purchase' && pricing.purchase) return purchaseQuote(pricing.purchase, toNumber(buyAmount), siteKey);
-    if (active === 'alipay' && pricing.alipay) return alipayQuote(pricing.alipay, toNumber(yuanAmount));
-    if (active === 'swift' && pricing.swift) return swiftQuote(pricing.swift, toNumber(swiftAmount));
+    if (active === 'purchase' && pricing.purchase) return withDelivery(purchaseQuote(pricing.purchase, toNumber(buyAmount), siteKey), pricing.purchase.delivery);
+    if (active === 'alipay' && pricing.alipay) return withDelivery(alipayQuote(pricing.alipay, toNumber(yuanAmount)), pricing.alipay.delivery);
+    if (active === 'swift' && pricing.swift) return withDelivery(swiftQuote(pricing.swift, toNumber(swiftAmount)), pricing.swift.delivery);
     if (active === 'fcl' && container) return fclQuote(container, toNumber(containerCount));
     return null;
   }, [pricing, active, route, category, weight, dims, useDims, buyAmount, siteKey, yuanAmount, swiftAmount, container, containerCount]);
