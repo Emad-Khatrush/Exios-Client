@@ -84,11 +84,11 @@ describe('withDelivery', () => {
   it('adds the dinars of each place: $100 at 10 qirsh is $100 + 10 LYD', () => {
     const q = withDelivery(quote, { libya: 10, turkey: 30 })!;
     expect(q.payAt).toEqual([
-      { key: 'libya', label: 'الدفع في ليبيا', lyd: 10 },
-      { key: 'turkey', label: 'الدفع في تركيا', lyd: 30 },
+      { key: 'libya', label: 'تسليم في ليبيا', lyd: 10 },
+      { key: 'turkey', label: 'تسليم في تركيا (عبر مكاتب الصرافة)', lyd: 30 },
     ]);
     expect(payAtText(q.total, q.payAt![0])).toBe('$100 + 10 د.ل');
-    expect(q.summary).toContain('الدفع في تركيا: $100 + 30 د.ل');
+    expect(q.summary).toContain('تسليم في تركيا (عبر مكاتب الصرافة): $100 + 30 د.ل');
   });
   it('a place adding nothing shows the dollars alone', () => {
     const q = withDelivery({ ...quote, total: 123.45 }, { libya: 0, turkey: 15 })!;

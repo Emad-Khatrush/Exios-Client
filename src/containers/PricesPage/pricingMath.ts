@@ -230,8 +230,8 @@ export const payAtText = (total: number, p: PayAt) => (p.lyd ? `${money(total)} 
 export const withDelivery = (quote: Quote | null, delivery?: Delivery | null): Quote | null => {
   if (!quote || !delivery || !(delivery.libya > 0 || delivery.turkey > 0)) return quote;
   const payAt: PayAt[] = [
-    { key: 'libya', label: 'الدفع في ليبيا', lyd: up(quote.total * (delivery.libya || 0) / 100) },
-    { key: 'turkey', label: 'الدفع في تركيا', lyd: up(quote.total * (delivery.turkey || 0) / 100) },
+    { key: 'libya', label: 'تسليم في ليبيا', lyd: up(quote.total * (delivery.libya || 0) / 100) },
+    { key: 'turkey', label: 'تسليم في تركيا (عبر مكاتب الصرافة)', lyd: up(quote.total * (delivery.turkey || 0) / 100) },
   ];
   return { ...quote, payAt, summary: [...quote.summary, ...payAt.map((p) => `${p.label}: ${payAtText(quote.total, p)}`)] };
 };
