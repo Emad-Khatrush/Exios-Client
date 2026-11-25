@@ -164,7 +164,7 @@ const PackageCard = ({ pkg, index, copied, copy, onPhotos, points }: Props) => {
                     aria-label={`عرض الملف ${i + 1} من ${photos.length}`}
                   >
                     {f.kind === 'image'
-                      ? <img src={f.url} alt="" loading="lazy" decoding="async" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} />
+                      ? <img src={f.thumb} alt="" loading="lazy" decoding="async" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} />
                       : <span className="oi-thumb__file"><Icon size={20} aria-hidden /><em>{f.ext || 'file'}</em></span>}
                     {i === 3 && photos.length > 4 && <span className="oi-thumb__more">+{photos.length - 4}</span>}
                   </button>

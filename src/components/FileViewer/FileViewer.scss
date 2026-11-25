@@ -133,6 +133,14 @@
     // Turned a quarter: the image lies across the box, so its own width is the box's height
     &.is-sideways img { width: calc(100cqw * var(--fv-r, 1)); height: 100cqw; }
   }
+
+  // While the large copy loads, its small one (already loaded in the order's squares) stands in,
+  // softened, so a photo shows at once instead of an empty frame
+  &.is-fit > img.fv-blur, &.is-width > img.fv-blur {
+    position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none;
+    object-fit: contain; opacity: 1; filter: blur(10px); transform: scale(1.02); border-radius: 0;
+    pointer-events: none;
+  }
 }
 .fv-frame {
   position: relative; width: 100%; height: 100%;

@@ -25,7 +25,9 @@ const KIND_LABEL: Record<Kind, string> = {
   image: 'صورة', pdf: 'ملف PDF', video: 'فيديو', audio: 'ملف صوتي', sheet: 'جدول بيانات', doc: 'مستند', other: 'ملف',
 };
 
-export type ViewerFile = { url: string; name: string; kind: Kind; ext: string; size: string };
+// url: the original (downloads). thumb / preview: light copies the server makes of a photo (a small
+// one for squares, a large one for the viewer); older photos have none and show the original.
+export type ViewerFile = { url: string; name: string; kind: Kind; ext: string; size: string; thumb: string; preview: string };
 
 const extOf = (value = '') => (value.split('?')[0].split('#')[0].match(/\.([a-z0-9]+)$/i)?.[1] || '').toLowerCase();
 
@@ -54,7 +56,10 @@ export function toViewerFile(file: any): ViewerFile {
   const url = convertGoogleStorageUrl(raw.path || raw.url || '');
   const name = raw.filename || raw.name || decodeURIComponent(url.split('?')[0].split('/').pop() || 'ملف');
   const ext = extOf(name) || extOf(url);
-  return { url, name, ext, kind: kindOf(raw.fileType || raw.mimetype || raw.type, ext), size: sizeOf(raw.bytes || raw.size) };
+  const kind = kindOf(raw.fileType || raw.mimetype || raw.type, ext);
+  const preview = kind === 'image' && raw.preview ? convertGoogleStorageUrl(raw.preview) : '';
+  const thumb = kind === 'image' && raw.thumb ? convertGoogleStorageUrl(raw.thumb) : '';
+  return { url, name, ext, kind, size: sizeOf(raw.bytes || raw.size), thumb: thumb || preview || url, preview: preview || url };
 }
 
 const save = (href: string, name?: string) => {
@@ -118,7 +123,7 @@ const LAST = { fetchpriority: 'low' } as React.ImgHTMLAttributes<HTMLImageElemen
 function Stage({ file, view, zoom, onToggle, onSettled }: { file: ViewerFile; view: ImageView; zoom: Zoom; onToggle: () => void; onSettled: (url: string) => void }) {
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [ratio, setRatio] = useState(1);
-  useEffect(() => { setState('loading'); setRatio(1); }, [file.url]);
+  useEffect(() => { setState('loading'); setRatio(1); }, [file.url, file.preview]);
   // Only an image keeps the others waiting; anything else lets them load at once
   useEffect(() => { if (file.kind !== 'image' || !file.url || state !== 'loading') onSettled(file.url); }, [file.kind, file.url, state, onSettled]);
 
@@ -133,10 +138,12 @@ function Stage({ file, view, zoom, onToggle, onSettled }: { file: ViewerFile; vi
     return (
       <div className={`fv-image is-${view.mode} ${sideways ? 'is-sideways' : ''} ${zoom.s > 1 ? 'is-zoomed' : ''}`} onClick={() => state === 'ready' && onToggle()}
         title={view.mode === 'fit' ? 'انقر لملء العرض والنزول بالتمرير' : 'انقر لعرض الصورة كاملة'}>
-        {state === 'loading' && <div className="fv-skeleton" />}
+        {state === 'loading' && (file.thumb !== file.preview
+          ? <img className="fv-blur" src={file.thumb} alt="" aria-hidden draggable={false} />
+          : <div className="fv-skeleton" />)}
         {/* The box takes the shape the image has on screen (turned or not), so the page scrolls over all of it */}
         <div className="fv-box" style={style}>
-          <img src={file.url} alt={file.name} className={state === 'ready' ? 'is-ready' : ''} draggable={false} decoding="async" {...FIRST}
+          <img src={file.preview} alt={file.name} className={state === 'ready' ? 'is-ready' : ''} draggable={false} decoding="async" {...FIRST}
             onLoad={(e) => { const img = e.currentTarget; if (img.naturalWidth && img.naturalHeight) setRatio(img.naturalWidth / img.naturalHeight); setState('ready'); }}
             onError={() => setState('error')} />
         </div>
@@ -229,7 +236,7 @@ export default function FileViewer({ open, files, onClose, startIndex = 0 }: Pro
     if (!open || count < 2 || !settled) return;
     [index + 1, index - 1].forEach((i) => {
       const f = items[(i + count) % count];
-      if (f?.kind === 'image' && f.url) new Image().src = f.url;
+      if (f?.kind === 'image' && f.preview) new Image().src = f.preview;
     });
   }, [open, index, count, items, settled]);
 
@@ -411,7 +418,7 @@ export default function FileViewer({ open, files, onClose, startIndex = 0 }: Pro
                 return (
                   <button type="button" key={`${i}:${item.url}`} className={`fv__thumb ${i === index ? 'is-active' : ''}`} onClick={() => pick(i)} title={item.name} aria-current={i === index ? 'true' : undefined}>
                     {item.kind === 'image'
-                      ? stripOn && <img src={item.url} alt="" loading="lazy" decoding="async" {...LAST} onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = 'hidden'; }} />
+                      ? stripOn && <img src={item.thumb} alt="" loading="lazy" decoding="async" {...LAST} onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = 'hidden'; }} />
                       : <span className={`fv__thumb-icon is-${item.kind}`}><Icon size={20} /><em>{item.ext || 'file'}</em></span>}
                   </button>
                 );

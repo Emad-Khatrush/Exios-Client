@@ -110,6 +110,9 @@ export type PackageDetails = {
     filename: string
     path: string
     _id: string
+    // Light copies of a photo (a thumbnail and a large preview); absent on older photos
+    thumb?: string
+    preview?: string
   }[]
   settings: {
     visableForClient: boolean
