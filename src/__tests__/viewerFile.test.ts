@@ -1,4 +1,4 @@
-import { toViewerFile } from '../components/FileViewer/FileViewer';
+import { toViewerFile } from '../components/FileViewer/viewerFile';
 
 // 2026-11-25: the server stores light copies of a photo; the app shows them, the original is downloaded
 describe('toViewerFile: the light copies of a photo', () => {

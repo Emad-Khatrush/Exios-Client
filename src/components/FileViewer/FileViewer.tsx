@@ -5,62 +5,21 @@ import {
   ChevronLeft, ChevronRight, Download, File, FileAudio, FileImage, FileSpreadsheet, FileText, FileVideo,
   LucideIcon, RotateCw, X, ZoomIn, ZoomOut,
 } from 'lucide-react';
-import { convertGoogleStorageUrl } from '../../utils/methods';
 import './FileViewer.scss';
+import { Kind, ViewerFile, toViewerFile } from './viewerFile';
+
+export type { Kind, ViewerFile };
+export { toViewerFile };
 
 // The same viewer as the admin panel: it reads each file's type (saved at upload, or the name's
 // extension) and shows images, PDFs, video and audio in place; anything else gets a file card to
 // open or download, never a broken image.
-export type Kind = 'image' | 'pdf' | 'video' | 'audio' | 'sheet' | 'doc' | 'other';
-
-const EXT: Record<string, Kind> = {
-  jpg: 'image', jpeg: 'image', png: 'image', gif: 'image', webp: 'image', bmp: 'image', svg: 'image', avif: 'image', heic: 'image',
-  pdf: 'pdf', mp4: 'video', webm: 'video', mov: 'video', m4v: 'video', mp3: 'audio', wav: 'audio', ogg: 'audio', m4a: 'audio',
-  xls: 'sheet', xlsx: 'sheet', csv: 'sheet', doc: 'doc', docx: 'doc', txt: 'doc',
-};
 export const KIND_ICONS: Record<Kind, LucideIcon> = {
   image: FileImage, pdf: FileText, video: FileVideo, audio: FileAudio, sheet: FileSpreadsheet, doc: FileText, other: File,
 };
 const KIND_LABEL: Record<Kind, string> = {
   image: 'صورة', pdf: 'ملف PDF', video: 'فيديو', audio: 'ملف صوتي', sheet: 'جدول بيانات', doc: 'مستند', other: 'ملف',
 };
-
-// url: the original (downloads). thumb / preview: light copies the server makes of a photo (a small
-// one for squares, a large one for the viewer); older photos have none and show the original.
-export type ViewerFile = { url: string; name: string; kind: Kind; ext: string; size: string; thumb: string; preview: string };
-
-const extOf = (value = '') => (value.split('?')[0].split('#')[0].match(/\.([a-z0-9]+)$/i)?.[1] || '').toLowerCase();
-
-function kindOf(type = '', ext = ''): Kind {
-  const t = type.toLowerCase();
-  if (t.startsWith('image/')) return 'image';
-  if (t === 'application/pdf') return 'pdf';
-  if (t.startsWith('video/')) return 'video';
-  if (t.startsWith('audio/')) return 'audio';
-  if (/sheet|excel|csv/.test(t)) return 'sheet';
-  if (/word|text\/plain/.test(t)) return 'doc';
-  return EXT[ext] || 'other';
-}
-
-function sizeOf(bytes: any) {
-  const n = Number(bytes);
-  if (!n) return '';
-  if (n < 1024) return `${n} B`;
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(0)} KB`;
-  return `${(n / 1024 / 1024).toFixed(1)} MB`;
-}
-
-// Accepts a URL or a stored file ({ path, filename, fileType, ... })
-export function toViewerFile(file: any): ViewerFile {
-  const raw = typeof file === 'string' ? { path: file } : file || {};
-  const url = convertGoogleStorageUrl(raw.path || raw.url || '');
-  const name = raw.filename || raw.name || decodeURIComponent(url.split('?')[0].split('/').pop() || 'ملف');
-  const ext = extOf(name) || extOf(url);
-  const kind = kindOf(raw.fileType || raw.mimetype || raw.type, ext);
-  const preview = kind === 'image' && raw.preview ? convertGoogleStorageUrl(raw.preview) : '';
-  const thumb = kind === 'image' && raw.thumb ? convertGoogleStorageUrl(raw.thumb) : '';
-  return { url, name, ext, kind, size: sizeOf(raw.bytes || raw.size), thumb: thumb || preview || url, preview: preview || url };
-}
 
 const save = (href: string, name?: string) => {
   const a = Object.assign(document.createElement('a'), { href, rel: 'noopener', ...(name && { download: name }) });
