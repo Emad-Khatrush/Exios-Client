@@ -111,10 +111,16 @@ const clampPan = (z: Zoom, rect: DOMRect): Zoom => {
   return { s, x: Math.min(mx, Math.max(-mx, z.x)), y: Math.min(my, Math.max(-my, z.y)) };
 };
 
-function Stage({ file, view, zoom, onToggle }: { file: ViewerFile; view: ImageView; zoom: Zoom; onToggle: () => void }) {
+// Asks the browser to fetch this one before anything else on the page (React 18 has no typed prop for it)
+const FIRST = { fetchpriority: 'high' } as React.ImgHTMLAttributes<HTMLImageElement>;
+const LAST = { fetchpriority: 'low' } as React.ImgHTMLAttributes<HTMLImageElement>;
+
+function Stage({ file, view, zoom, onToggle, onSettled }: { file: ViewerFile; view: ImageView; zoom: Zoom; onToggle: () => void; onSettled: (url: string) => void }) {
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [ratio, setRatio] = useState(1);
   useEffect(() => { setState('loading'); setRatio(1); }, [file.url]);
+  // Only an image keeps the others waiting; anything else lets them load at once
+  useEffect(() => { if (file.kind !== 'image' || !file.url || state !== 'loading') onSettled(file.url); }, [file.kind, file.url, state, onSettled]);
 
   if (!file.url) return <FileCard file={file} note="لا يوجد رابط لهذا الملف." />;
   if (file.kind === 'image') {
@@ -130,7 +136,7 @@ function Stage({ file, view, zoom, onToggle }: { file: ViewerFile; view: ImageVi
         {state === 'loading' && <div className="fv-skeleton" />}
         {/* The box takes the shape the image has on screen (turned or not), so the page scrolls over all of it */}
         <div className="fv-box" style={style}>
-          <img src={file.url} alt={file.name} className={state === 'ready' ? 'is-ready' : ''} draggable={false}
+          <img src={file.url} alt={file.name} className={state === 'ready' ? 'is-ready' : ''} draggable={false} decoding="async" {...FIRST}
             onLoad={(e) => { const img = e.currentTarget; if (img.naturalWidth && img.naturalHeight) setRatio(img.naturalWidth / img.naturalHeight); setState('ready'); }}
             onError={() => setState('error')} />
         </div>
@@ -203,14 +209,29 @@ export default function FileViewer({ open, files, onClose, startIndex = 0 }: Pro
   const toggleView = () => setView(v => ({ ...v, mode: v.mode === 'fit' ? 'width' : 'fit' }));
   const BadgeIcon = file ? KIND_ICONS[file.kind] : File;
 
+  // The photos are stored at full camera size, so the one on screen loads alone first: the strip
+  // below and the neighbours used to load with it and share the phone's connection with it.
+  // Once it has arrived (or after a few seconds anyway) the rest follow, and the strip stays.
+  const [settledUrl, setSettledUrl] = useState('');
+  const settled = !!file && settledUrl === file.url;
+  const [stripOn, setStripOn] = useState(false);
+  const onSettled = useCallback((url: string) => setSettledUrl(url), []);
+  useEffect(() => { if (!open) setStripOn(false); }, [open]);
+  useEffect(() => {
+    if (!open || stripOn) return undefined;
+    if (settled) { setStripOn(true); return undefined; }
+    const t = window.setTimeout(() => setStripOn(true), 3000);
+    return () => window.clearTimeout(t);
+  }, [open, settled, stripOn]);
+
   // The neighbours load ahead, so a swipe lands on a ready image
   useEffect(() => {
-    if (!open || count < 2) return;
+    if (!open || count < 2 || !settled) return;
     [index + 1, index - 1].forEach((i) => {
       const f = items[(i + count) % count];
       if (f?.kind === 'image' && f.url) new Image().src = f.url;
     });
-  }, [open, index, count, items]);
+  }, [open, index, count, items, settled]);
 
   // The current thumbnail stays in view as the files change
   const stripRef = useRef<HTMLElement>(null);
@@ -375,7 +396,7 @@ export default function FileViewer({ open, files, onClose, startIndex = 0 }: Pro
             onPointerCancel={(e) => endGesture(e, true)}
           >
             <div className={`fv__slide ${enter ? `is-from-${enter}` : ''}`} key={`${index}:${file.url}`} style={slideStyle}>
-              <Stage file={file} view={view} zoom={zoom} onToggle={() => lastPointer.current === 'mouse' && toggleView()} />
+              <Stage file={file} view={view} zoom={zoom} onToggle={() => lastPointer.current === 'mouse' && toggleView()} onSettled={onSettled} />
             </div>
             {count > 1 && !zoomed && <>
               <button type="button" className="fv__nav fv__nav--prev" aria-label="السابق" onClick={() => go(-1)}><ChevronRight size={24} /></button>
@@ -390,7 +411,7 @@ export default function FileViewer({ open, files, onClose, startIndex = 0 }: Pro
                 return (
                   <button type="button" key={`${i}:${item.url}`} className={`fv__thumb ${i === index ? 'is-active' : ''}`} onClick={() => pick(i)} title={item.name} aria-current={i === index ? 'true' : undefined}>
                     {item.kind === 'image'
-                      ? <img src={item.url} alt="" loading="lazy" onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = 'hidden'; }} />
+                      ? stripOn && <img src={item.url} alt="" loading="lazy" decoding="async" {...LAST} onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = 'hidden'; }} />
                       : <span className={`fv__thumb-icon is-${item.kind}`}><Icon size={20} /><em>{item.ext || 'file'}</em></span>}
                   </button>
                 );

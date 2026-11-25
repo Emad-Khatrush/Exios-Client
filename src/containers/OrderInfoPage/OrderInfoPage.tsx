@@ -88,7 +88,7 @@ const Receipts = ({ order, onOpen }: { order: Package, onOpen: (p: Photos) => vo
           return (
             <button key={`${i}:${f.url}`} type="button" className="oi-doc" onClick={() => onOpen({ files, index: i })} aria-label={`عرض المستند ${i + 1}`}>
               {f.kind === 'image'
-                ? <img src={f.url} alt="" loading="lazy" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} />
+                ? <img src={f.url} alt="" loading="lazy" decoding="async" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} />
                 : <span className="oi-thumb__file"><Icon size={24} aria-hidden /><em>{f.ext || 'file'}</em></span>}
             </button>
           );
