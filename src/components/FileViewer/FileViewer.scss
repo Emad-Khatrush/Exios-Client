@@ -112,13 +112,15 @@
 
   &.is-fit {
     .fv-box { display: contents; }
+    // The element fills the slide and the picture is fitted inside it at its own shape (object-fit).
+    // Sizing the element by max-width + max-height instead stretched photos on iPhone: Safari applies
+    // the two limits apart in a flex box and loses the shape (2026-11-26, a 3:4 photo shown full screen).
     img {
-      max-width: 100cqw; max-height: 100cqh; object-fit: contain; will-change: transform;
+      flex: none; width: 100cqw; height: 100cqh; object-fit: contain; border-radius: 0; will-change: transform;
       transform: translate(var(--fv-x, 0px), var(--fv-y, 0px)) scale(var(--fv-s, 1)) rotate(var(--fv-turn, 0deg));
-      @media (max-width: 640px) { border-radius: 0; }
     }
     &.is-zoomed { cursor: grab; }
-    &.is-sideways img { max-width: 100cqh; max-height: 100cqw; }
+    &.is-sideways img { width: 100cqh; height: 100cqw; }
   }
 
   &.is-width {
