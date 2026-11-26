@@ -172,7 +172,8 @@ const InvitePage = () => {
           {(data.totalPoints > 0 || data.heldPoints > 0) && (
             <span className="iv-pills">
               {data.totalPoints > 0 && <span className="iv-pill iv-pill--gold">كسبت {pointsNum(data.totalPoints)} نقطة</span>}
-              {data.heldPoints > 0 && <span className="iv-pill iv-pill--wait">{pointsNum(data.heldPoints)} بعد {data.holdHours} ساعة</span>}
+              {/* Some may wait for a passport or the office's review, not only the 24 hours: «بعد 24 ساعة» only when none does */}
+              {data.heldPoints > 0 && <span className="iv-pill iv-pill--wait">{pointsNum(data.heldPoints)} {data.friends.some((f: Friend) => f.heldPoints > 0 && f.waiting) ? 'نقطة معلّقة' : `بعد ${data.holdHours} ساعة`}</span>}
             </span>
           )}
         </div>
@@ -195,7 +196,7 @@ const InvitePage = () => {
                   {(f.points > 0 || f.heldPoints > 0) && (
                     <span className="iv-friends__side">
                       {f.points > 0 && <em className="iv-friends__pts"><bdi dir="ltr">+{pointsNum(f.points)}</bdi></em>}
-                      {f.heldPoints > 0 && <small className="iv-friends__held"><bdi dir="ltr">+{pointsNum(f.heldPoints)}</bdi> بعد {data.holdHours} ساعة</small>}
+                      {f.heldPoints > 0 && <small className="iv-friends__held"><bdi dir="ltr">+{pointsNum(f.heldPoints)}</bdi> {f.waiting ? 'معلّقة' : `بعد ${data.holdHours} ساعة`}</small>}
                     </span>
                   )}
                   <ChevronLeft size={18} aria-hidden className="iv-friends__go" />
