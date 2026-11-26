@@ -107,7 +107,7 @@ const StartShipmentPage = () => {
   const canGoOn = step !== 'tracking' || tracking === 'later' || (tracking === 'now' && added.length > 0);
 
   return (
-    <div dir="rtl" lang="ar" className="ad-page ss-page page-enter w-full px-4 pb-16 pt-6 sm:px-6 lg:px-8 lg:pt-8">
+    <div dir="rtl" lang="ar" className="addr-page ss-page page-enter w-full px-4 pb-16 pt-6 sm:px-6 lg:px-8 lg:pt-8">
       <div className="mx-auto max-w-4xl" ref={top}>
         <header>
           <h1 className="text-2xl font-extrabold text-zinc-900 sm:text-3xl">ابدأ الشحن</h1>
@@ -139,11 +139,11 @@ const StartShipmentPage = () => {
               <StepHead n={1} title="تفاصيل الشحنة" text="من أين تشتري، وكيف تريد الشحن، وفي أي مدينة تستلم." />
               <div className="ss-q">
                 <h3>من أين تشحن؟</h3>
-                <div className="ad-countries ss-countries" role="radiogroup" aria-label="الدولة">
+                <div className="addr-countries ss-countries" role="radiogroup" aria-label="الدولة">
                   {COUNTRIES.map((c) => (
-                    <button key={c.key} type="button" role="radio" aria-checked={country === c.key} className={`ad-country ${country === c.key ? 'is-active' : ''}`} onClick={() => pickCountry(c.key)}>
+                    <button key={c.key} type="button" role="radio" aria-checked={country === c.key} className={`addr-country ${country === c.key ? 'is-active' : ''}`} onClick={() => pickCountry(c.key)}>
                       <span className="flag-frame"><Flag country={c.key} size={26} /></span>
-                      <span className="ad-country__text"><b>{c.label}</b><small>{c.note}</small></span>
+                      <span className="addr-country__text"><b>{c.label}</b><small>{c.note}</small></span>
                     </button>
                   ))}
                 </div>
@@ -182,7 +182,7 @@ const StartShipmentPage = () => {
 
                   <div className="ss-q">
                     <h3>مدينة الاستلام في ليبيا</h3>
-                    <span className="ad-select ss-city">
+                    <span className="addr-select ss-city">
                       <select value={city} onChange={(e) => setCity(e.target.value)} aria-label="مدينة الاستلام">
                         {libyanCities.filter((c) => c.value !== 'other').map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
                       </select>
@@ -255,9 +255,9 @@ const StartShipmentPage = () => {
                 <b>بعد ذلك</b>
                 <p>عندما يصل الطرد لمخزننا في {country === 'china' ? 'الصين' : 'دبي'} يظهر في «طلبياتي»، ومنها تتابع رحلته حتى يصل {cityLabel}.</p>
               </div>
-              <div className="ad-actions ss-done__actions">
-                <Link className="ad-btn ad-btn--primary" to="/orders">طلبياتي</Link>
-                <button type="button" className="ad-btn ad-btn--ghost" onClick={restart}><RotateCcw size={17} aria-hidden /> ابدأ شحنة أخرى</button>
+              <div className="addr-actions ss-done__actions">
+                <Link className="addr-btn addr-btn--primary" to="/orders">طلبياتي</Link>
+                <button type="button" className="addr-btn addr-btn--ghost" onClick={restart}><RotateCcw size={17} aria-hidden /> ابدأ شحنة أخرى</button>
               </div>
             </div>
           )}
@@ -268,7 +268,7 @@ const StartShipmentPage = () => {
               {at > 0
                 ? <button type="button" className="ss-nav__back" onClick={back}><ArrowRight size={18} aria-hidden /> رجوع</button>
                 : <span />}
-              <button type="button" className="ad-btn ad-btn--primary ss-nav__next" onClick={next} disabled={!canGoOn}>
+              <button type="button" className="addr-btn addr-btn--primary ss-nav__next" onClick={next} disabled={!canGoOn}>
                 {nextLabel[step]} <ArrowLeft size={18} aria-hidden />
               </button>
             </div>
@@ -357,10 +357,10 @@ const TrackingStep = ({ n, method, choice, setChoice, added, onAdded, seller, wa
           ))}
           <div className="ss-track__bar">
             <button type="button" className="ss-track__more" onClick={() => setRows([...rows, ''])}><Plus size={16} aria-hidden /> رقم آخر</button>
-            <button type="submit" className="ad-btn ad-btn--primary" disabled={busy}>{busy ? 'جارٍ الحفظ…' : 'حفظ رقم التتبع'}</button>
+            <button type="submit" className="addr-btn addr-btn--primary" disabled={busy}>{busy ? 'جارٍ الحفظ…' : 'حفظ رقم التتبع'}</button>
           </div>
           {error && <p className="fb-error ss-error" role="alert">{error}</p>}
-          <p className="ad-hint">يُحفظ على طريقة الشحن «{method === 'air' ? 'جوي' : 'بحري'}». لكل كرتونة أو طرد رقم مختلف؟ أضف كل الأرقام.</p>
+          <p className="addr-hint">يُحفظ على طريقة الشحن «{method === 'air' ? 'جوي' : 'بحري'}». لكل كرتونة أو طرد رقم مختلف؟ أضف كل الأرقام.</p>
         </form>
       )}
 

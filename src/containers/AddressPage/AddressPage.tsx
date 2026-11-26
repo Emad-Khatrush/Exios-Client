@@ -34,7 +34,7 @@ const AddressPage = () => {
   const current = COUNTRIES.find((c) => c.key === country)!;
 
   return (
-    <div dir="rtl" lang="ar" className="ad-page page-enter w-full px-4 pb-16 pt-6 sm:px-6 lg:px-8 lg:pt-8">
+    <div dir="rtl" lang="ar" className="addr-page page-enter w-full px-4 pb-16 pt-6 sm:px-6 lg:px-8 lg:pt-8">
       <div className="mx-auto max-w-6xl">
         <header>
           <h1 className="text-2xl font-extrabold text-zinc-900 sm:text-3xl">عناويننا</h1>
@@ -44,32 +44,32 @@ const AddressPage = () => {
         </header>
 
         {/* Countries */}
-        <div className="ad-countries" role="tablist" aria-label="الدولة">
+        <div className="addr-countries" role="tablist" aria-label="الدولة">
           {COUNTRIES.map((c) => (
-            <button key={c.key} type="button" role="tab" aria-selected={country === c.key} className={`ad-country ${country === c.key ? 'is-active' : ''}`} onClick={() => setCountry(c.key)}>
+            <button key={c.key} type="button" role="tab" aria-selected={country === c.key} className={`addr-country ${country === c.key ? 'is-active' : ''}`} onClick={() => setCountry(c.key)}>
               <span className="flag-frame"><Flag country={c.key} size={26} /></span>
-              <span className="ad-country__text"><b>{c.label}</b><small>{c.note}</small></span>
+              <span className="addr-country__text"><b>{c.label}</b><small>{c.note}</small></span>
             </button>
           ))}
         </div>
 
         {country === 'china' && (
-          <div className="ad-grid">
-            <section className="ad-card" aria-labelledby="ad-china">
-              <h2 id="ad-china" className="ad-card__title">عنوان المخزن في الصين</h2>
+          <div className="addr-grid">
+            <section className="addr-card" aria-labelledby="addr-china">
+              <h2 id="addr-china" className="addr-card__title">عنوان المخزن في الصين</h2>
 
               {/* The two choices that change the address */}
-              <div className="ad-choices">
+              <div className="addr-choices">
                 <div>
-                  <span className="ad-label">طريقة الشحن</span>
-                  <div className="ad-seg" role="radiogroup" aria-label="طريقة الشحن">
+                  <span className="addr-label">طريقة الشحن</span>
+                  <div className="addr-seg" role="radiogroup" aria-label="طريقة الشحن">
                     <button type="button" role="radio" aria-checked={method === 'air'} className={method === 'air' ? 'is-active' : ''} onClick={() => setMethod('air')}><Plane size={17} aria-hidden /> جوي</button>
                     <button type="button" role="radio" aria-checked={method === 'sea'} className={method === 'sea' ? 'is-active' : ''} onClick={() => setMethod('sea')}><Ship size={17} aria-hidden /> بحري</button>
                   </div>
                 </div>
                 <label>
-                  <span className="ad-label">مدينة الاستلام في ليبيا</span>
-                  <span className="ad-select">
+                  <span className="addr-label">مدينة الاستلام في ليبيا</span>
+                  <span className="addr-select">
                     <select value={city} onChange={(e) => setCity(e.target.value)}>
                       {libyanCities.filter((c) => c.value !== 'other').map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
                     </select>
@@ -79,7 +79,7 @@ const AddressPage = () => {
               </div>
 
               {/* The line the warehouse reads first */}
-              <div className="ad-mark">
+              <div className="addr-mark">
                 <span>كودك في المخزن</span>
                 <bdi dir="ltr">{code}</bdi>
                 <CopyBtn id="mark" value={code} copied={copied} copy={copy} />
@@ -89,16 +89,16 @@ const AddressPage = () => {
               <ChinaAddress code={code} copied={copied} copy={copy} />
             </section>
 
-            <aside className="ad-side">
-              <section className="ad-card" aria-labelledby="ad-label-title">
-                <h2 id="ad-label-title" className="ad-card__title">علامة الشحن</h2>
-                <p className="ad-muted">اطلب من البائع طباعتها ولصقها على كل كرتونة، حتى نعرف أن الطرد لك. تتغير مع طريقة الشحن التي اخترتها.</p>
+            <aside className="addr-side">
+              <section className="addr-card" aria-labelledby="addr-label-title">
+                <h2 id="addr-label-title" className="addr-card__title">علامة الشحن</h2>
+                <p className="addr-muted">اطلب من البائع طباعتها ولصقها على كل كرتونة، حتى نعرف أن الطرد لك. تتغير مع طريقة الشحن التي اخترتها.</p>
                 <ShippingMark customerId={id} accountId={account?._id || ''} method={method} code={code} copied={copied} copy={copy} />
               </section>
 
-              <section className="ad-card" aria-labelledby="ad-next">
-                <h2 id="ad-next" className="ad-card__title">بعد أن يشحن البائع</h2>
-                <ol className="ad-steps">
+              <section className="addr-card" aria-labelledby="addr-next">
+                <h2 id="addr-next" className="addr-card__title">بعد أن يشحن البائع</h2>
+                <ol className="addr-steps">
                   <li><span>1</span><div><b>نبّهنا بالطرد</b><small>أرسل رقم التتبع الذي أعطاك البائع، لنربط الطرد بكودك عند وصوله.</small><Link to="/add-tracking-numbers">نبّهنا بطرد قادم</Link></div></li>
                   <li><span>2</span><div><b>نستلم الطرد في المخزن</b><small>يظهر الطرد في طلبياتك عند وصوله للمخزن.</small><Link to="/orders">طلبياتي</Link></div></li>
                   <li><span>3</span><div><b>يُشحن إلى {cityLabel || 'ليبيا'}</b><small>تتابع الرحلة من الطلبية حتى الاستلام.</small></div></li>
@@ -109,16 +109,16 @@ const AddressPage = () => {
         )}
 
         {country === 'uae' && (
-          <div className="ad-grid">
-            <section className="ad-card" aria-labelledby="ad-uae">
-              <h2 id="ad-uae" className="ad-card__title">عنوان المخزن في الإمارات</h2>
-              <p className="ad-muted">الشحن من الإمارات جوي فقط. اكتب كل خانة في مكانها عند الطلب من المواقع.</p>
+          <div className="addr-grid">
+            <section className="addr-card" aria-labelledby="addr-uae">
+              <h2 id="addr-uae" className="addr-card__title">عنوان المخزن في الإمارات</h2>
+              <p className="addr-muted">الشحن من الإمارات جوي فقط. اكتب كل خانة في مكانها عند الطلب من المواقع.</p>
               <UaeAddress customerId={id} copied={copied} copy={copy} />
             </section>
-            <aside className="ad-side">
-              <section className="ad-card">
-                <h2 className="ad-card__title">بعد أن يشحن الموقع</h2>
-                <ol className="ad-steps">
+            <aside className="addr-side">
+              <section className="addr-card">
+                <h2 className="addr-card__title">بعد أن يشحن الموقع</h2>
+                <ol className="addr-steps">
                   <li><span>1</span><div><b>نبّهنا بالطرد</b><small>أرسل رقم التتبع لنربط الطرد بكودك عند وصوله مخزن دبي.</small><Link to="/add-tracking-numbers">نبّهنا بطرد قادم</Link></div></li>
                   <li><span>2</span><div><b>تابع طلبيتك</b><small>يظهر الطرد في طلبياتك عند وصوله.</small><Link to="/orders">طلبياتي</Link></div></li>
                 </ol>
@@ -131,7 +131,7 @@ const AddressPage = () => {
           <BuyAndShip countryLabel={current.label} office={officeFor(account?.city)} customerName={[account?.firstName, account?.lastName].filter(Boolean).join(' ')} customerId={id} />
         )}
 
-        {(country === 'china' || country === 'uae') && <p className="ad-start">
+        {(country === 'china' || country === 'uae') && <p className="addr-start">
           جاهز؟ <Link to={`/start-shipment?shipmentFromWhere=${country}`}>ابدأ الشحن خطوة بخطوة</Link>
         </p>}
       </div>

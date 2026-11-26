@@ -59,7 +59,7 @@
 .ss-q:first-of-type { margin-top: 0; }
 .ss-q h3 { margin-bottom: 10px; font-size: 1rem; font-weight: 800; color: #27272a; }
 .ss-countries { margin-top: 0; }
-.ss-countries .ad-country { background: #fafafa; }
+.ss-countries .addr-country { background: #fafafa; }
 
 /* Air or sea, with the real duration and price */
 .ss-methods { display: grid; gap: 12px; }
@@ -94,7 +94,7 @@
 .ss-tips a { display: inline-flex; align-items: center; gap: 6px; font-size: 0.92rem; font-weight: 700; color: #15803d; }
 .ss-tips a:hover { text-decoration: underline; text-underline-offset: 4px; }
 
-.ss-panel .ad-full { margin-top: 0; }
+.ss-panel .addr-full { margin-top: 0; }
 .ss-mark { max-width: 440px; }
 
 /* Tracking: two clear choices */

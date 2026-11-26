@@ -1,6 +1,6 @@
 // The pieces of a warehouse address shared by "Our addresses" and "Start a shipment": the China
 // address block, the UAE address fields, the shipping mark picture and the buy-and-ship card.
-// Styled by address.css (the page root carries .ad-page).
+// Styled by address.css (the page root carries .addr-page).
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import QRCode from 'qrcode.react';
@@ -18,16 +18,16 @@ const canShareText = () => typeof navigator !== 'undefined' && !!(navigator as a
 const shareText = (text: string) => (navigator as any).share({ text }).catch(() => undefined);
 
 export const CopyBtn = ({ id, value, copied, copy, label = 'نسخ' }: { id: string, value: string, copied: string, copy: CopyFn, label?: string }) => (
-  <button type="button" className={`ad-copy ${copied === id ? 'is-done' : ''}`} onClick={() => copy(id, value)}>
+  <button type="button" className={`addr-copy ${copied === id ? 'is-done' : ''}`} onClick={() => copy(id, value)}>
     {copied === id ? <><Check size={15} aria-hidden /> نُسخ</> : <><Copy size={15} aria-hidden /> {label}</>}
   </button>
 );
 
 /* One line of an address: what it is in Arabic, the value as the seller types it, a copy button */
 export const Field = ({ id, label, value, copied, copy, big }: { id: string, label: string, value: string, copied: string, copy: CopyFn, big?: boolean }) => (
-  <div className={`ad-field ${big ? 'is-big' : ''}`}>
-    <span className="ad-field__label">{label}</span>
-    <bdi className="ad-field__value" dir="ltr">{value}</bdi>
+  <div className={`addr-field ${big ? 'is-big' : ''}`}>
+    <span className="addr-field__label">{label}</span>
+    <bdi className="addr-field__value" dir="ltr">{value}</bdi>
     <CopyBtn id={id} value={value} copied={copied} copy={copy} />
   </div>
 );
@@ -37,20 +37,20 @@ export const ChinaAddress = ({ code, copied, copy, onUsed }: { code: string, cop
   const text = chinaAddressText(code);
   return (
     <>
-      <div className="ad-full">
-        <span className="ad-label">العنوان كاملاً</span>
+      <div className="addr-full">
+        <span className="addr-label">العنوان كاملاً</span>
         <pre dir="ltr" lang="zh">{text}</pre>
       </div>
-      <div className="ad-actions">
-        <button type="button" className={`ad-btn ad-btn--primary ${copied === 'cn-all' ? 'is-done' : ''}`} onClick={() => { copy('cn-all', text); onUsed?.(); }}>
+      <div className="addr-actions">
+        <button type="button" className={`addr-btn addr-btn--primary ${copied === 'cn-all' ? 'is-done' : ''}`} onClick={() => { copy('cn-all', text); onUsed?.(); }}>
           {copied === 'cn-all' ? <Check size={19} aria-hidden /> : <Copy size={19} aria-hidden />}
           {copied === 'cn-all' ? 'نُسخ العنوان كاملاً' : 'انسخ العنوان كاملاً للبائع'}
         </button>
         {canShareText() && (
-          <button type="button" className="ad-btn ad-btn--ghost" onClick={() => { shareText(text); onUsed?.(); }}><Share2 size={18} aria-hidden /> مشاركة</button>
+          <button type="button" className="addr-btn addr-btn--ghost" onClick={() => { shareText(text); onUsed?.(); }}><Share2 size={18} aria-hidden /> مشاركة</button>
         )}
       </div>
-      <p className="ad-hint">ينسخ العنوان كاملاً كما هو فوق، مع كودك واسم المستلم والهاتف وتعليمات المخزن، جاهزاً لإرساله للبائع.</p>
+      <p className="addr-hint">ينسخ العنوان كاملاً كما هو فوق، مع كودك واسم المستلم والهاتف وتعليمات المخزن، جاهزاً لإرساله للبائع.</p>
     </>
   );
 };
@@ -61,7 +61,7 @@ export const UaeAddress = ({ customerId, copied, copy, onUsed }: { customerId: s
   const tracked: CopyFn = (id, value) => { copy(id, value); onUsed?.(); };
   return (
     <>
-      <div className="ad-fields">
+      <div className="addr-fields">
         <Field id="ae-first" label="الاسم الأول" value={UAE_WAREHOUSE.firstName} copied={copied} copy={tracked} />
         <Field id="ae-last" label="اسم العائلة" value={UAE_WAREHOUSE.lastName} copied={copied} copy={tracked} />
         <Field id="ae-phone" label="الهاتف" value={UAE_WAREHOUSE.phone} copied={copied} copy={tracked} />
@@ -69,14 +69,14 @@ export const UaeAddress = ({ customerId, copied, copy, onUsed }: { customerId: s
         <Field id="ae-city" label="المدينة" value={UAE_WAREHOUSE.city} copied={copied} copy={tracked} />
         <Field id="ae-country" label="الدولة" value={UAE_WAREHOUSE.country} copied={copied} copy={tracked} />
       </div>
-      <div className="ad-actions">
-        <button type="button" className={`ad-btn ad-btn--primary ${copied === 'ae-all' ? 'is-done' : ''}`} onClick={() => tracked('ae-all', text)}>
+      <div className="addr-actions">
+        <button type="button" className={`addr-btn addr-btn--primary ${copied === 'ae-all' ? 'is-done' : ''}`} onClick={() => tracked('ae-all', text)}>
           {copied === 'ae-all' ? <Check size={19} aria-hidden /> : <Copy size={19} aria-hidden />}
           {copied === 'ae-all' ? 'نُسخ العنوان كاملاً' : 'انسخ العنوان كاملاً'}
         </button>
-        {canShareText() && <button type="button" className="ad-btn ad-btn--ghost" onClick={() => { shareText(text); onUsed?.(); }}><Share2 size={18} aria-hidden /> مشاركة</button>}
+        {canShareText() && <button type="button" className="addr-btn addr-btn--ghost" onClick={() => { shareText(text); onUsed?.(); }}><Share2 size={18} aria-hidden /> مشاركة</button>}
       </div>
-      <p className="ad-hint">كودك <bdi dir="ltr">{customerId}</bdi> في آخر سطر العنوان: لا تحذفه، فهو ما يربط الطرد بحسابك.</p>
+      <p className="addr-hint">كودك <bdi dir="ltr">{customerId}</bdi> في آخر سطر العنوان: لا تحذفه، فهو ما يربط الطرد بحسابك.</p>
     </>
   );
 };
@@ -119,36 +119,36 @@ export const ShippingMark = ({ customerId, accountId, method, code, copied, copy
   return (
     <>
       {/* Hidden: the QR the picture is drawn from (the office's link to this customer) */}
-      <div ref={qrBox} className="ad-qr-source" aria-hidden>
+      <div ref={qrBox} className="addr-qr-source" aria-hidden>
         <QRCode value={`https://exios-admin-frontend.web.app/shouldAllowToAccessApp?id=${accountId}`} size={256} includeMargin level="M" />
       </div>
-      <div className="ad-mark-preview">
+      <div className="addr-mark-preview">
         {state === 'ready' && image && <img src={image.url} alt={`علامة شحن ${method === 'air' ? 'جوي' : 'بحري'} للعميل ${customerId}`} />}
-        {state === 'loading' && <div className="ad-mark-wait" role="status"><span className="ad-spinner" aria-hidden />جارٍ تجهيز العلامة…</div>}
+        {state === 'loading' && <div className="addr-mark-wait" role="status"><span className="addr-spinner" aria-hidden />جارٍ تجهيز العلامة…</div>}
         {state === 'error' && (
-          <div className="ad-mark-wait">
+          <div className="addr-mark-wait">
             <ImageOff size={26} aria-hidden />
             تعذر تجهيز العلامة.
-            <button type="button" className="ad-copy" onClick={() => setAttempt((n) => n + 1)}>إعادة المحاولة</button>
+            <button type="button" className="addr-copy" onClick={() => setAttempt((n) => n + 1)}>إعادة المحاولة</button>
           </div>
         )}
       </div>
-      <div className="ad-actions ad-actions--tight">
+      <div className="addr-actions addr-actions--tight">
         {state === 'ready' && image ? (
-          <a className="ad-btn ad-btn--primary" href={image.url} download={image.filename} onClick={() => onUsed?.()}>
+          <a className="addr-btn addr-btn--primary" href={image.url} download={image.filename} onClick={() => onUsed?.()}>
             <Download size={18} aria-hidden /> تحميل العلامة
           </a>
         ) : (
-          <button type="button" className="ad-btn ad-btn--primary" disabled><Download size={18} aria-hidden /> تحميل العلامة</button>
+          <button type="button" className="addr-btn addr-btn--primary" disabled><Download size={18} aria-hidden /> تحميل العلامة</button>
         )}
         {file && (
-          <button type="button" className="ad-btn ad-btn--ghost" onClick={share} disabled={sharing}>
+          <button type="button" className="addr-btn addr-btn--ghost" onClick={share} disabled={sharing}>
             <Share2 size={18} aria-hidden /> {sharing ? 'جارٍ المشاركة…' : 'مشاركة'}
           </button>
         )}
       </div>
-      <p className="ad-hint">على الهاتف يمكنك أيضاً الضغط مطولاً على الصورة واختيار «حفظ الصورة».</p>
-      <div className="ad-fallback">
+      <p className="addr-hint">على الهاتف يمكنك أيضاً الضغط مطولاً على الصورة واختيار «حفظ الصورة».</p>
+      <div className="addr-fallback">
         <span>إذا لم يستطع الطباعة، يكتب على الكرتونة:</span>
         <bdi dir="ltr">Exios - by {code}</bdi>
         <CopyBtn id="mark-text" value={`Exios - by ${code}`} copied={copied} copy={copy} />
@@ -159,27 +159,27 @@ export const ShippingMark = ({ customerId, accountId, method, code, copied, copy
 
 /* Countries with no warehouse: we buy for the customer and ship */
 export const BuyAndShip = ({ countryLabel, office, customerName, customerId }: { countryLabel: string, office: Office, customerName: string, customerId: string }) => (
-  <section className="ad-card ad-buy" aria-labelledby="ad-buy">
-    <span className="ad-buy__icon" aria-hidden><ShoppingBag size={28} /></span>
+  <section className="addr-card addr-buy" aria-labelledby="addr-buy">
+    <span className="addr-buy__icon" aria-hidden><ShoppingBag size={28} /></span>
     <div>
-      <h2 id="ad-buy" className="ad-card__title">من {countryLabel}: نشتري لك ونشحن</h2>
-      <p className="ad-muted">
+      <h2 id="addr-buy" className="addr-card__title">من {countryLabel}: نشتري لك ونشحن</h2>
+      <p className="addr-muted">
         لا يوجد عنوان شحن مباشر من {countryLabel}. أرسل لنا رابط المنتج، فنشتريه ونشحنه لك إلى ليبيا في خطوة واحدة.
       </p>
-      <ul className="ad-buy__steps">
+      <ul className="addr-buy__steps">
         <li><PackageCheck size={18} aria-hidden /> أرسل رابط المنتج والمقاس والكمية</li>
         <li><Truck size={18} aria-hidden /> نرسل لك السعر شاملاً الشراء والشحن</li>
       </ul>
-      <div className="ad-actions">
+      <div className="addr-actions">
         <a
-          className="ad-btn ad-btn--wa"
+          className="addr-btn addr-btn--wa"
           href={whatsappLink(office.whatsapp, `مرحباً، أنا ${customerName} - كود العميل ${customerId}.\nأريد شراء منتج من ${countryLabel} وشحنه:\n`)}
           target="_blank"
           rel="noreferrer"
         >
           <TbBrandWhatsapp size={20} aria-hidden /> أرسل الرابط لـ{office.name}
         </a>
-        <Link className="ad-btn ad-btn--ghost" to="/prices/purchase">أسعار الشراء</Link>
+        <Link className="addr-btn addr-btn--ghost" to="/prices/purchase">أسعار الشراء</Link>
       </div>
     </div>
   </section>

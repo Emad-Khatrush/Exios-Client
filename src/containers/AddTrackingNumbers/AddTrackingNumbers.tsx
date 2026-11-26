@@ -57,7 +57,7 @@ const AddTrackingNumbers = () => {
   const count = rows.filter((r) => r.trim()).length;
 
   return (
-    <div dir="rtl" lang="ar" className="ad-page ss-page page-enter w-full px-4 pb-16 pt-6 sm:px-6 lg:px-8 lg:pt-8">
+    <div dir="rtl" lang="ar" className="addr-page ss-page page-enter w-full px-4 pb-16 pt-6 sm:px-6 lg:px-8 lg:pt-8">
       <div className="mx-auto max-w-4xl">
         <header>
           <h1 className="text-2xl font-extrabold text-zinc-900 sm:text-3xl">نبّهنا بطرد قادم</h1>
@@ -129,12 +129,12 @@ const AddTrackingNumbers = () => {
               ))}
               <div className="ss-track__bar">
                 <button type="button" className="ss-track__more" onClick={() => setRows([...rows, ''])}><Plus size={16} aria-hidden /> رقم آخر</button>
-                <button type="submit" className="ad-btn ad-btn--primary" disabled={busy}>
+                <button type="submit" className="addr-btn addr-btn--primary" disabled={busy}>
                   {busy ? 'جارٍ الإرسال…' : count > 1 ? `نبّهنا بـ ${count} طرود` : 'نبّهنا بالطرد'}
                 </button>
               </div>
               {error && <p className="ss-error" role="alert">{error}</p>}
-              <p className="ad-hint">لكل كرتونة أو طرد رقم مختلف؟ أضف كل الأرقام. يمكنك لصق عدة أرقام معاً وستُقسَّم تلقائياً.</p>
+              <p className="addr-hint">لكل كرتونة أو طرد رقم مختلف؟ أضف كل الأرقام. يمكنك لصق عدة أرقام معاً وستُقسَّم تلقائياً.</p>
             </div>
           </form>
 
