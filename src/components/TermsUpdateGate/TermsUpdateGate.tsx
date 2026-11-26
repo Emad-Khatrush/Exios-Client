@@ -38,8 +38,10 @@ const TermsUpdateGate = () => {
 
   return (
     <Dialog open onClose={() => undefined} disableEscapeKeyDown fullWidth maxWidth="xs" aria-labelledby="terms-gate-title"
-      PaperProps={{ sx: { borderRadius: '20px', overflow: 'hidden' } }}>
-      <div dir="rtl" lang="ar" style={{ padding: '26px 24px 22px', textAlign: 'right' }}>
+      // The text scrolls inside the window and the buttons stay at its bottom: on a small phone the whole
+      // window was taller than the screen and the agree button was cut off (2026-11-27, Android)
+      PaperProps={{ sx: { borderRadius: '20px', overflow: 'hidden', display: 'flex', flexDirection: 'column', m: 2, width: 'calc(100% - 32px)', maxHeight: 'calc(100dvh - 32px)' } }}>
+      <div dir="rtl" lang="ar" style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', padding: '26px 24px 12px', textAlign: 'right' }}>
         <div style={{ width: 52, height: 52, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e8f5ee', color: '#0f8a5f', marginBottom: 16 }}>
           <FileText size={26} aria-hidden />
         </div>
@@ -57,14 +59,16 @@ const TermsUpdateGate = () => {
           اقرأ الشروط كاملة
         </a>
 
-        {error && <p role="alert" style={{ margin: '12px 0 0', fontSize: '0.84rem', color: '#dc2626' }}>{error}</p>}
+      </div>
+      <div dir="rtl" lang="ar" style={{ flex: 'none', padding: '12px 24px 16px', borderTop: '1px solid #eef0f2', background: '#fff', textAlign: 'right' }}>
+        {error && <p role="alert" style={{ margin: '0 0 10px', fontSize: '0.84rem', color: '#dc2626' }}>{error}</p>}
 
         <button type="button" disabled={saving} onClick={agree}
-          style={{ width: '100%', marginTop: 18, padding: '12px 0', border: 0, borderRadius: 12, fontSize: '0.98rem', fontWeight: 700, color: '#fff', background: saving ? '#9ca3af' : '#16a34a', cursor: saving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 46 }}>
+          style={{ width: '100%', marginTop: 0, padding: '12px 0', border: 0, borderRadius: 12, fontSize: '0.98rem', fontWeight: 700, color: '#fff', background: saving ? '#9ca3af' : '#16a34a', cursor: saving ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 46 }}>
           {saving ? <CircularProgress size={18} sx={{ color: '#fff' }} /> : 'قرأت الشروط وأوافق عليها'}
         </button>
         <button type="button" onClick={logout}
-          style={{ display: 'block', margin: '14px auto 0', padding: '6px 10px', border: 0, background: 'transparent', fontSize: '0.84rem', fontWeight: 600, color: '#6b7280', cursor: 'pointer', textDecoration: 'underline' }}>
+          style={{ display: 'block', margin: '8px auto 0', padding: '6px 10px', border: 0, background: 'transparent', fontSize: '0.84rem', fontWeight: 600, color: '#6b7280', cursor: 'pointer', textDecoration: 'underline' }}>
           تسجيل الخروج
         </button>
       </div>
