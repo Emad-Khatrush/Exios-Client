@@ -22,6 +22,11 @@
   }
   &.MuiDialog-paperFullScreen { border-radius: 0; height: 100%; max-height: none; box-shadow: none; background: #000; }
 }
+// On a phone the viewer is as tall as what is visible (dvh), never the whole screen: Safari on iPhone
+// lays its address bar over the bottom of a full-screen layer, and it hid the photo's bottom and the
+// strip of thumbnails (2026-11-26). Browsers without dvh keep the full height.
+.MuiDialog-container:has(> .fv.MuiDialog-paperFullScreen) { height: 100%; height: 100dvh; align-items: flex-start; }
+.fv.MuiDialog-paperFullScreen { height: 100%; height: 100dvh; }
 
 .fv__shell { display: grid; grid-template-rows: auto 1fr auto; height: 100%; min-height: 0; }
 
