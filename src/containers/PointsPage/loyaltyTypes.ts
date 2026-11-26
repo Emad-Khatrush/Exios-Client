@@ -22,6 +22,8 @@ export type LoyaltySummary = {
   expiringSoon: { points: number, at: string } | null,
   pending: LoyaltyPending[],
   earnedTotal: number, redeemedTotal: number,
+  // The sign-up / invite gift waiting for the customer's first invoice (not points yet), and until when
+  giftsWaiting?: { points: number, until: string } | null,
 };
 // One loyalty level (GET /client/loyalty/tiers), from the first up
 export type LoyaltyTier = {

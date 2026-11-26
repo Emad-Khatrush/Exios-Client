@@ -63,6 +63,9 @@ const PointsCard = () => {
         {data.expiringSoon && data.expiringSoon.points > 0 && (
           <span className="hm-points__soon">تنتهي {pointsText(data.expiringSoon.points)} نقطة في {dateText(data.expiringSoon.at)}</span>
         )}
+        {data.giftsWaiting && data.giftsWaiting.points > 0 && (
+          <span className="hm-points__soon">🎁 هدية <bdi dir="ltr">{pointsText(data.giftsWaiting.points)}</bdi> نقطة مع أول فاتورة</span>
+        )}
       </span>
       <ArrowLeft size={18} aria-hidden />
     </Link>

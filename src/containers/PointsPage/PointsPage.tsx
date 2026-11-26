@@ -344,7 +344,7 @@ const PointsPage = () => {
   const rates = earnRates(levelPct, promotions);
   const offerVsLevel = winningOffer(levelPct, promotions);
   const bestOffer = offerVsLevel?.wins ? promotions.find((p) => p.name === offerVsLevel.offer && p.multiplierPct === offerVsLevel.pct) : undefined;
-  const empty = !!data && data.points <= 0 && !pending.length && !data.history?.rows?.length;
+  const empty = !!data && data.points <= 0 && !pending.length && !data.history?.rows?.length && !data.giftsWaiting;
 
   return (
     <div dir="rtl" lang="ar" className="pt-page w-full px-4 pb-16 pt-6 sm:px-6 lg:px-8 lg:pt-8">
@@ -385,6 +385,10 @@ const PointsPage = () => {
               </p>
               {data.expiringSoon && data.expiringSoon.points > 0 && (
                 <p className="pt-balance__soon"><Clock size={16} aria-hidden /> تنتهي {pointsText(data.expiringSoon.points)} نقطة في {dateText(data.expiringSoon.at)}</p>
+              )}
+              {/* The welcome gift is not points yet: it comes with the first invoice (owner 2026-11-27) */}
+              {data.giftsWaiting && data.giftsWaiting.points > 0 && (
+                <p className="pt-balance__soon"><Gift size={16} aria-hidden /> هدية <bdi dir="ltr">{pointsText(data.giftsWaiting.points)}</bdi> نقطة تُضاف لرصيدك مع أول فاتورة شحن أو شراء، قبل {dateText(data.giftsWaiting.until)}</p>
               )}
             </section>
 
