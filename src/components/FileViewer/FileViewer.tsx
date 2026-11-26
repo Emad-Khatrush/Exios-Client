@@ -82,7 +82,13 @@ const LAST = { fetchpriority: 'low' } as React.ImgHTMLAttributes<HTMLImageElemen
 function Stage({ file, view, zoom, onToggle, onSettled }: { file: ViewerFile; view: ImageView; zoom: Zoom; onToggle: () => void; onSettled: (url: string) => void }) {
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [ratio, setRatio] = useState(1);
-  useEffect(() => { setState('loading'); setRatio(1); }, [file.url, file.preview]);
+  // Each file gets a fresh Stage (the slide is keyed by it), so nothing is reset here. An effect that
+  // reset the state to 'loading' after mounting kept a photo hidden for good when it was already in
+  // the cache (a neighbour loaded ahead): its load event had come first and never comes again.
+  const loaded = (img: HTMLImageElement) => {
+    if (img.naturalWidth && img.naturalHeight) setRatio(img.naturalWidth / img.naturalHeight);
+    setState('ready');
+  };
   // Only an image keeps the others waiting; anything else lets them load at once
   useEffect(() => { if (file.kind !== 'image' || !file.url || state !== 'loading') onSettled(file.url); }, [file.kind, file.url, state, onSettled]);
 
@@ -103,7 +109,9 @@ function Stage({ file, view, zoom, onToggle, onSettled }: { file: ViewerFile; vi
         {/* The box takes the shape the image has on screen (turned or not), so the page scrolls over all of it */}
         <div className="fv-box" style={style}>
           <img src={file.preview} alt={file.name} className={state === 'ready' ? 'is-ready' : ''} draggable={false} decoding="async" {...FIRST}
-            onLoad={(e) => { const img = e.currentTarget; if (img.naturalWidth && img.naturalHeight) setRatio(img.naturalWidth / img.naturalHeight); setState('ready'); }}
+            // Already complete when it is put on the page (from the cache): no need to wait for an event
+            ref={(img) => { if (img && state === 'loading' && img.complete && img.naturalWidth) loaded(img); }}
+            onLoad={(e) => loaded(e.currentTarget)}
             onError={() => setState('error')} />
         </div>
       </div>
