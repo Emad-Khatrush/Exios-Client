@@ -211,7 +211,7 @@ const InvitePage = () => {
       <details className="iv-card iv-terms">
         <summary><ScrollText size={19} aria-hidden /> <span>الشروط والتفاصيل</span> <ChevronDown size={18} aria-hidden className="iv-terms__chev" /></summary>
         <ol>
-          <li>صديقك يحصل على <bdi>{pointsNum(data.welcomePoints)}</bdi> نقطة (<bdi>{usd(data.welcomePoints)}</bdi>) عندما يسجّل برابطك أو يكتب كودك عند التسجيل، بدل هدية الحساب الجديد (<bdi>{SIGNUP_GIFT_POINTS}</bdi> نقطة)، ولا تجتمع الهديتان. تُضاف لرصيده مع أول فاتورة تصدر له خلال 60 يوماً من التسجيل، وإلا تسقط.</li>
+          <li>صديقك يحصل على <bdi>{pointsNum(data.welcomePoints)}</bdi> نقطة (<bdi>{usd(data.welcomePoints)}</bdi>) عندما يسجّل برابطك أو يكتب كودك عند التسجيل، بدل هدية الحساب الجديد (<bdi>{SIGNUP_GIFT_POINTS}</bdi> نقطة)، ولا تجتمع الهديتان. تُضاف لرصيده مع أول فاتورة تصدر له خلال 90 يوماً من التسجيل، وإلا تسقط.</li>
           <li>إذا نسي صديقك الكود، يستطيع المكتب إضافته خلال 7 أيام من فتح حسابه فقط.</li>
           <li>تكسب <bdi>{pointsNum(data.firstPoints)}</bdi> نقطة (<bdi>{usd(data.firstPoints)}</bdi>) عندما يصل مجموع ما دفعه صديقك <bdi>{data.qualifyUsd}$</bdi>، ولو على عدة طلبيات.</li>
           <li>من تلك اللحظة ولمدة {data.months} شهراً تكسب <bdi>{pointsPhrase(data.sharePoints)}</bdi> عن كل <bdi dir="ltr">{data.sharePerUsd}$</bdi> يدفعها صديقك (<bdi>{pointsPhrase(data.ambassadorSharePoints)}</bdi> إذا كنت سفيراً). نقاط صديقك لا تنقص شيئاً.</li>

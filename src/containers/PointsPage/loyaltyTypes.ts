@@ -26,7 +26,7 @@ export type LoyaltySummary = {
   giftsWaiting?: { points: number, until: string } | null,
 };
 // The balance the customer sees: their points and the welcome gift waiting for the first invoice
-// (owner 2026-11-27: shown as theirs, to encourage the first order; it lapses after 60 days without one)
+// (owner 2026-11-27: shown as theirs, to encourage the first order; it lapses after 90 days without one)
 export const shownPoints = (s: Pick<LoyaltySummary, 'points' | 'giftsWaiting'>) => (s.points || 0) + (s.giftsWaiting?.points || 0);
 // One loyalty level (GET /client/loyalty/tiers), from the first up
 export type LoyaltyTier = {
