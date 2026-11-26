@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Award, ChevronDown, CircleMinus, Clock, Coins, Gift, LucideIcon, Plus, Rocket, ShoppingBag, Star, TriangleAlert, Undo2, UserPlus } from 'lucide-react';
 import api from '../../api';
 import { dateText, relativeDay, timeText } from '../ClientOrders/orderUtils';
-import { LoyaltyHistory, LoyaltyHistoryRow, LoyaltyHistoryType, LoyaltyKind, LoyaltyMonth, LoyaltyPending, LoyaltyResponse, LoyaltyTier } from './loyaltyTypes';
+import { LoyaltyHistory, LoyaltyHistoryRow, LoyaltyHistoryType, LoyaltyKind, LoyaltyMonth, LoyaltyPending, LoyaltyResponse, LoyaltyTier, shownPoints } from './loyaltyTypes';
 import { LevelCard, LevelCelebration, LevelRoute } from './LevelSection';
 import { pointsTerms } from './pointsTerms';
 import { pointsText, usdText } from './pointsFormat';
@@ -344,7 +344,7 @@ const PointsPage = () => {
   const rates = earnRates(levelPct, promotions);
   const offerVsLevel = winningOffer(levelPct, promotions);
   const bestOffer = offerVsLevel?.wins ? promotions.find((p) => p.name === offerVsLevel.offer && p.multiplierPct === offerVsLevel.pct) : undefined;
-  const empty = !!data && data.points <= 0 && !pending.length && !data.history?.rows?.length && !data.giftsWaiting;
+  const empty = !!data && shownPoints(data) <= 0 && !pending.length && !data.history?.rows?.length;
 
   return (
     <div dir="rtl" lang="ar" className="pt-page w-full px-4 pb-16 pt-6 sm:px-6 lg:px-8 lg:pt-8">
@@ -373,10 +373,10 @@ const PointsPage = () => {
             <section className="pt-balance" aria-label="رصيدك">
               <span className="pt-balance__label"><Gift size={18} aria-hidden /> رصيدك الآن</span>
               <p className="pt-balance__value">
-                <bdi dir="ltr"><b>{pointsText(data.points)}</b></bdi>
+                <bdi dir="ltr"><b>{pointsText(shownPoints(data))}</b></bdi>
                 <span>نقطة</span>
                 {/* "=" stays in the Arabic run, beside "نقطة"; only the amount is left-to-right */}
-                <span className="pt-balance__usd">= <bdi dir="ltr">{usdText(data.points)}</bdi></span>
+                <span className="pt-balance__usd">= <bdi dir="ltr">{usdText(shownPoints(data))}</bdi></span>
               </p>
               {/* What a point is worth, said once where the balance is read */}
               <p className="pt-rate-chip">
@@ -388,7 +388,7 @@ const PointsPage = () => {
               )}
               {/* The welcome gift is not points yet: it comes with the first invoice (owner 2026-11-27) */}
               {data.giftsWaiting && data.giftsWaiting.points > 0 && (
-                <p className="pt-balance__soon"><Gift size={16} aria-hidden /> هدية <bdi dir="ltr">{pointsText(data.giftsWaiting.points)}</bdi> نقطة تُضاف لرصيدك مع أول فاتورة شحن أو شراء، قبل {dateText(data.giftsWaiting.until)}</p>
+                <p className="pt-balance__soon"><Gift size={16} aria-hidden /> منها <bdi dir="ltr">{pointsText(data.giftsWaiting.points)}</bdi> نقطة هدية الترحيب: استعملها في أول فاتورة شحن أو شراء قبل {dateText(data.giftsWaiting.until)}</p>
               )}
             </section>
 

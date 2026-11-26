@@ -5,7 +5,7 @@ import { ArrowLeft, Gift } from 'lucide-react';
 import api from '../../api';
 import { dateText } from '../ClientOrders/orderUtils';
 import LevelEmblem from '../PointsPage/LevelEmblem';
-import { LoyaltyResponse } from '../PointsPage/loyaltyTypes';
+import { LoyaltyResponse, shownPoints } from '../PointsPage/loyaltyTypes';
 import { pointsText, usdText } from '../PointsPage/pointsFormat';
 import { usePromotions } from '../PointsPage/PromotionBanner';
 import { isActive } from '../PointsPage/promotions';
@@ -38,7 +38,7 @@ const PointsCard = () => {
   const levelPct = data.level ? Math.round(data.level.multiplier * 100) : 100;
   const beats = promotions.filter((p) => p.multiplierPct > levelPct).sort((a, b) => b.multiplierPct - a.multiplierPct);
   const offer = beats.find((p) => isActive(p, now));
-  if (offer) return <OfferPointsCard offer={offer} levelPct={levelPct} points={data.points} />;
+  if (offer) return <OfferPointsCard offer={offer} levelPct={levelPct} points={shownPoints(data)} />;
   // An announced offer still to come: the countdown to its start (the soonest one)
   const coming = beats.filter((p) => new Date(p.startsAt).getTime() > now.getTime())
     .sort((a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime())[0];
@@ -57,14 +57,14 @@ const PointsCard = () => {
           )}
         </small>
         <span className="hm-points__balance">
-          <bdi dir="ltr"><b>{pointsText(data.points)}</b> نقطة</bdi>
-          <span className="hm-points__usd">= <bdi dir="ltr">{usdText(data.points)}</bdi></span>
+          <bdi dir="ltr"><b>{pointsText(shownPoints(data))}</b> نقطة</bdi>
+          <span className="hm-points__usd">= <bdi dir="ltr">{usdText(shownPoints(data))}</bdi></span>
         </span>
         {data.expiringSoon && data.expiringSoon.points > 0 && (
           <span className="hm-points__soon">تنتهي {pointsText(data.expiringSoon.points)} نقطة في {dateText(data.expiringSoon.at)}</span>
         )}
         {data.giftsWaiting && data.giftsWaiting.points > 0 && (
-          <span className="hm-points__soon">🎁 هدية <bdi dir="ltr">{pointsText(data.giftsWaiting.points)}</bdi> نقطة مع أول فاتورة</span>
+          <span className="hm-points__soon">🎁 استعمل هديتك في أول فاتورة قبل {dateText(data.giftsWaiting.until)}</span>
         )}
       </span>
       <ArrowLeft size={18} aria-hidden />
